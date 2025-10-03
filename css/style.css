@@ -206,12 +206,15 @@ section p {
 
 .project-card .tags li {
     display: inline;
-    transition: all 0.2s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    padding: 0.05em 0.15em;
+    margin: -0.05em -0.15em;
 }
 
 .project-card .tags li::after {
     content: ', ';
     color: var(--red);
+    padding-left: 0.05em;
 }
 
 .project-card .tags li:last-child::after {
@@ -221,9 +224,11 @@ section p {
 .project-card .tags li:hover {
     background-color: var(--red);
     color: var(--white);
-    padding: 0.1em 0.3em;
-    margin: -0.1em 0;
     cursor: default;
+}
+
+.project-card .tags li:hover::after {
+    color: var(--white);
 }
 
 .project-card a {
