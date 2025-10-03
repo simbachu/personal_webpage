@@ -31,17 +31,29 @@ body {
 }
 
 header {
-    background-color: var(--black);
-    color: var(--white);
+    color: var(--black);
     padding: calc(var(--spacing-unit) * 2) 0;
-    border-bottom: var(--line-weight) solid var(--red);
+    position: relative;
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--line-weight);
+    background-color: var(--red);
+    z-index: 0;
 }
 
 nav {
     padding: 0 calc(var(--spacing-unit) * 3);
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 nav h1 {
@@ -49,6 +61,9 @@ nav h1 {
     font-weight: 700;
     letter-spacing: -0.02em;
     text-transform: uppercase;
+    background-color: var(--white);
+    padding-right: calc(var(--spacing-unit) * 1);
+    align-self: flex-start;
 }
 
 nav ul {
@@ -57,13 +72,15 @@ nav ul {
     gap: calc(var(--spacing-unit) * 2);
     flex-direction: column;
     align-items: flex-end;
+    background-color: var(--white);
+    padding-left: calc(var(--spacing-unit) * 1);
+    align-self: flex-end;
 }
 
 nav a {
-    color: var(--white);
+    color: var(--black);
     text-decoration: none;
     font-weight: 700;
-    text-transform: lowercase;
     font-size: 1.1rem;
     letter-spacing: 0.02em;
 }
@@ -86,10 +103,10 @@ section {
 section::before {
     content: '';
     position: absolute;
-    left: calc(var(--spacing-unit) * -3);
+    left: 0;
     top: 0;
-    width: var(--line-weight);
-    height: 100%;
+    width: 50%;
+    height: var(--line-weight);
     background-color: var(--black);
 }
 
@@ -98,7 +115,6 @@ section h2 {
     margin-bottom: calc(var(--spacing-unit) * 3);
     font-size: 2.5rem;
     font-weight: 700;
-    text-transform: lowercase;
     border-bottom: var(--line-weight) solid var(--red);
     padding-bottom: calc(var(--spacing-unit) * 0.5);
     display: inline-block;
@@ -288,8 +304,8 @@ section p {
 }
 
 footer {
-    background-color: var(--black);
-    color: var(--white);
+    background-color: var(--white);
+    color: var(--black);
     padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3);
     margin-top: calc(var(--spacing-unit) * 6);
     border-top: var(--line-weight) solid var(--red);
@@ -333,7 +349,7 @@ footer p {
     }
 
     section::before {
-        left: calc(var(--spacing-unit) * -1);
+        width: 40%;
     }
 
     section h2 {
