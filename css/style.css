@@ -161,9 +161,12 @@ section p {
 }
 
 #about ul {
-    list-style-position: outside;
-    margin-left: calc(var(--spacing-unit) * 1.5);
+    list-style: none;
+    margin-left: 0;
     line-height: 1.8;
+    padding-right: calc(var(--spacing-unit) * 2);
+    border-right: var(--line-weight) solid var(--process-black);
+    display: inline-block;
 }
 
 #about li {
