@@ -152,7 +152,6 @@ section p {
 #about h3 {
     font-size: 1.1rem;
     font-weight: 700;
-    text-transform: lowercase;
     margin-top: calc(var(--spacing-unit) * 2);
     margin-bottom: calc(var(--spacing-unit) * 1);
     color: var(--black);
@@ -163,12 +162,18 @@ section p {
     margin-left: 0;
     line-height: 1.8;
     padding-right: calc(var(--spacing-unit) * 2);
-    border-right: var(--line-weight) solid var(--process-black);
+    border-right: 1rem solid var(--process-black);
     display: inline-block;
 }
 
 #about li {
     margin-bottom: calc(var(--spacing-unit) * 0.5);
+}
+
+#about li:hover {
+    background-color: var(--red);
+    color: var(--white);
+    cursor: default;
 }
 
 .project-grid {
