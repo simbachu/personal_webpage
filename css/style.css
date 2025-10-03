@@ -12,8 +12,8 @@
     --white: #FAFAF8;
     --red: #C84C3C;
     --spacing-unit: 1.5rem;
-    --line-weight: 3px;
-    --line-weight-thick: 8px;
+    --line-weight: 0.25rem;
+    --line-weight-thick: 1rem;
     --axis-offset: 15%;
     --content-max-width: 850px;
 }
@@ -129,7 +129,7 @@ section h2 {
     margin-bottom: calc(var(--spacing-unit) * 3);
     font-size: 2.5rem;
     font-weight: 700;
-    border-bottom: var(--line-weight) solid var(--red);
+    border-bottom: var(--line-weight-thick) solid var(--red);
     padding-bottom: calc(var(--spacing-unit) * 0.25);
     display: inline-block;
     letter-spacing: -0.01em;
@@ -162,7 +162,7 @@ section p {
     margin-left: 0;
     line-height: 1.8;
     padding-right: calc(var(--spacing-unit) * 2);
-    border-right: 1rem solid var(--process-black);
+    border-right: var(--line-weight-thick) solid var(--process-black);
     display: inline-block;
 }
 
@@ -186,18 +186,8 @@ section p {
 .project-card {
     background-color: var(--white);
     padding: calc(var(--spacing-unit) * 2);
-    border: var(--line-weight) solid var(--process-black);
+    border: var(--line-weight-thick) solid var(--process-black);
     position: relative;
-}
-
-.project-card::after {
-    content: '';
-    position: absolute;
-    top: calc(var(--line-weight) * -1);
-    left: calc(var(--spacing-unit) * 1);
-    width: calc(var(--spacing-unit) * 3);
-    height: var(--line-weight);
-    background-color: var(--red);
 }
 
 .project-card h3 {
@@ -205,7 +195,6 @@ section p {
     margin-bottom: calc(var(--spacing-unit) * 1);
     font-size: 1.5rem;
     font-weight: 700;
-    text-transform: lowercase;
 }
 
 .project-card p {
@@ -326,7 +315,7 @@ footer {
     color: var(--black);
     padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3);
     margin-top: calc(var(--spacing-unit) * 6);
-    border-top: var(--line-weight) solid var(--red);
+    border-top: var(--line-weight-thick) solid var(--red);
 }
 
 footer p {
