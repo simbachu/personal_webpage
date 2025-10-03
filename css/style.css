@@ -73,10 +73,9 @@ nav h1 {
     font-weight: 700;
     letter-spacing: -0.02em;
     text-transform: uppercase;
-    background-color: var(--white);
     text-align: right;
     align-self: end;
-    padding-left: calc(var(--spacing-unit) * 1);
+    margin-bottom: calc(var(--spacing-unit) * 1);
 }
 
 nav ul {
@@ -85,12 +84,11 @@ nav ul {
     grid-row: 2;
     list-style: none;
     display: flex;
-    gap: calc(var(--spacing-unit) * 2);
+    gap: calc(var(--spacing-unit) * 0.5);
     flex-direction: column;
     align-items: flex-start;
-    background-color: var(--white);
-    padding-right: calc(var(--spacing-unit) * 1);
     align-self: start;
+    margin-top: calc(var(--spacing-unit) * 1);
 }
 
 nav a {
@@ -354,14 +352,12 @@ footer p {
         grid-column: 1;
         grid-row: 1;
         text-align: left;
-        padding-left: 0;
     }
 
     nav ul {
         grid-column: 1;
         grid-row: 2;
-        gap: var(--spacing-unit);
-        padding-right: 0;
+        gap: calc(var(--spacing-unit) * 0.5);
     }
 
     main {
