@@ -71,7 +71,6 @@ nav h1 {
     grid-row: 1;
     font-size: 4rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
     text-transform: uppercase;
     text-align: right;
     align-self: end;
@@ -95,8 +94,7 @@ nav a {
     color: var(--black);
     text-decoration: none;
     font-weight: 700;
-    font-size: 1.1rem;
-    letter-spacing: 0.02em;
+    font-size: 1.3rem;
 }
 
 nav a:hover {
@@ -114,6 +112,7 @@ section {
     position: relative;
 }
 
+/*
 section::before {
     content: '';
     position: absolute;
@@ -123,13 +122,14 @@ section::before {
     height: 50%;
     background-color: var(--process-black);
 }
+*/
 
 section h2 {
     color: var(--black);
     margin-bottom: calc(var(--spacing-unit) * 3);
     font-size: 2.5rem;
     font-weight: 700;
-    border-bottom: 1rem solid var(--red);
+    border-bottom: var(--line-weight) solid var(--red);
     padding-bottom: calc(var(--spacing-unit) * 0.25);
     display: inline-block;
     letter-spacing: -0.01em;
@@ -147,7 +147,6 @@ section p {
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: calc(var(--spacing-unit) * 1.5);
-    letter-spacing: -0.01em;
 }
 
 #about h3 {
@@ -157,7 +156,6 @@ section p {
     margin-top: calc(var(--spacing-unit) * 2);
     margin-bottom: calc(var(--spacing-unit) * 1);
     color: var(--black);
-    letter-spacing: 0.01em;
 }
 
 #about ul {
@@ -219,7 +217,6 @@ section p {
     font-weight: 700;
     color: var(--black);
     margin-bottom: calc(var(--spacing-unit) * 0.25);
-    letter-spacing: 0.02em;
 }
 
 .project-card .tags {
@@ -247,7 +244,7 @@ section p {
 .project-card .tags li::after {
     content: ', ';
     color: var(--red);
-    padding-left: 0.05em;
+    padding-left: 0.15em;
 }
 
 .project-card .tags li:last-child::after {
@@ -271,7 +268,6 @@ section p {
     border-bottom: 2px solid var(--red);
     text-transform: lowercase;
     font-size: 0.9rem;
-    letter-spacing: 0.02em;
 }
 
 .project-card a:hover {
@@ -333,7 +329,6 @@ footer p {
     text-transform: lowercase;
 }
 
-/* Asymmetric grid for desktop */
 @media (min-width: 769px) {
     .project-grid {
         grid-template-columns: 1fr 1fr;
