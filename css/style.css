@@ -8,10 +8,11 @@
 :root {
     /* Neue Typographie Color Palette */
     --black: #000000;
-    --white: #FFFFFF;
-    --red: #E2231A;
+    --white: #FAFAF8;
+    --red: #C84C3C;
     --spacing-unit: 1.5rem;
     --line-weight: 3px;
+    --axis-offset: 15%;
 }
 
 body {
@@ -73,8 +74,8 @@ nav a:hover {
 
 main {
     padding: calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 3);
-    margin-left: 10%;
-    max-width: 900px;
+    margin-left: var(--axis-offset);
+    max-width: 850px;
 }
 
 section {
@@ -218,31 +219,35 @@ section p {
     font-weight: 700;
 }
 
+#contact {
+    max-width: 400px;
+    margin-left: calc(var(--axis-offset) * -1);
+    position: relative;
+}
+
+#contact h2 {
+    font-size: 1.8rem;
+}
+
 #contact ul {
     list-style: none;
     margin-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 0.5);
 }
 
 #contact li {
-    margin-bottom: calc(var(--spacing-unit) * 1);
-    font-size: 1rem;
-    position: relative;
-    padding-left: calc(var(--spacing-unit) * 1.5);
-}
-
-#contact li::before {
-    content: '—';
-    position: absolute;
-    left: 0;
-    font-weight: 700;
-    color: var(--black);
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
 #contact a {
     color: var(--red);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
     border-bottom: 2px solid var(--red);
+    display: inline-block;
 }
 
 #contact a:hover {
@@ -301,6 +306,11 @@ footer p {
 
     section h2 {
         font-size: 2rem;
+    }
+
+    #contact {
+        margin-left: 0;
+        max-width: 100%;
     }
 }
 

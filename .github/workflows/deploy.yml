@@ -28,10 +28,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          echo "Debug: Key file created, checking first line..."
-          head -n 1 ~/.ssh/deploy_key
-          echo "Debug: Key file permissions..."
-          ls -la ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Set exclusions for main branch
@@ -45,11 +41,8 @@ jobs:
 
       - name: Deploy via rsync over SSH
         run: |
-          echo "Debug: Testing SSH connection..."
-          ssh -vvv -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful'"
-          echo "Debug: Starting rsync deployment..."
           rsync -avz --delete \
-            -e "ssh -vvv -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='README.md' \

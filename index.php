@@ -73,11 +73,10 @@
         <section id="contact">
             <h2>Contact</h2>
             <ul>
-                <li>Github: <a href="https://github.com/simbachu">simbachu</a></li>
-                <li>Email: <a href="mailto:simbachu@gmail.com">simbachu@gmail.com</a></li>
-                <li>LinkedIn: <a href="https://www.linkedin.com/in/jennifer-jonathan-gott-2233aa294/">Jennifer Gott</a></li>
+                <li><a href="https://github.com/simbachu">github.com/simbachu</a></li>
+                <li><a href="mailto:simbachu@gmail.com">simbachu@gmail.com</a></li>
+                <li><a href="https://www.linkedin.com/in/jennifer-jonathan-gott-2233aa294/">linkedin.com/in/jennifer-jonathan-gott</a></li>
             </ul>
-
         </section>
     </main>
 
