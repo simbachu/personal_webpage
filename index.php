@@ -41,20 +41,35 @@
                 <div class="project-card">
                     <h3>Aftermarket Wiring Diagram Handbook</h3>
                     <p class="years">2017-present</p>
-                    <p class="tags">Illustration, CAD, InDesign</p>
+                    <ul class="tags">
+                        <li>Illustration</li>
+                        <li>CAD</li>
+                        <li>InDesign</li>
+                    </ul>
                     <p>Fully illustrated automotive wiring diagram handbooks for service technicians. Over 20 vehicle variants across internal combustion, hybrid-electric, and electric vehicles.</p>
                     <p>Process design from initial proof of concept to final production, with training of staff on different sites. Roadmap ownership and management.</p>
                 </div>
                 <div class="project-card">
                     <h3>Sunrise alarm clock</h3>
                     <p class="years">2025</p>
-                    <p class="tags">Chas Academy, Arduino, C++, electronics</p>
+                    <ul class="tags">
+                        <li>Chas Academy</li>
+                        <li>Arduino</li>
+                        <li>C++</li>
+                        <li>electronics</li>
+                    </ul>
                     <p>Breadboard alarm clock with sunrise simulation using daylight LED. Set alarm time and sunrise duration.</p>
                 </div>
                 <div class="project-card">
                     <h3>Conference room occupancy tracker</h3>
                     <p class="years">2025</p>
-                    <p class="tags">Chas Academy, Arduino, C++, REST API, electronics</p>
+                    <ul class="tags">
+                        <li>Chas Academy</li>
+                        <li>Arduino</li>
+                        <li>C++</li>
+                        <li>REST API</li>
+                        <li>electronics</li>
+                    </ul>
                     <p>Room booking system with real-time occupancy information (clearing bookings on vacant rooms). Infrared and temperature sensors for occupancy detection.</p>
                     <p>Part of the Chas Challenge contest. Nominated for Best Embedded Project.</p>
                     <p><a href="https://github.com/Kusten-ar-klar-Chas-Challenge-2025/">GitHub</a></p>
@@ -62,7 +77,14 @@
                 <div class="project-card">
                     <h3>Package tracking system</h3>
                     <p class="years">2025</p>
-                    <p class="tags">Chas Academy, Arduino, C++, BLE, REST API, electronics</p>
+                    <ul class="tags">
+                        <li>Chas Academy</li>
+                        <li>Arduino</li>
+                        <li>C++</li>
+                        <li>BLE</li>
+                        <li>REST API</li>
+                        <li>electronics</li>
+                    </ul>
                     <p>Package tracking system with sensor packages communicating with vehicle based broker, relaying package information to backend Azure service for display in-app or on website. Temperature sensor and alarm for package temperature tracking.</p>
                     <p>Wrote hardware abstraction library to facilitate development on both espidf and Arduino platforms.</p>
                     <p><a href="https://github.com/G1-H25">GitHub</a></p>

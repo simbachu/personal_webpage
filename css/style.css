@@ -197,6 +197,33 @@ section p {
     font-weight: 600;
     margin-bottom: calc(var(--spacing-unit) * 1);
     line-height: 1.4;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 0;
+}
+
+.project-card .tags li {
+    display: inline;
+    transition: all 0.2s ease;
+}
+
+.project-card .tags li::after {
+    content: ', ';
+    color: var(--red);
+}
+
+.project-card .tags li:last-child::after {
+    content: '';
+}
+
+.project-card .tags li:hover {
+    background-color: var(--red);
+    color: var(--white);
+    padding: 0.1em 0.3em;
+    margin: -0.1em 0;
+    cursor: default;
 }
 
 .project-card a {
