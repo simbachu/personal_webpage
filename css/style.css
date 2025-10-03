@@ -12,7 +12,9 @@
     --red: #C84C3C;
     --spacing-unit: 1.5rem;
     --line-weight: 3px;
+    --line-weight-thick: 8px;
     --axis-offset: 15%;
+    --content-max-width: 850px;
 }
 
 body {
@@ -32,17 +34,20 @@ body {
 
 header {
     color: var(--black);
-    padding: calc(var(--spacing-unit) * 2) 0;
+    padding: calc(var(--spacing-unit) * 1) 0 calc(var(--spacing-unit) * 2) 0;
     position: relative;
+    display: flex;
+    justify-content: center;
 }
 
 header::after {
     content: '';
     position: absolute;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
     top: 50%;
-    height: var(--line-weight);
+    width: min(calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset)), 100%);
+    height: var(--line-weight-thick);
     background-color: var(--red);
     z-index: 0;
 }
@@ -51,9 +56,11 @@ nav {
     padding: 0 calc(var(--spacing-unit) * 3);
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     position: relative;
     z-index: 1;
+    width: 100%;
+    max-width: calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset));
 }
 
 nav h1 {
@@ -63,7 +70,8 @@ nav h1 {
     text-transform: uppercase;
     background-color: var(--white);
     padding-right: calc(var(--spacing-unit) * 1);
-    align-self: flex-start;
+    padding-bottom: calc(var(--spacing-unit) * 0.5);
+    margin-bottom: calc(var(--line-weight-thick) / 2 * -1);
 }
 
 nav ul {
@@ -74,7 +82,7 @@ nav ul {
     align-items: flex-end;
     background-color: var(--white);
     padding-left: calc(var(--spacing-unit) * 1);
-    align-self: flex-end;
+    padding-top: calc(var(--spacing-unit) * 0.5);
 }
 
 nav a {
@@ -103,10 +111,10 @@ section {
 section::before {
     content: '';
     position: absolute;
-    left: 0;
+    right: 0;
     top: 0;
     width: 50%;
-    height: var(--line-weight);
+    height: var(--line-weight-thick);
     background-color: var(--black);
 }
 
