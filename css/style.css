@@ -1,0 +1,307 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Neue Typographie Color Palette */
+    --black: #000000;
+    --white: #FFFFFF;
+    --red: #E2231A;
+    --spacing-unit: 1.5rem;
+    --line-weight: 3px;
+}
+
+body {
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.4;
+    color: var(--black);
+    background-color: var(--white);
+    font-weight: 400;
+}
+
+@supports (font-variation-settings: normal) {
+    body {
+        font-family: 'InterVariable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-optical-sizing: auto;
+    }
+}
+
+header {
+    background-color: var(--black);
+    color: var(--white);
+    padding: calc(var(--spacing-unit) * 2) 0;
+    border-bottom: var(--line-weight) solid var(--red);
+}
+
+nav {
+    padding: 0 calc(var(--spacing-unit) * 3);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+nav h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: calc(var(--spacing-unit) * 2);
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+nav a {
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 700;
+    text-transform: lowercase;
+    font-size: 1.1rem;
+    letter-spacing: 0.02em;
+}
+
+nav a:hover {
+    color: var(--red);
+}
+
+main {
+    padding: calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 3);
+    margin-left: 10%;
+    max-width: 900px;
+}
+
+section {
+    margin-bottom: calc(var(--spacing-unit) * 6);
+    position: relative;
+}
+
+section::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--spacing-unit) * -3);
+    top: 0;
+    width: var(--line-weight);
+    height: 100%;
+    background-color: var(--black);
+}
+
+section h2 {
+    color: var(--black);
+    margin-bottom: calc(var(--spacing-unit) * 3);
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    border-bottom: var(--line-weight) solid var(--red);
+    padding-bottom: calc(var(--spacing-unit) * 0.5);
+    display: inline-block;
+    letter-spacing: -0.01em;
+}
+
+section p {
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 65ch;
+    margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+#about > p:first-of-type {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    letter-spacing: -0.01em;
+}
+
+#about h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: lowercase;
+    margin-top: calc(var(--spacing-unit) * 2);
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    color: var(--black);
+    letter-spacing: 0.01em;
+}
+
+#about ul {
+    list-style-position: outside;
+    margin-left: calc(var(--spacing-unit) * 1.5);
+    line-height: 1.8;
+}
+
+#about li {
+    margin-bottom: calc(var(--spacing-unit) * 0.5);
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--spacing-unit) * 3);
+    margin-top: calc(var(--spacing-unit) * 2);
+}
+
+.project-card {
+    background-color: var(--white);
+    padding: calc(var(--spacing-unit) * 2);
+    border: var(--line-weight) solid var(--black);
+    position: relative;
+}
+
+.project-card::after {
+    content: '';
+    position: absolute;
+    top: calc(var(--line-weight) * -1);
+    left: calc(var(--spacing-unit) * 1);
+    width: calc(var(--spacing-unit) * 3);
+    height: var(--line-weight);
+    background-color: var(--red);
+}
+
+.project-card h3 {
+    color: var(--black);
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: lowercase;
+}
+
+.project-card p {
+    font-size: 0.95rem;
+    margin-bottom: calc(var(--spacing-unit) * 0.75);
+}
+
+.project-card p:last-of-type {
+    margin-bottom: 0;
+}
+
+.project-card .years {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: calc(var(--spacing-unit) * 0.25);
+    letter-spacing: 0.02em;
+}
+
+.project-card .tags {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--red);
+    font-weight: 600;
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    line-height: 1.4;
+}
+
+.project-card a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 2px solid var(--red);
+    text-transform: lowercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+.project-card a:hover {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+.project-card a::before {
+    content: '→ ';
+    font-weight: 700;
+}
+
+#contact ul {
+    list-style: none;
+    margin-left: 0;
+}
+
+#contact li {
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    font-size: 1rem;
+    position: relative;
+    padding-left: calc(var(--spacing-unit) * 1.5);
+}
+
+#contact li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+    color: var(--black);
+}
+
+#contact a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 2px solid var(--red);
+}
+
+#contact a:hover {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+footer {
+    background-color: var(--black);
+    color: var(--white);
+    padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3);
+    margin-top: calc(var(--spacing-unit) * 6);
+    border-top: var(--line-weight) solid var(--red);
+}
+
+footer p {
+    font-size: 0.9rem;
+    text-transform: lowercase;
+}
+
+/* Asymmetric grid for desktop */
+@media (min-width: 769px) {
+    .project-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .project-card:first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: calc(var(--spacing-unit) * 1.5);
+        align-items: flex-start;
+    }
+
+    nav h1 {
+        font-size: 2rem;
+    }
+
+    nav ul {
+        align-items: flex-start;
+        gap: var(--spacing-unit);
+    }
+
+    main {
+        margin-left: 0;
+        padding: calc(var(--spacing-unit) * 2);
+    }
+
+    section::before {
+        left: calc(var(--spacing-unit) * -1);
+    }
+
+    section h2 {
+        font-size: 2rem;
+    }
+}
+
+

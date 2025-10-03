@@ -1,0 +1,58 @@
+name: Deploy to Shared Hosting
+
+on:
+  push:
+    branches:
+      - main
+      - developing
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set deployment path
+        id: deploy_path
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "path=${{ secrets.SSH_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          else
+            echo "path=${{ secrets.SSH_DEPLOY_PATH }}/dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Set exclusions for main branch
+        id: exclusions
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "extra=--exclude=dev" >> $GITHUB_OUTPUT
+          else
+            echo "extra=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy via rsync over SSH
+        run: |
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='README.md' \
+            --exclude='.gitignore' \
+            --exclude='.vscode' \
+            --exclude='node_modules' \
+            ${{ steps.exclusions.outputs.extra }} \
+            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.path }}/
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
+
