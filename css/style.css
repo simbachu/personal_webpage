@@ -17,7 +17,7 @@
     --line-weight: 0.25rem;
     --line-weight-thick: 1rem;
     --axis-offset: 15%;
-    --content-max-width: 850px;
+    --content-max-width: 53.125rem; /* 850px / 16 */
 
     /* Motion system */
     --transition-fast: 0.15s ease;
@@ -124,14 +124,14 @@ nav a:focus {
 }
 
 nav a:focus-visible {
-    outline: 2px solid var(--red);
-    outline-offset: 4px;
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
 }
 
 main {
     padding: calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 3);
     margin-left: var(--axis-offset);
-    max-width: 850px;
+    max-width: 53.125rem;
 }
 
 section {
@@ -148,7 +148,7 @@ section:nth-of-type(3) { animation-delay: 0.3s; }
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(1.25rem);
     }
     to {
         opacity: 1;
@@ -246,18 +246,18 @@ section p {
     border: var(--line-weight-thick) solid transparent;
     border-image: linear-gradient(225deg, var(--red) 0%, var(--red-dark) 100%) 1;
     opacity: 0;
+    transition: opacity var(--transition-base);
     animation: borderPulse 2s ease-in-out infinite paused;
     pointer-events: none;
 }
 
 .project-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 4px 4px 0 var(--process-black);
+    transform: translateY(-0.25rem);
+    box-shadow: 0.5rem 0.5rem 0 var(--process-black);
 }
 
 .project-card:hover::before {
     animation-play-state: running;
-    opacity: 1;
 }
 
 @keyframes borderPulse {
@@ -265,7 +265,7 @@ section p {
         opacity: 0;
     }
     50% {
-        opacity: 0.5;
+        opacity: 0.6;
     }
 }
 
@@ -338,7 +338,7 @@ section p {
     color: var(--red);
     text-decoration: none;
     font-weight: 700;
-    border-bottom: 2px solid var(--red);
+    border-bottom: 0.125rem solid var(--red);
     text-transform: lowercase;
     font-size: 0.9rem;
     transition: background-color var(--transition-base), color var(--transition-base);
@@ -352,8 +352,8 @@ section p {
 }
 
 .project-card a:focus-visible {
-    outline: 2px solid var(--red);
-    outline-offset: 4px;
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
 }
 
 .project-card a::before {
@@ -362,7 +362,7 @@ section p {
 }
 
 #contact {
-    max-width: 400px;
+    max-width: 25rem;
     margin-left: calc(var(--axis-offset) * -1);
     position: relative;
 }
@@ -388,7 +388,7 @@ section p {
     color: var(--red);
     text-decoration: none;
     font-weight: 600;
-    border-bottom: 2px solid var(--red);
+    border-bottom: 0.125rem solid var(--red);
     display: inline-block;
     transition: background-color var(--transition-base), color var(--transition-base);
 }
@@ -401,8 +401,8 @@ section p {
 }
 
 #contact a:focus-visible {
-    outline: 2px solid var(--red);
-    outline-offset: 4px;
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
 }
 
 footer {
