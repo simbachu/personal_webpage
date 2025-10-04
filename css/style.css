@@ -365,7 +365,7 @@ section p {
 }
 
 .project-card a::before {
-    content: '→ ';
+    content: '\2192  ';
     font-weight: 700;
     display: inline-block;
     transition: transform 0.2s var(--ease-bounce);
@@ -414,7 +414,7 @@ section p {
 }
 
 #contact a::before {
-    content: '&rarr; ';
+    content: '\2192  ';
     font-weight: 700;
     display: inline-block;
     transition: transform 0.2s var(--ease-bounce);
