@@ -11,6 +11,10 @@
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Jennifer Gott - Software Designer & Information Engineer">
     <meta property="og:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy with expertise in C/C++, embedded development, and technical illustration.">
+    <meta property="og:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Jennifer Gott - Software Designer, Information Engineer, and Illustrator">
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
     <meta property="og:site_name" content="Jennifer Gott">
@@ -20,6 +24,8 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Jennifer Gott - Software Designer & Information Engineer">
     <meta name="twitter:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy with expertise in C/C++, embedded development, and technical illustration.">
+    <meta name="twitter:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/images/og-image.png">
+    <meta name="twitter:image:alt" content="Jennifer Gott - Software Designer, Information Engineer, and Illustrator">
     
     <!-- Additional Meta Tags -->
     <meta name="author" content="Jennifer Gott">
