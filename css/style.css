@@ -249,47 +249,8 @@ section p {
     transition: box-shadow 0.4s var(--ease-bounce);
 }
 
-.project-card::before {
-    content: '';
-    position: absolute;
-    inset: calc(-1 * var(--line-weight-thick));
-    border: var(--line-weight-thick) solid transparent;
-    border-image: linear-gradient(225deg, var(--red) 0%, var(--red-dark) 100%) 1;
-    opacity: 0;
-    transform: scale(1);
-    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
-    pointer-events: none;
-}
-
 .project-card:hover {
     box-shadow: 0.5rem 0.5rem 0 var(--process-black);
-}
-
-.project-card:hover::before {
-    animation: borderPulse 2.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-}
-
-@keyframes borderPulse {
-    0% {
-        opacity: 0;
-        transform: scale(0.98);
-    }
-    25% {
-        opacity: 0.7;
-        transform: scale(1.02);
-    }
-    50% {
-        opacity: 0.5;
-        transform: scale(1);
-    }
-    75% {
-        opacity: 0.7;
-        transform: scale(1.01);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(0.98);
-    }
 }
 
 .project-card h3 {
@@ -429,7 +390,20 @@ section p {
     font-weight: 600;
     border-bottom: 0.125rem solid var(--red);
     display: inline-block;
-    transition: background-color var(--transition-base), color var(--transition-base), transform 0.2s var(--ease-bounce);
+    text-transform: lowercase;
+    font-size: 0.9rem;
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+#contact a::before {
+    content: '→ ';
+    font-weight: 700;
+    display: inline-block;
+    transition: transform 0.2s var(--ease-bounce);
+}
+
+#contact a:hover::before {
+    animation: arrowBounce 0.6s var(--ease-bounce);
 }
 
 #contact a:hover,
@@ -437,7 +411,6 @@ section p {
     background-color: var(--red);
     color: var(--white);
     outline: none;
-    transform: translateX(0.25rem);
 }
 
 #contact a:focus-visible {
