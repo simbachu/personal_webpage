@@ -334,22 +334,35 @@ footer p {
 }
 
 @media (max-width: 768px) {
+    header::after {
+        display: none;
+    }
+
     nav {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto;
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing-unit) * 0.75);
+        padding: 0 calc(var(--spacing-unit) * 1.5);
     }
 
     nav h1 {
-        font-size: 2rem;
-        grid-column: 1;
-        grid-row: 1;
+        font-size: 2.5rem;
         text-align: left;
+        font-weight: 700;
+        border-bottom: var(--line-weight-thick) solid var(--red);
+        padding-bottom: calc(var(--spacing-unit) * 0.5);
+        margin: 0;
     }
 
     nav ul {
-        grid-column: 1;
-        grid-row: 2;
-        gap: calc(var(--spacing-unit) * 0.5);
+        flex-direction: row;
+        gap: calc(var(--spacing-unit) * 1);
+        align-items: center;
+        margin: 0;
+    }
+
+    nav a {
+        font-size: 1rem;
     }
 
     main {
