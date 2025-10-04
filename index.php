@@ -6,11 +6,11 @@
     <title>Jennifer Gott</title>
     
     <!-- Meta Description -->
-    <meta name="description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy with expertise in C/C++, embedded development, and technical illustration.">
+    <meta name="description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.">
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Jennifer Gott - Software Designer & Information Engineer">
-    <meta property="og:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy with expertise in C/C++, embedded development, and technical illustration.">
+    <meta property="og:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.">
     <meta property="og:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -23,7 +23,7 @@
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Jennifer Gott - Software Designer & Information Engineer">
-    <meta name="twitter:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy with expertise in C/C++, embedded development, and technical illustration.">
+    <meta name="twitter:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.">
     <meta name="twitter:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/images/og-image.png">
     <meta name="twitter:image:alt" content="Jennifer Gott - Software Designer, Information Engineer, and Illustrator">
     
