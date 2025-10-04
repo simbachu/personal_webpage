@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jennifer Gott</title>
+    
+    <!-- Meta Description -->
+    <meta name="description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy with expertise in C/C++, embedded development, and technical illustration.">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Jennifer Gott - Software Designer & Information Engineer">
+    <meta property="og:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy with expertise in C/C++, embedded development, and technical illustration.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    <meta property="og:site_name" content="Jennifer Gott">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Jennifer Gott - Software Designer & Information Engineer">
+    <meta name="twitter:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy with expertise in C/C++, embedded development, and technical illustration.">
+    
+    <!-- Additional Meta Tags -->
+    <meta name="author" content="Jennifer Gott">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    
     <link rel="stylesheet" href="fonts/inter.css">
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
 </head>
