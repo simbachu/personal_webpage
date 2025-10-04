@@ -16,6 +16,11 @@
     --line-weight-thick: 1rem;
     --axis-offset: 15%;
     --content-max-width: 850px;
+
+    /* Motion system */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s ease;
+    --transition-smooth: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
@@ -45,12 +50,20 @@ header::after {
     content: '';
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) scaleX(0);
     top: 50%;
     width: min(calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset)), 100%);
     height: 1rem;
     background-color: var(--red);
     z-index: 0;
+    animation: slideInBar var(--transition-smooth) forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes slideInBar {
+    to {
+        transform: translateX(-50%) scaleX(1);
+    }
 }
 
 nav {
@@ -95,10 +108,18 @@ nav a {
     text-decoration: none;
     font-weight: 700;
     font-size: 1.3rem;
+    transition: color var(--transition-base);
 }
 
-nav a:hover {
+nav a:hover,
+nav a:focus {
     color: var(--red);
+    outline: none;
+}
+
+nav a:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 4px;
 }
 
 main {
@@ -110,6 +131,23 @@ main {
 section {
     margin-bottom: calc(var(--spacing-unit) * 6);
     position: relative;
+    opacity: 0;
+    animation: fadeInUp var(--transition-smooth) forwards;
+}
+
+section:nth-of-type(1) { animation-delay: 0.1s; }
+section:nth-of-type(2) { animation-delay: 0.2s; }
+section:nth-of-type(3) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /*
@@ -168,6 +206,7 @@ section p {
 
 #about li {
     margin-bottom: calc(var(--spacing-unit) * 0.5);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 #about li:hover {
@@ -188,6 +227,12 @@ section p {
     padding: calc(var(--spacing-unit) * 2);
     border: var(--line-weight-thick) solid var(--process-black);
     position: relative;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0 var(--process-black);
 }
 
 .project-card h3 {
@@ -230,7 +275,7 @@ section p {
 
 .project-card .tags li {
     display: inline;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
     padding: 0.05em 0.15em;
     margin: -0.05em -0.15em;
 }
@@ -262,11 +307,19 @@ section p {
     border-bottom: 2px solid var(--red);
     text-transform: lowercase;
     font-size: 0.9rem;
+    transition: background-color var(--transition-base), color var(--transition-base);
 }
 
-.project-card a:hover {
+.project-card a:hover,
+.project-card a:focus {
     background-color: var(--red);
     color: var(--white);
+    outline: none;
+}
+
+.project-card a:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 4px;
 }
 
 .project-card a::before {
@@ -303,11 +356,19 @@ section p {
     font-weight: 600;
     border-bottom: 2px solid var(--red);
     display: inline-block;
+    transition: background-color var(--transition-base), color var(--transition-base);
 }
 
-#contact a:hover {
+#contact a:hover,
+#contact a:focus {
     background-color: var(--red);
     color: var(--white);
+    outline: none;
+}
+
+#contact a:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 4px;
 }
 
 footer {
