@@ -75,40 +75,42 @@ header::after {
 }
 
 nav {
+    /* Use the same axis structure as <main>: left column, axis column, right content column
+       This aligns the header elements to the same visual axis as the main content. */
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr calc(var(--spacing-unit) * 4) 2fr;
+    grid-template-rows: 1fr;
     position: relative;
     z-index: 1;
     width: 100%;
     max-width: calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset));
+    margin: 0 auto; /* center the nav container */
     padding: 0 calc(var(--spacing-unit) * 3);
     gap: 0;
+    align-items: center;
 }
 
 nav h1 {
-    /* Zone 1: top-left, right-aligned */
+    /* Place site title in the left column, aligned to the shared axis */
     grid-column: 1;
-    grid-row: 1;
     font-size: 4rem;
     font-weight: 700;
     text-transform: uppercase;
     text-align: right;
-    align-self: end;
-    margin-bottom: calc(var(--spacing-unit) * 1);
+    align-self: center;
+    margin-bottom: 0;
 }
 
 nav ul {
-    /* Zone 4: bottom-right, left-aligned */
-    grid-column: 2;
-    grid-row: 2;
+    /* Place nav links in the right content column; keep vertical stack */
+    grid-column: 3;
     list-style: none;
     display: flex;
     gap: calc(var(--spacing-unit) * 0.5);
     flex-direction: column;
     align-items: flex-start;
-    align-self: start;
-    margin-top: calc(var(--spacing-unit) * 1);
+    align-self: center;
+    margin: 0;
 }
 
 nav a {
