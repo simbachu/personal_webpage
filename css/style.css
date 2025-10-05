@@ -81,18 +81,23 @@ header {
 }
 
 nav {
-    /* Shared 3-column asymmetric grid matching <main> */
-    display: grid;
-    grid-template-columns: [contact-start] var(--layout-left) [axis-start] var(--layout-axis) [axis-end content-start] var(--layout-right) [content-end];
-    grid-template-rows: auto;
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset));
-    margin: 0 auto;
-    padding: 0 var(--content-inset);
-    gap: 0;
-    align-items: center;
+        /* Header uses a 2x3 grid to create four visual quadrants.
+             Quadrants:
+                 - top-left: title
+                 - top-right: empty
+                 - bottom-left: empty
+                 - bottom-right: nav list
+             The middle column is the axis gutter; the red bar will live in the gutter between the two rows. */
+        display: grid;
+        grid-template-columns: [contact-start] var(--layout-left) [axis-start] var(--layout-axis) [axis-end content-start] var(--layout-right) [content-end];
+        grid-template-rows: auto auto; /* top and bottom halves */
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset));
+        margin: 0 auto;
+        padding: 0 var(--content-inset);
+        gap: 0;
 }
 
 /* Decorative red bar as a grid item so its edges align to the grid gutters. */
@@ -100,6 +105,7 @@ nav::after {
     content: '';
     display: block; /* make the pseudo-element a grid item */
     grid-column: axis-start / content-end; /* span axis gutter through content area */
+    grid-row: 1 / 3; /* span both rows so the bar sits in the gutter between them */
     height: 1rem;
     align-self: center; /* vertically center within nav row */
     justify-self: stretch;
@@ -124,33 +130,37 @@ body.debug-axis nav::before {
 }
 
 nav h1 {
-    /* Title spans left quadrant up to axis */
+    /* Place the title in the top-left quadrant, aligned on the axis for asymmetric typography.
+       Align to the end of the top row so the title sits visually above the bar. */
     grid-column: contact-start / axis-start;
+    grid-row: 1 / 2;
     font-size: 4rem;
     font-weight: 700;
     text-transform: uppercase;
     text-align: right;
-    align-self: center;
-    margin-bottom: 0;
+    align-self: end; /* sit at the bottom of the top half */
+    margin-bottom: 0.25rem;
     position: relative;
     z-index: 2; /* ensure title sits above the decorative bar */
-    /* keep a small baseline offset so the bar visually sits below the title */
-    transform: translateY(calc(-1 * var(--header-bar-offset)));
 }
 
 nav ul {
-    /* Nav links align with content column start (mirror project cards) */
+    /* Place nav list in the bottom-right quadrant. Add a thick right-side border to anchor the composition.
+       The 1rem border acts as a strong vertical counterweight consistent with asymmetric typographic layout. */
     grid-column: content-start / content-end;
+    grid-row: 2 / 3;
     list-style: none;
     display: flex;
     gap: calc(var(--spacing-unit) * 0.5);
     flex-direction: column;
     align-items: flex-start;
-    align-self: center;
+    align-self: start; /* sit at the top of the bottom half */
     margin: 0;
     padding-left: var(--content-inset); /* match right-column inner inset */
+    padding-right: calc(var(--spacing-unit) * 1);
     position: relative;
-    z-index: 0; /* nav links sit beneath the decorative bar */
+    z-index: 0; /* sit beneath the decorative bar */
+    border-right: 1rem solid var(--process-black);
 }
 
 nav a {
