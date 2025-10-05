@@ -24,6 +24,7 @@
     --layout-axis: calc(var(--spacing-unit) * 4); /* active whitespace axis */
     --layout-right: 2fr; /* primary content quadrant */
     --content-inset: calc(var(--spacing-unit) * 3); /* inner offset inside right column */
+    --header-bar-offset: 0.5rem; /* vertical offset for the header bar relative to nav center */
 
     /* Debug axis */
     --axis-debug-color: rgba(200, 76, 60, 0.55);
@@ -72,10 +73,10 @@ header {
 
 @keyframes slideInBar {
     0% {
-        transform: translateX(-50%) scaleX(0);
+        transform: scaleX(0);
     }
     100% {
-        transform: translateX(-50%) scaleX(1);
+        transform: scaleX(1);
     }
 }
 
@@ -94,18 +95,17 @@ nav {
     align-items: center;
 }
 
-/* Move the decorative red bar into the nav container so it shares centering with the main content axis.
-   We'll stack it above the nav links and below the site title by using z-index on the children. */
+/* Decorative red bar as a grid item so its edges align to the grid gutters. */
 nav::after {
     content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%) scaleX(0);
-    /* nudge slightly down so the bar sits visually below the title */
-    top: calc(50% + 0.5rem);
-    width: min(calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset)), 100%);
+    display: block; /* make the pseudo-element a grid item */
+    grid-column: axis-start / content-end; /* span axis gutter through content area */
     height: 1rem;
+    align-self: center; /* vertically center within nav row */
+    justify-self: stretch;
     background: var(--gradient-red);
+    transform: scaleX(0);
+    transform-origin: center;
     z-index: 1; /* sit above nav links (z-index:0) but under the title (z-index:2) */
     animation: slideInBar 0.6s var(--ease-bounce) forwards;
     animation-delay: 0.15s;
@@ -134,6 +134,8 @@ nav h1 {
     margin-bottom: 0;
     position: relative;
     z-index: 2; /* ensure title sits above the decorative bar */
+    /* keep a small baseline offset so the bar visually sits below the title */
+    transform: translateY(calc(-1 * var(--header-bar-offset)));
 }
 
 nav ul {
