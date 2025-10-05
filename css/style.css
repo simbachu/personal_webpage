@@ -69,19 +69,6 @@ header {
     justify-content: center;
 }
 
-header::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%) scaleX(0);
-    top: 50%;
-    width: min(calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset)), 100%);
-    height: 1rem;
-    background: var(--gradient-red);
-    z-index: 0;
-    animation: slideInBar 0.6s var(--ease-bounce) forwards;
-    animation-delay: 0.15s;
-}
 
 @keyframes slideInBar {
     0% {
@@ -107,6 +94,23 @@ nav {
     align-items: center;
 }
 
+/* Move the decorative red bar into the nav container so it shares centering with the main content axis.
+   We'll stack it above the nav links and below the site title by using z-index on the children. */
+nav::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    /* nudge slightly down so the bar sits visually below the title */
+    top: calc(50% + 0.5rem);
+    width: min(calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset)), 100%);
+    height: 1rem;
+    background: var(--gradient-red);
+    z-index: 1; /* sit above nav links (z-index:0) but under the title (z-index:2) */
+    animation: slideInBar 0.6s var(--ease-bounce) forwards;
+    animation-delay: 0.15s;
+}
+
 /* Debug axis line (nav portion) */
 body.debug-axis nav::before {
     content: '';
@@ -128,6 +132,8 @@ nav h1 {
     text-align: right;
     align-self: center;
     margin-bottom: 0;
+    position: relative;
+    z-index: 2; /* ensure title sits above the decorative bar */
 }
 
 nav ul {
@@ -141,6 +147,8 @@ nav ul {
     align-self: center;
     margin: 0;
     padding-left: var(--content-inset); /* match right-column inner inset */
+    position: relative;
+    z-index: 0; /* nav links sit beneath the decorative bar */
 }
 
 nav a {
