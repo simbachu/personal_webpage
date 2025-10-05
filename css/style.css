@@ -66,10 +66,47 @@ header {
     color: var(--black);
     padding: calc(var(--spacing-unit) * 2) 0;
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: [header-start] var(--layout-left) [header-axis-start] var(--layout-axis) [header-axis-end header-content-start] var(--layout-right) [header-end];
     justify-content: center;
 }
 
+/* Red bar dividing the header title and nav, aligned to the grid gutters */
+header::after {
+    content: '';
+    display: block; /* make the pseudo-element a grid item */
+    grid-column: header-axis-start / header-end; /* span axis gutter through content area */
+    grid-row: 1 / 3; /* span both rows so the bar sits in the gutter between them */
+    height: 1rem;
+    align-self: center; /* vertically center within header row */
+    justify-self: stretch;
+    background: var(--gradient-red);
+    transform: scaleX(0);
+    transform-origin: center;
+    /* Animate the bar scaling in from the center */
+    animation: slideInBar 0.6s var(--ease-bounce) forwards;
+    animation-delay: 0.15s;
+}
+
+/* The page title in the top-left quadrant of the header */
+header h1 {
+    /* Place the title in the top-left quadrant, aligned on the axis for asymmetric typography.
+       Align to the end of the top row so the title sits visually above the bar. */
+    grid-column: header-start / header-axis-start;
+    grid-row: 1 / 2;
+    font-size: 4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: right;
+    /* Keep the title on a single row and scale responsively so it doesn't split
+       across two lines on medium viewports. Overridden by mobile styles. */
+    font-size: clamp(1.8rem, 6vw, 4rem);
+    align-self: end; /* sit at the bottom of the top half */
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    position: relative;
+}
 
 @keyframes slideInBar {
     0% {
@@ -81,74 +118,11 @@ header {
 }
 
 nav {
-        /* Header uses a 2x3 grid to create four visual quadrants.
-             Quadrants:
-                 - top-left: title
-                 - top-right: empty
-                 - bottom-left: empty
-                 - bottom-right: nav list
-             The middle column is the axis gutter; the red bar will live in the gutter between the two rows. */
-        display: grid;
-        grid-template-columns: [contact-start] var(--layout-left) [axis-start] var(--layout-axis) [axis-end content-start] var(--layout-right) [content-end];
-        grid-template-rows: auto auto; /* top and bottom halves */
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        max-width: calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset));
-        margin: 0 auto;
-        padding: 0 var(--content-inset);
-        gap: 0;
+        /* Nav section of the header contains the ul */
+        display: block;
 }
 
-/* Decorative red bar as a grid item so its edges align to the grid gutters. */
-nav::after {
-    content: '';
-    display: block; /* make the pseudo-element a grid item */
-    grid-column: axis-start / content-end; /* span axis gutter through content area */
-    grid-row: 1 / 3; /* span both rows so the bar sits in the gutter between them */
-    height: 1rem;
-    align-self: center; /* vertically center within nav row */
-    justify-self: stretch;
-    background: var(--gradient-red);
-    transform: scaleX(0);
-    transform-origin: center;
-    z-index: 1; /* sit above nav links (z-index:0) but under the title (z-index:2) */
-    animation: slideInBar 0.6s var(--ease-bounce) forwards;
-    animation-delay: 0.15s;
-}
 
-/* Debug axis line (nav portion) */
-body.debug-axis nav::before {
-    content: '';
-    grid-column: axis-start / axis-end;
-    justify-self: center;
-    align-self: stretch;
-    width: 0;
-    border-left: var(--axis-debug-line-width) dashed var(--axis-debug-color);
-    pointer-events: none;
-    z-index: 0; /* stay behind nav content */
-}
-
-nav h1 {
-    /* Place the title in the top-left quadrant, aligned on the axis for asymmetric typography.
-       Align to the end of the top row so the title sits visually above the bar. */
-    grid-column: contact-start / axis-start;
-    grid-row: 1 / 2;
-    font-size: 4rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-align: right;
-    /* Keep the title on a single row and scale responsively so it doesn't split
-       across two lines on medium viewports. Mobile media query will override
-       font-size where appropriate. */
-    font-size: clamp(1.8rem, 6vw, 4rem);
-    align-self: end; /* sit at the bottom of the top half */
-    margin-bottom: 0.25rem;
-    white-space: nowrap;
-    overflow-wrap: normal;
-    position: relative;
-    z-index: 2; /* ensure title sits above the decorative bar */
-}
 
 nav ul {
     /* Place nav list in the bottom-right quadrant. Add a thick right-side border to anchor the composition.
@@ -207,7 +181,7 @@ body.debug-axis main::before {
     justify-self: center;
     align-self: stretch;
     width: 0;
-    border-left: var(--axis-debug-line-width) dashed var(--axis-debug-color);
+    border: var(--axis-debug-line-width) dashed var(--axis-debug-color);
     pointer-events: none;
     z-index: 0;
 }
@@ -519,7 +493,6 @@ footer {
 
 footer p {
     font-size: 0.9rem;
-    text-transform: lowercase;
 }
 
 @media (min-width: 769px) {
