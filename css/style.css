@@ -19,6 +19,12 @@
     --axis-offset: 15%;
     --content-max-width: 55rem;
 
+    /* Layout grid (shared between header nav and main) */
+    --layout-left: 1fr; /* contact / title quadrant */
+    --layout-axis: calc(var(--spacing-unit) * 4); /* active whitespace axis */
+    --layout-right: 2fr; /* primary content quadrant */
+    --content-inset: calc(var(--spacing-unit) * 3); /* inner offset inside right column */
+
     --transition-fast: 0.15s ease;
     --transition-base: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* overshoot */
     --transition-smooth: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
@@ -75,24 +81,23 @@ header::after {
 }
 
 nav {
-    /* Use the same axis structure as <main>: left column, axis column, right content column
-       This aligns the header elements to the same visual axis as the main content. */
+    /* Shared 3-column asymmetric grid matching <main> */
     display: grid;
-    grid-template-columns: 1fr calc(var(--spacing-unit) * 4) 2fr;
-    grid-template-rows: 1fr;
+    grid-template-columns: [contact-start] var(--layout-left) [axis-start] var(--layout-axis) [axis-end content-start] var(--layout-right) [content-end];
+    grid-template-rows: auto;
     position: relative;
     z-index: 1;
     width: 100%;
     max-width: calc(var(--content-max-width) + calc(var(--spacing-unit) * 6) + var(--axis-offset));
-    margin: 0 auto; /* center the nav container */
-    padding: 0 calc(var(--spacing-unit) * 3);
+    margin: 0 auto;
+    padding: 0 var(--content-inset);
     gap: 0;
     align-items: center;
 }
 
 nav h1 {
-    /* Place site title in the left column, aligned to the shared axis */
-    grid-column: 1;
+    /* Title spans left quadrant up to axis */
+    grid-column: contact-start / axis-start;
     font-size: 4rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -102,8 +107,8 @@ nav h1 {
 }
 
 nav ul {
-    /* Place nav links in the right content column; keep vertical stack */
-    grid-column: 3;
+    /* Nav links align with content column start (mirror project cards) */
+    grid-column: content-start / content-end;
     list-style: none;
     display: flex;
     gap: calc(var(--spacing-unit) * 0.5);
@@ -111,6 +116,7 @@ nav ul {
     align-items: flex-start;
     align-self: center;
     margin: 0;
+    padding-left: var(--content-inset); /* match right-column inner inset */
 }
 
 nav a {
@@ -136,10 +142,10 @@ nav a:focus-visible {
 
 main {
     display: grid;
-    grid-template-columns: [contact-start] 1fr [axis-start] calc(var(--spacing-unit) * 4) [axis-end content-start] 2fr [content-end];
+    grid-template-columns: [contact-start] var(--layout-left) [axis-start] var(--layout-axis) [axis-end content-start] var(--layout-right) [content-end];
     grid-auto-rows: auto;
     max-width: none;
-    padding: calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 3);
+    padding: calc(var(--spacing-unit) * 4) var(--content-inset);
     margin-left: 0;
     gap: 0;
 }
@@ -197,7 +203,7 @@ section h2 {
 #about,
 #projects {
     grid-column: content-start / content-end;
-    padding-left: calc(var(--spacing-unit) * 3);
+    padding-left: var(--content-inset);
     text-align: left;
 }
 
@@ -376,7 +382,7 @@ section p {
 /* Contact: left side of axis, mirrored alignment */
 #contact {
     grid-column: contact-start;
-    padding-right: calc(var(--spacing-unit) * 3);
+    padding-right: var(--content-inset);
     text-align: right;
     max-width: none;
     margin-left: 0;
@@ -489,6 +495,7 @@ footer p {
         gap: calc(var(--spacing-unit) * 1);
         align-items: center;
         margin: 0;
+        padding-left: 0; /* remove inset on mobile */
     }
 
     nav a {
