@@ -35,7 +35,7 @@
     <link rel="stylesheet" href="fonts/inter.css">
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
 </head>
-<body class="debug-axis">
+<body>
     <header>
             <h1>Jennifer Gott</h1>
         <nav>

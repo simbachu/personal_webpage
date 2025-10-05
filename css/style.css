@@ -26,18 +26,6 @@
     --header-bar-height: 1rem; /* height of the red divider bar */
     --header-bar-offset: calc(var(--spacing-unit) * 0.33); /* vertical offset for the header bar relative to nav center */
 
-    /* Debug axis */
-    --axis-debug-color: rgba(200, 76, 60, 0.55);
-    --axis-debug-line-width: 2px;
-
-
-/* Enable with <body class="debug-axis"> */
-body.debug-axis {
-    --axis-debug: 1;
-}
-body:not(.debug-axis) {
-    --axis-debug: 0;
-}
     --transition-fast: 0.15s ease;
     --transition-base: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* overshoot */
     --transition-smooth: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
@@ -74,12 +62,20 @@ header {
     color: var(--black);
     position: relative;
     justify-content: center;
-    /* Span full width and redefine columns so child elements can reference them */
+    /* Span full width */
     grid-column: left-column-start / right-end;
     display: grid;
-    grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-end];
+    /* Fallback: single column for browsers without subgrid support */
+    grid-template-columns: 1fr;
     /* Grid rows for asymmetric header layout */
     grid-template-rows: [upper] 1fr [gutter] calc(var(--spacing-unit) * 2 + var(--header-bar-offset)) [lower];
+}
+
+/* Modern browsers: use subgrid to inherit parent column definitions */
+@supports (grid-template-columns: subgrid) {
+    header {
+        grid-template-columns: subgrid;
+    }
 }
 
 /* Red bar dividing the header title and nav, aligned to the grid gutters */
@@ -100,21 +96,25 @@ header::after {
 
 /* The page title in the top-left quadrant of the header */
 header h1 {
-    /* Place the title in the top-left quadrant, aligned on the axis for asymmetric typography.
-       Align to the end of the top row so the title sits visually above the bar. */
-    grid-column: left-column-start / left-column-end; /* place in left column */
-    grid-row: upper; /* place in top row of header grid */
+    /* Fallback: center in single column */
+    text-align: center;
     font-size: 4rem;
     font-weight: 700;
     text-transform: uppercase;
-    text-align: right;
-    /* Keep the title on a single row and scale responsively so it doesn't split
-       across two lines on medium viewports. Overridden by mobile styles. */
     font-size: clamp(1.8rem, 6vw, 4rem);
-    align-self: end; /* sit at the bottom of the top half */
+    align-self: end;
     white-space: nowrap;
     overflow-wrap: normal;
     position: relative;
+}
+
+/* Subgrid support: place in left column with right alignment */
+@supports (grid-template-columns: subgrid) {
+    header h1 {
+        grid-column: left-column-start / left-column-end;
+        grid-row: upper;
+        text-align: right;
+    }
 }
 
 @keyframes slideInBar {
@@ -127,12 +127,18 @@ header h1 {
 }
 
 nav {
-    /* Nav section of the header contains the ul */
-    display: block;
-    grid-row: lower; /* place in bottom row of header grid */
-    grid-column: right-column-start; /* place in right column */
-    text-align: left;
+        /* Nav section of the header contains the ul */
+        display: block;
+        grid-row: lower; /* place in bottom row of header grid */
+        text-align: center;
+}
 
+/* Subgrid support: place in right column with left alignment */
+@supports (grid-template-columns: subgrid) {
+    nav {
+        grid-column: right-column-start;
+        text-align: left;
+    }
 }
 
 
@@ -143,11 +149,18 @@ nav ul {
     display: flex;
     gap: calc(var(--spacing-unit) * 0.5);
     flex-direction: column;
-    align-items: flex-start;
-    align-self: start; /* sit at the top of the bottom half */
-    padding-right: calc(var(--spacing-unit) * 3); /* set some space for the decorative bar */
+    align-items: center; /* fallback: center alignment */
+    align-self: start;
+    padding-right: calc(var(--spacing-unit) * 3);
     position: relative;
-    border-right: var(--line-weight-thick) solid var(--process-black); /* Decorative vertical bar on the right side of the nav */
+    border-right: var(--line-weight-thick) solid var(--process-black);
+}
+
+/* Subgrid support: left alignment */
+@supports (grid-template-columns: subgrid) {
+    nav ul {
+        align-items: flex-start;
+    }
 }
 
 nav a {
@@ -172,14 +185,22 @@ nav a:focus-visible {
 }
 
 main {
-    /* Span full width and redefine columns so child elements can reference them */
+    /* Span full width */
     grid-column: left-column-start / right-end;
     display: grid;
-    grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-end];
-    grid-template-rows: [main-content-start] auto [main-content-end contact-start] auto [contact-end];
+    /* Fallback: single column for browsers without subgrid support */
+    grid-template-columns: 1fr;
+    grid-auto-rows: [main-content-start] auto [main-content-end contact-start] auto [contact-end];
     max-width: none;
     margin-left: 0;
     gap: 0;
+}
+
+/* Modern browsers: use subgrid to inherit parent column definitions */
+@supports (grid-template-columns: subgrid) {
+    main {
+        grid-template-columns: subgrid;
+    }
 }
 
 section {
@@ -209,18 +230,6 @@ section:nth-of-type(3) { animation-delay: 0.5s; }
     }
 }
 
-/*
-section::before {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: var(--line-weight-thick);
-    height: 50%;
-    background-color: var(--process-black);
-}
-*/
-
 section h2 {
     color: var(--black);
     margin-bottom: calc(var(--spacing-unit) * 3);
@@ -233,11 +242,17 @@ section h2 {
     letter-spacing: -0.01em;
 }
 
-/* About and Projects: right side of axis */
+/* About and Projects: fallback to single column, subgrid places in right column */
 #about,
 #projects {
-    grid-column: right-column-start / right-end;
     text-align: left;
+}
+
+@supports (grid-template-columns: subgrid) {
+    #about,
+    #projects {
+        grid-column: right-column-start / right-end;
+    }
 }
 
 section p {
@@ -412,20 +427,32 @@ section p {
     transition: transform 0.2s var(--ease-bounce);
 }
 
-/* Contact: left side of axis, mirrored alignment */
+/* Contact: fallback to single column centered, subgrid places in left column right-aligned */
 #contact {
-    grid-column: left-column-start / left-column-end;
     grid-row: contact-start / contact-end;
-    text-align: right;
+    text-align: center;
     max-width: none;
     margin-left: 0;
     position: relative;
 }
 
+@supports (grid-template-columns: subgrid) {
+    #contact {
+        grid-column: left-column-start / left-column-end;
+        text-align: right;
+    }
+}
+
 #contact h2 {
     font-size: 1.8rem;
     display: inline-block;
-    text-align: right;
+    text-align: center;
+}
+
+@supports (grid-template-columns: subgrid) {
+    #contact h2 {
+        text-align: right;
+    }
 }
 
 #contact ul {
@@ -434,13 +461,25 @@ section p {
     display: flex;
     flex-direction: column;
     gap: calc(var(--spacing-unit) * 0.5);
-    align-items: flex-end;
+    align-items: center; /* fallback: center alignment */
+}
+
+@supports (grid-template-columns: subgrid) {
+    #contact ul {
+        align-items: flex-end;
+    }
 }
 
 #contact li {
     font-size: 0.9rem;
     line-height: 1.4;
-    text-align: right;
+    text-align: center;
+}
+
+@supports (grid-template-columns: subgrid) {
+    #contact li {
+        text-align: right;
+    }
 }
 
 #contact a {
