@@ -176,7 +176,7 @@ main {
     grid-column: left-column-start / right-end;
     display: grid;
     grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-end];
-    grid-auto-rows: [main-content-start] auto [main-content-end contact-start] auto [contact-end];
+    grid-template-rows: [main-content-start] auto [main-content-end contact-start] auto [contact-end];
     max-width: none;
     margin-left: 0;
     gap: 0;
