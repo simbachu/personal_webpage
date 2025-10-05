@@ -138,8 +138,14 @@ nav h1 {
     font-weight: 700;
     text-transform: uppercase;
     text-align: right;
+    /* Keep the title on a single row and scale responsively so it doesn't split
+       across two lines on medium viewports. Mobile media query will override
+       font-size where appropriate. */
+    font-size: clamp(1.8rem, 6vw, 4rem);
     align-self: end; /* sit at the bottom of the top half */
     margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow-wrap: normal;
     position: relative;
     z-index: 2; /* ensure title sits above the decorative bar */
 }
