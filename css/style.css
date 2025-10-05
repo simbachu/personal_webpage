@@ -25,6 +25,18 @@
     --layout-right: 2fr; /* primary content quadrant */
     --content-inset: calc(var(--spacing-unit) * 3); /* inner offset inside right column */
 
+    /* Debug axis */
+    --axis-debug-color: rgba(200, 76, 60, 0.55);
+    --axis-debug-line-width: 2px;
+
+
+/* Enable with <body class="debug-axis"> */
+body.debug-axis {
+    --axis-debug: 1;
+}
+body:not(.debug-axis) {
+    --axis-debug: 0;
+}
     --transition-fast: 0.15s ease;
     --transition-base: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* overshoot */
     --transition-smooth: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,6 +107,18 @@ nav {
     align-items: center;
 }
 
+/* Debug axis line (nav portion) */
+body.debug-axis nav::before {
+    content: '';
+    grid-column: axis-start / axis-end;
+    justify-self: center;
+    align-self: stretch;
+    width: 0;
+    border-left: var(--axis-debug-line-width) dashed var(--axis-debug-color);
+    pointer-events: none;
+    z-index: 0; /* stay behind nav content */
+}
+
 nav h1 {
     /* Title spans left quadrant up to axis */
     grid-column: contact-start / axis-start;
@@ -150,6 +174,18 @@ main {
     gap: 0;
 }
 
+/* Debug axis line (main portion) */
+body.debug-axis main::before {
+    content: '';
+    grid-column: axis-start / axis-end;
+    justify-self: center;
+    align-self: stretch;
+    width: 0;
+    border-left: var(--axis-debug-line-width) dashed var(--axis-debug-color);
+    pointer-events: none;
+    z-index: 0;
+}
+
 section {
     margin-bottom: calc(var(--spacing-unit) * 6);
     position: relative;
@@ -161,6 +197,8 @@ section:nth-of-type(1) { animation-delay: 0.2s; }
 section:nth-of-type(2) { animation-delay: 0.35s; }
 section:nth-of-type(3) { animation-delay: 0.5s; }
 
+
+/* Content of the website fades in and moves up slightly on page load */
 @keyframes fadeInUp {
     0% {
         opacity: 0;

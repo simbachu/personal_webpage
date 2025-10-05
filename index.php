@@ -35,7 +35,7 @@
     <link rel="stylesheet" href="fonts/inter.css">
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
 </head>
-<body>
+<body class="debug-axis">
     <header>
         <nav>
             <h1>Jennifer Gott</h1>
@@ -131,9 +131,8 @@
     </main>
 
     <footer>
+        <p>This website was automatically uploaded from <a href="https://github.com/simbachu/personal_webpage">GitHub</a> using a <abbr title="Continuous Deployment">CD</abbr> pipeline.</p>
         <p>&copy; <?php echo date('Y'); ?> Jennifer Gott. All rights reserved.</p>
     </footer>
 </body>
 </html>
-
-
