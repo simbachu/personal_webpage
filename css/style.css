@@ -16,15 +16,15 @@
     --spacing-unit: 1.5rem;
     --line-weight: 0.25rem;
     --line-weight-thick: 1rem;
-    --axis-offset: 15%;
-    --content-max-width: 55rem;
 
-    /* Layout grid (shared between header nav and main) */
+    /* Layout grid (shared between header, nav and main) */
     --layout-left: 1fr; /* contact / title quadrant */
     --layout-axis: calc(var(--spacing-unit) * 4); /* active whitespace axis */
     --layout-right: 2fr; /* primary content quadrant */
-    --content-inset: calc(var(--spacing-unit) * 3); /* inner offset inside right column */
-    --header-bar-offset: 0.5rem; /* vertical offset for the header bar relative to nav center */
+    --layout-grid-gap: 1rem; /* gap between grid areas */
+    --page-margin: calc(var(--spacing-unit) * 3); /* outer page margins */
+    --header-bar-height: 1rem; /* height of the red divider bar */
+    --header-bar-offset: calc(var(--spacing-unit) * 0.33); /* vertical offset for the header bar relative to nav center */
 
     /* Debug axis */
     --axis-debug-color: rgba(200, 76, 60, 0.55);
@@ -49,7 +49,7 @@ body:not(.debug-axis) {
 
 body {
     /* Main page layout with typographic grid and page margins */
-    margin: var(--content-inset);
+    margin: var(--page-margin);
     font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     line-height: 1.4;
     color: var(--black);
@@ -58,9 +58,9 @@ body {
     display: grid;
     justify-content: center;
     /* Grid for the header, main content, and footer */
-    grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-content-start] var(--layout-right) [right-end];
+    grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-end];
     grid-template-rows: [header-start] auto [header-end main-start] 1fr [main-end footer-start] auto [footer-end];
-    gap: 1rem;
+    gap: var(--layout-grid-gap);
 }
 
 @supports (font-variation-settings: normal) {
@@ -74,8 +74,11 @@ header {
     color: var(--black);
     position: relative;
     justify-content: center;
+    /* Span full width and redefine columns so child elements can reference them */
+    grid-column: left-column-start / right-end;
     display: grid;
-    /* Grid rows for asymmetric header layout, use the main grid for columns */
+    grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-end];
+    /* Grid rows for asymmetric header layout */
     grid-template-rows: [upper] 1fr [gutter] calc(var(--spacing-unit) * 2 + var(--header-bar-offset)) [lower];
 }
 
@@ -83,9 +86,9 @@ header {
 header::after {
     content: '';
     display: block; /* make the pseudo-element a grid item */
-    grid-column: left-column-start / right-column-end; /* span axis gutter through content area */
+    grid-column: left-column-start / right-end; /* span axis gutter through content area */
     grid-row: gutter; /* place in gutter */
-    height: 1rem;
+    height: var(--header-bar-height);
     justify-self: stretch;
     background: var(--gradient-red);
     transform: scaleX(0);
@@ -124,11 +127,11 @@ header h1 {
 }
 
 nav {
-        /* Nav section of the header contains the ul */
-        display: block;
-        grid-row: lower; /* place in bottom row of header grid */
-        grid-column: right-column-start; /* place in right column */
-        text-align: left;
+    /* Nav section of the header contains the ul */
+    display: block;
+    grid-row: lower; /* place in bottom row of header grid */
+    grid-column: right-column-start; /* place in right column */
+    text-align: left;
 
 }
 
@@ -144,7 +147,7 @@ nav ul {
     align-self: start; /* sit at the top of the bottom half */
     padding-right: calc(var(--spacing-unit) * 3); /* set some space for the decorative bar */
     position: relative;
-    border-right: 1rem solid var(--process-black); /* Decorative vertical bar on the left side of the nav */
+    border-right: var(--line-weight-thick) solid var(--process-black); /* Decorative vertical bar on the right side of the nav */
 }
 
 nav a {
@@ -169,8 +172,10 @@ nav a:focus-visible {
 }
 
 main {
+    /* Span full width and redefine columns so child elements can reference them */
+    grid-column: left-column-start / right-end;
     display: grid;
-
+    grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-end];
     grid-auto-rows: [main-content-start] auto [main-content-end contact-start] auto [contact-end];
     max-width: none;
     margin-left: 0;
@@ -231,7 +236,7 @@ section h2 {
 /* About and Projects: right side of axis */
 #about,
 #projects {
-    grid-column: content-start / content-end;
+    grid-column: right-column-start / right-end;
     text-align: left;
 }
 
@@ -569,5 +574,3 @@ footer p {
         max-width: 100%;
     }
 }
-
-
