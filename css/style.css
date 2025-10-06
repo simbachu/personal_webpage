@@ -190,7 +190,7 @@ main {
     display: grid;
     /* Fallback: single column for browsers without subgrid support */
     grid-template-columns: 1fr;
-    grid-auto-rows: [main-content-start] auto [main-content-end contact-start] auto [contact-end];
+    grid-template-rows: [main-content-start] auto [main-content-end contact-start] auto [contact-end];
     max-width: none;
     margin-left: 0;
     gap: 0;
