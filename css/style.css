@@ -629,33 +629,42 @@ footer a:focus-visible {
     outline-offset: 0.25rem;
 }
 
-/* GitHub info in footer */
+/* GitHub info in footer - Tschichold grid system */
 .github-info {
-    margin: calc(var(--spacing-unit) * 1) 0;
+    margin: calc(var(--spacing-unit) * 1.5) 0;
+    padding-left: calc(var(--spacing-unit) * 1);
+    border-left: 0.25rem solid var(--black);
     font-size: 0.85rem;
-    color: var(--dark-grey);
 }
 
 .branch-status {
-    margin: 0.5rem 0;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(7rem, auto) minmax(8rem, 1fr) minmax(10rem, auto);
+    gap: calc(var(--spacing-unit) * 1);
     align-items: baseline;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    margin: 0.375rem 0;
+    line-height: 1.6;
 }
 
-.branch-status a {
+.branch-name {
     font-weight: 600;
     color: var(--black);
 }
 
-.separator {
-    color: var(--dark-grey);
-    user-select: none;
+.branch-name a {
+    color: var(--black);
 }
 
-.status-detail {
-    color: var(--dark-grey);
+.branch-meta {
+    color: var(--process-black);
+    font-size: 0.9em;
+    letter-spacing: 0.01em;
+}
+
+.branch-time {
+    color: var(--process-black);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 @media (min-width: 769px) {
@@ -751,5 +760,25 @@ footer a:focus-visible {
     footer {
         grid-column: 1 / -1;
         padding: calc(var(--spacing-unit) * 1.5);
+    }
+
+    /* GitHub info: simplified grid on mobile */
+    .branch-status {
+        grid-template-columns: auto 1fr;
+        gap: calc(var(--spacing-unit) * 0.5);
+    }
+
+    .branch-name {
+        grid-column: 1 / -1;
+    }
+
+    .branch-meta {
+        grid-column: 1 / 2;
+        font-size: 0.85em;
+    }
+
+    .branch-time {
+        grid-column: 2 / 3;
+        text-align: right;
     }
 }

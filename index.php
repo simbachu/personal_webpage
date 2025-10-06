@@ -145,23 +145,27 @@ $github = get_github_info('simbachu', 'personal_webpage');
         <div class="github-info">
             <?php if (isset($github['main']) && $github['main']): ?>
             <div class="branch-status">
-                <a href="<?php echo htmlspecialchars($github['main']['url']); ?>"
-                   title="<?php echo htmlspecialchars($github['main']['message']); ?>">Production</a>
-                <span class="separator">•</span>
-                <span class="status-detail">Updated <?php echo format_github_date($github['main']['date']); ?></span>
+                <span class="branch-name">
+                    <a href="<?php echo htmlspecialchars($github['main']['url']); ?>"
+                       title="<?php echo htmlspecialchars($github['main']['message']); ?>">Production</a>
+                </span>
+                <span class="branch-meta"></span>
+                <span class="branch-time">Updated <?php echo format_github_date($github['main']['date']); ?></span>
             </div>
             <?php endif; ?>
 
             <?php if (isset($github['dev']) && $github['dev']): ?>
             <div class="branch-status">
-                <a href="<?php echo htmlspecialchars($github['dev']['url']); ?>"
-                   title="<?php echo htmlspecialchars($github['dev']['message']); ?>">Dev Preview</a>
-                <?php if (isset($github['commits_ahead']) && $github['commits_ahead'] > 0): ?>
-                <span class="separator">•</span>
-                <span class="status-detail"><?php echo $github['commits_ahead']; ?> commit<?php echo $github['commits_ahead'] !== 1 ? 's' : ''; ?> ahead</span>
-                <?php endif; ?>
-                <span class="separator">•</span>
-                <span class="status-detail">Active <?php echo format_github_date($github['dev']['date']); ?></span>
+                <span class="branch-name">
+                    <a href="<?php echo htmlspecialchars($github['dev']['url']); ?>"
+                       title="<?php echo htmlspecialchars($github['dev']['message']); ?>">Dev Preview</a>
+                </span>
+                <span class="branch-meta">
+                    <?php if (isset($github['commits_ahead']) && $github['commits_ahead'] > 0): ?>
+                    <?php echo $github['commits_ahead']; ?> commit<?php echo $github['commits_ahead'] !== 1 ? 's' : ''; ?> ahead
+                    <?php endif; ?>
+                </span>
+                <span class="branch-time">Active <?php echo format_github_date($github['dev']['date']); ?></span>
             </div>
             <?php endif; ?>
         </div>
