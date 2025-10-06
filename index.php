@@ -1,13 +1,17 @@
+<?php
+require_once 'github_info.php';
+$github = get_github_info('simbachu', 'personal_webpage');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jennifer Gott</title>
-    
+
     <!-- Meta Description -->
     <meta name="description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.">
-    
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Jennifer Gott - Software Designer & Information Engineer">
     <meta property="og:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.">
@@ -19,19 +23,19 @@
     <meta property="og:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
     <meta property="og:site_name" content="Jennifer Gott">
     <meta property="og:locale" content="en_US">
-    
+
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Jennifer Gott - Software Designer & Information Engineer">
     <meta name="twitter:description" content="Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.">
     <meta name="twitter:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/images/og-image.png">
     <meta name="twitter:image:alt" content="Jennifer Gott - Software Designer, Information Engineer, and Illustrator">
-    
+
     <!-- Additional Meta Tags -->
     <meta name="author" content="Jennifer Gott">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
-    
+
     <link rel="stylesheet" href="fonts/inter.css">
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
 </head>
@@ -137,6 +141,31 @@
 
     <footer>
         <p>This website was automatically uploaded from <a href="https://github.com/simbachu/personal_webpage">GitHub</a> using a <abbr title="Continuous Deployment">CD</abbr> pipeline.</p>
+
+        <div class="github-info">
+            <?php if (isset($github['main']) && $github['main']): ?>
+            <div class="branch-status">
+                <a href="<?php echo htmlspecialchars($github['main']['url']); ?>"
+                   title="<?php echo htmlspecialchars($github['main']['message']); ?>">Production</a>
+                <span class="separator">•</span>
+                <span class="status-detail">Updated <?php echo format_github_date($github['main']['date']); ?></span>
+            </div>
+            <?php endif; ?>
+
+            <?php if (isset($github['dev']) && $github['dev']): ?>
+            <div class="branch-status">
+                <a href="<?php echo htmlspecialchars($github['dev']['url']); ?>"
+                   title="<?php echo htmlspecialchars($github['dev']['message']); ?>">Dev Preview</a>
+                <?php if (isset($github['commits_ahead']) && $github['commits_ahead'] > 0): ?>
+                <span class="separator">•</span>
+                <span class="status-detail"><?php echo $github['commits_ahead']; ?> commit<?php echo $github['commits_ahead'] !== 1 ? 's' : ''; ?> ahead</span>
+                <?php endif; ?>
+                <span class="separator">•</span>
+                <span class="status-detail">Active <?php echo format_github_date($github['dev']['date']); ?></span>
+            </div>
+            <?php endif; ?>
+        </div>
+
         <p>&copy; <?php echo date('Y'); ?> Jennifer Gott. All rights reserved.</p>
     </footer>
 </body>

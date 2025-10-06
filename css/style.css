@@ -629,6 +629,35 @@ footer a:focus-visible {
     outline-offset: 0.25rem;
 }
 
+/* GitHub info in footer */
+.github-info {
+    margin: calc(var(--spacing-unit) * 1) 0;
+    font-size: 0.85rem;
+    color: var(--dark-grey);
+}
+
+.branch-status {
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.branch-status a {
+    font-weight: 600;
+    color: var(--black);
+}
+
+.separator {
+    color: var(--dark-grey);
+    user-select: none;
+}
+
+.status-detail {
+    color: var(--dark-grey);
+}
+
 @media (min-width: 769px) {
     .project-grid {
         grid-template-columns: 1fr 1fr;
