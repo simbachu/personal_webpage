@@ -48,6 +48,7 @@
     </header>
 
     <main>
+        <article>
         <section id="about">
             <h2>About Me</h2>
             <p>Software designer. Information engineer. Illustrator.</p>
@@ -119,15 +120,16 @@
                 </div>
             </div>
         </section>
+        </article>
 
-        <section id="contact">
+        <aside id="contact">
             <h2>Contact</h2>
             <ul>
                 <li><a href="https://github.com/simbachu">github.com/simbachu</a></li>
                 <li><a href="mailto:simbachu@gmail.com">simbachu@gmail.com</a></li>
                 <li><a href="https://www.linkedin.com/in/jennifer-jonathan-gott-2233aa294/">linkedin.com/in/jennifer-jonathan-gott</a></li>
             </ul>
-        </section>
+        </aside>
     </main>
 
     <footer>

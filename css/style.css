@@ -190,7 +190,7 @@ main {
     display: grid;
     /* Fallback: single column for browsers without subgrid support */
     grid-template-columns: 1fr;
-    grid-template-rows: [main-content-start] auto [main-content-end contact-start] auto [contact-end];
+    grid-template-rows: [main-content-start] auto [main-content-end aside-start] auto [aside-end];
     max-width: none;
     margin-left: 0;
     gap: 0;
@@ -244,16 +244,17 @@ section h2 {
     letter-spacing: -0.01em;
 }
 
-/* About and Projects: fallback to single column, subgrid places in right column */
-#about,
-#projects {
+/* Article: semantic wrapper for main content (sections, blog posts, etc.) */
+article {
     text-align: left;
     grid-row: main-content-start / main-content-end;
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* sections handle their own margins */
 }
 
 @supports (grid-template-columns: subgrid) {
-    #about,
-    #projects {
+    article {
         grid-column: right-column-start / right-column-end;
     }
 }
@@ -430,9 +431,9 @@ section p {
     transition: transform 0.2s var(--ease-bounce);
 }
 
-/* Contact: fallback to single column centered, subgrid places in left column right-aligned */
-#contact {
-    grid-row: contact-start / contact-end;
+/* Aside: complementary contact info, fallback to single column centered, subgrid places in left column right-aligned */
+aside {
+    grid-row: aside-start / aside-end;
     text-align: center;
     max-width: none;
     margin-left: 0;
@@ -440,25 +441,25 @@ section p {
 }
 
 @supports (grid-template-columns: subgrid) {
-    #contact {
+    aside {
         grid-column: left-column-start / left-column-end;
         text-align: right;
     }
 }
 
-#contact h2 {
+aside h2 {
     font-size: 1.8rem;
     display: inline-block;
     text-align: center;
 }
 
 @supports (grid-template-columns: subgrid) {
-    #contact h2 {
+    aside h2 {
         text-align: right;
     }
 }
 
-#contact ul {
+aside ul {
     list-style: none;
     margin-left: 0;
     display: flex;
@@ -468,24 +469,24 @@ section p {
 }
 
 @supports (grid-template-columns: subgrid) {
-    #contact ul {
+    aside ul {
         align-items: flex-end;
     }
 }
 
-#contact li {
+aside li {
     font-size: 0.9rem;
     line-height: 1.4;
     text-align: center;
 }
 
 @supports (grid-template-columns: subgrid) {
-    #contact li {
+    aside li {
         text-align: right;
     }
 }
 
-#contact a {
+aside a {
     color: var(--red);
     text-decoration: none;
     font-weight: 600;
@@ -496,25 +497,25 @@ section p {
     transition: background-color var(--transition-base), color var(--transition-base);
 }
 
-#contact a::before {
+aside a::before {
     content: '\2192  ';
     font-weight: 700;
     display: inline-block;
     transition: transform 0.2s var(--ease-bounce);
 }
 
-#contact a:hover::before {
+aside a:hover::before {
     animation: arrowBounce 0.6s var(--ease-bounce);
 }
 
-#contact a:hover,
-#contact a:focus {
+aside a:hover,
+aside a:focus {
     background-color: var(--red);
     color: var(--white);
     outline: none;
 }
 
-#contact a:focus-visible {
+aside a:focus-visible {
     outline: 0.125rem solid var(--red);
     outline-offset: 0.25rem;
 }
@@ -585,21 +586,21 @@ footer p {
 
     #about,
     #projects,
-    #contact {
+    aside {
         padding-left: 0;
         padding-right: 0;
         text-align: left;
     }
 
-    #contact h2 {
+    aside h2 {
         text-align: left;
     }
 
-    #contact ul {
+    aside ul {
         align-items: flex-start;
     }
 
-    #contact li {
+    aside li {
         text-align: left;
     }
 
@@ -611,7 +612,7 @@ footer p {
         font-size: 2rem;
     }
 
-    #contact {
+    aside {
         margin-left: 0;
         max-width: 100%;
     }
