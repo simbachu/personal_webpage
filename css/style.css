@@ -45,6 +45,7 @@ body {
     font-weight: 400;
     display: grid;
     justify-content: center;
+    overflow-x: hidden; /* Prevent horizontal scrollbar from extended elements */
     /* Grid for the header, main content, and footer */
     grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-column-end];
     grid-template-rows: [header-start] auto [header-end main-start] 1fr [main-end footer-start] auto [footer-end];
@@ -145,13 +146,14 @@ nav {
 
 nav ul {
     width: fit-content;
+    min-width: 15rem; /* Fixed minimum width to prevent border shifting */
     list-style: none;
     display: flex;
     gap: calc(var(--spacing-unit) * 0.5);
     flex-direction: column;
     align-items: center; /* fallback: center alignment */
     align-self: start;
-    padding-right: calc(var(--spacing-unit) * 3);
+    padding-right: calc(var(--spacing-unit) * 1);
     position: relative;
     border-right: var(--line-weight-thick) solid var(--process-black);
 }
@@ -163,6 +165,10 @@ nav ul {
     }
 }
 
+nav li {
+    width: 100%; /* Full width of ul container */
+}
+
 nav a {
     color: var(--black);
     text-decoration: none;
@@ -170,6 +176,7 @@ nav a {
     font-size: 1.3rem;
     transition: color var(--transition-base), transform 0.2s var(--ease-bounce);
     display: inline-block;
+    position: relative; /* For absolute positioning of transform */
 }
 
 nav a:hover,
@@ -177,6 +184,15 @@ nav a:focus {
     color: var(--red);
     outline: none;
     transform: translateX(0.25rem);
+    will-change: transform; /* Optimize for transform animation */
+}
+
+/* Add # symbol for anchor links on hover */
+nav a[href^="#"]:hover::after,
+nav a[href^="#"]:focus::after {
+    content: ' #';
+    font-weight: 700;
+    opacity: 0.7;
 }
 
 nav a:focus-visible {
@@ -266,6 +282,59 @@ section p {
     line-height: 1.6;
     max-width: 65ch;
     margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+/* Inline paragraph links */
+section p a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 0.125rem solid var(--red);
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+section p a:hover,
+section p a:focus {
+    background-color: var(--red);
+    color: var(--white);
+    outline: none;
+}
+
+section p a:focus-visible {
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
+}
+
+#about .profile-image {
+    float: right;
+    margin: 0 0 calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2);
+    shape-outside: circle(50%);
+    position: relative;
+}
+
+#about .profile-image::before {
+    content: '';
+    position: absolute;
+    /* Place at the bottom of the image, slightly extending outside */
+    bottom: 15%;
+    left: -10%;
+    height: var(--line-weight-thick);
+    /* Calculate width to reach right edge: start from left position + reach viewport edge */
+    width: calc(100vw - var(--page-margin) + 10%);
+    background-color: var(--red);
+    mix-blend-mode: multiply;
+    z-index: 2; /* Above the image to apply multiply effect */
+    pointer-events: none; /* Allow clicks to pass through to image if needed */
+}
+
+#about .profile-image img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--process-black);
+    position: relative;
+    z-index: 1;
 }
 
 #about > p:first-of-type {
@@ -540,6 +609,26 @@ footer p {
     font-size: 0.9rem;
 }
 
+footer a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 0.125rem solid var(--red);
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+footer a:hover,
+footer a:focus {
+    background-color: var(--red);
+    color: var(--white);
+    outline: none;
+}
+
+footer a:focus-visible {
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
+}
+
 @media (min-width: 769px) {
     .project-grid {
         grid-template-columns: 1fr 1fr;
@@ -615,6 +704,18 @@ footer p {
 
     section h2 {
         font-size: 2rem;
+    }
+
+    #about .profile-image {
+        float: none;
+        margin: 0 auto calc(var(--spacing-unit) * 2);
+        display: block;
+        text-align: center;
+    }
+
+    #about .profile-image img {
+        width: 150px;
+        height: 150px;
     }
 
     /* Footer: full width */
