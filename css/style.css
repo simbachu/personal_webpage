@@ -46,7 +46,7 @@ body {
     display: grid;
     justify-content: center;
     /* Grid for the header, main content, and footer */
-    grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-end];
+    grid-template-columns: [left-column-start] var(--layout-left) [left-column-end axis-start] var(--layout-axis) [axis-end right-column-start] var(--layout-right) [right-column-end];
     grid-template-rows: [header-start] auto [header-end main-start] 1fr [main-end footer-start] auto [footer-end];
     gap: var(--layout-grid-gap);
 }
@@ -63,7 +63,7 @@ header {
     position: relative;
     justify-content: center;
     /* Span full width */
-    grid-column: left-column-start / right-end;
+    grid-column: left-column-start / right-column-end;
     display: grid;
     /* Fallback: single column for browsers without subgrid support */
     grid-template-columns: 1fr;
@@ -82,7 +82,7 @@ header {
 header::after {
     content: '';
     display: block; /* make the pseudo-element a grid item */
-    grid-column: left-column-start / right-end; /* span axis gutter through content area */
+    grid-column: left-column-start / right-column-end; /* span axis gutter through content area */
     grid-row: gutter; /* place in gutter */
     height: var(--header-bar-height);
     justify-self: stretch;
@@ -127,10 +127,10 @@ header h1 {
 }
 
 nav {
-        /* Nav section of the header contains the ul */
-        display: block;
-        grid-row: lower; /* place in bottom row of header grid */
-        text-align: center;
+    /* Nav section of the header contains the ul */
+    display: block;
+    grid-row: lower; /* place in bottom row of header grid */
+    text-align: center;
 }
 
 /* Subgrid support: place in right column with left alignment */
@@ -248,12 +248,13 @@ section h2 {
 #about,
 #projects {
     text-align: left;
+    grid-row: main-content-start / main-content-end;
 }
 
 @supports (grid-template-columns: subgrid) {
     #about,
     #projects {
-        grid-column: right-column-start / right-end;
+        grid-column: right-column-start / right-column-end;
     }
 }
 
