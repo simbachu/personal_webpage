@@ -20,7 +20,7 @@
     /* Layout grid (shared between header, nav and main) */
     --layout-left: 1fr; /* contact / title quadrant */
     --layout-axis: calc(var(--spacing-unit) * 4); /* active whitespace axis */
-    --layout-right: 2fr; /* primary content quadrant */
+    --layout-right: 3fr; /* primary content quadrant */
     --layout-grid-gap: 1rem; /* gap between grid areas */
     --page-margin: calc(var(--spacing-unit) * 3); /* outer page margins */
     --header-bar-height: 1rem; /* height of the red divider bar */
@@ -527,6 +527,8 @@ footer {
     margin-top: calc(var(--spacing-unit) * 6);
     border-top: var(--line-weight-thick) solid transparent;
     border-image: var(--gradient-red) 1;
+    grid-column: left-column-start / right-column-end;
+    grid-row: footer-start / footer-end;
 }
 
 footer p {
