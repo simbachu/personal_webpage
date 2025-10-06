@@ -629,7 +629,7 @@ footer a:focus-visible {
     outline-offset: 0.25rem;
 }
 
-/* GitHub info in footer - Tschichold grid system */
+/* GitHub info in footer with alignment grid */
 .github-info {
     margin: calc(var(--spacing-unit) * 1.5) 0;
     padding-left: calc(var(--spacing-unit) * 1);
