@@ -51,6 +51,9 @@
         <article>
         <section id="about">
             <h2>About Me</h2>
+            <figure class="profile-image">
+                <img src="images/jg_devops_halftone.png" alt="Jennifer Gott portrait">
+            </figure>
             <p>Software designer. Information engineer. Illustrator.</p>
             <p>Based in Gothenburg, Sweden.</p>
             <p>Currently attending <a href="https://chasacademy.se/">Chas Academy</a> studying System Development.</p>
