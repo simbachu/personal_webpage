@@ -246,8 +246,10 @@ section h2 {
 
 /* Article: semantic wrapper for main content (sections, blog posts, etc.) */
 article {
-    text-align: left;
+    /* Fallback: span full width, left-aligned */
+    grid-column: 1 / -1;
     grid-row: main-content-start / main-content-end;
+    text-align: left;
     display: flex;
     flex-direction: column;
     gap: 0; /* sections handle their own margins */
@@ -431,10 +433,12 @@ section p {
     transition: transform 0.2s var(--ease-bounce);
 }
 
-/* Aside: complementary contact info, fallback to single column centered, subgrid places in left column right-aligned */
+/* Aside: complementary contact info */
 aside {
+    /* Fallback: span full width, left-aligned (matches mobile) */
+    grid-column: 1 / -1;
     grid-row: aside-start / aside-end;
-    text-align: center;
+    text-align: left;
     max-width: none;
     margin-left: 0;
     position: relative;
@@ -442,6 +446,7 @@ aside {
 
 @supports (grid-template-columns: subgrid) {
     aside {
+        /* Subgrid: place in left column with right alignment */
         grid-column: left-column-start / left-column-end;
         text-align: right;
     }
@@ -450,7 +455,7 @@ aside {
 aside h2 {
     font-size: 1.8rem;
     display: inline-block;
-    text-align: center;
+    text-align: left;
 }
 
 @supports (grid-template-columns: subgrid) {
@@ -465,7 +470,7 @@ aside ul {
     display: flex;
     flex-direction: column;
     gap: calc(var(--spacing-unit) * 0.5);
-    align-items: center; /* fallback: center alignment */
+    align-items: flex-start; /* fallback: left alignment (matches mobile) */
 }
 
 @supports (grid-template-columns: subgrid) {
@@ -477,7 +482,7 @@ aside ul {
 aside li {
     font-size: 0.9rem;
     line-height: 1.4;
-    text-align: center;
+    text-align: left;
 }
 
 @supports (grid-template-columns: subgrid) {
@@ -579,43 +584,12 @@ footer p {
         font-size: 1rem;
     }
 
-    /* Collapse to single column on mobile */
+    /* Mobile: adjust spacing and sizing only (layout already handled by fallback) */
     main {
-        display: block;
-        margin-left: 0;
         padding: calc(var(--spacing-unit) * 2);
-    }
-
-    #about,
-    #projects,
-    aside {
-        padding-left: 0;
-        padding-right: 0;
-        text-align: left;
-    }
-
-    aside h2 {
-        text-align: left;
-    }
-
-    aside ul {
-        align-items: flex-start;
-    }
-
-    aside li {
-        text-align: left;
-    }
-
-    section::before {
-        width: 40%;
     }
 
     section h2 {
         font-size: 2rem;
-    }
-
-    aside {
-        margin-left: 0;
-        max-width: 100%;
     }
 }
