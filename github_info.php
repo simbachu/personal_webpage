@@ -1,20 +1,42 @@
 <?php
-//! @brief Fetches GitHub commit information for a specific branch
-//! @param string $owner Repository owner
-//! @param string $repo Repository name
-//! @param string $branch Branch name
-//! @return array|null Array with commit info or null on failure
-function fetch_github_branch_info($owner, $repo, $branch) {
-    $cache_file = sys_get_temp_dir() . "/github_cache_{$owner}_{$repo}_{$branch}.json";
-    $cache_duration = 300; //!< 5 minutes
+//! @brief Handles API call failures with smart cache fallback
+//! @param string $cache_file Path to cache file
+//! @return array|null Cached data if appropriate, null if branch doesn't exist
+function handle_api_failure($cache_file) {
+    // Check if this was a 404 (branch doesn't exist) vs network error
+    if (isset($GLOBALS['http_response_header'])) {
+        foreach ($GLOBALS['http_response_header'] as $header) {
+            if (strpos($header, '404') !== false) {
+                // Branch doesn't exist - delete stale cache and return null
+                if (file_exists($cache_file)) {
+                    @unlink($cache_file);
+                }
+                return null;
+            }
+        }
+    }
 
+    // Network error or other issue - fall back to cache
+    if (file_exists($cache_file)) {
+        $cached_data = file_get_contents($cache_file);
+        return json_decode($cached_data, true);
+    }
+    return null;
+}
+
+//! @brief Makes a cached GitHub API request
+//! @param string $url GitHub API URL
+//! @param string $cache_file Path to cache file
+//! @param int $cache_duration Cache duration in seconds
+//! @return array|null Decoded JSON response or null on failure
+function fetch_cached_github_api($url, $cache_file, $cache_duration = 300) {
+    // Check cache validity
     if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $cache_duration) {
         $cached_data = file_get_contents($cache_file);
         return json_decode($cached_data, true);
     }
 
-    $url = "https://api.github.com/repos/{$owner}/{$repo}/branches/{$branch}";
-
+    // Create HTTP request options
     $options = [
         'http' => [
             'method' => 'GET',
@@ -30,15 +52,34 @@ function fetch_github_branch_info($owner, $repo, $branch) {
     $response = @file_get_contents($url, false, $context);
 
     if ($response === false) {
-        if (file_exists($cache_file)) {
-            $cached_data = file_get_contents($cache_file);
-            return json_decode($cached_data, true);
-        }
+        return handle_api_failure($cache_file);
+    }
+
+    return json_decode($response, true);
+}
+
+//! @brief Fetches GitHub commit information for a specific branch
+//! @param string $owner Repository owner
+//! @param string $repo Repository name
+//! @param string $branch Branch name
+//! @return array|null Array with commit info or null on failure
+function fetch_github_branch_info($owner, $repo, $branch) {
+    $cache_file = sys_get_temp_dir() . "/github_cache_{$owner}_{$repo}_{$branch}.json";
+    $url = "https://api.github.com/repos/{$owner}/{$repo}/branches/{$branch}";
+
+    $data = fetch_cached_github_api($url, $cache_file);
+
+    if ($data === null) {
         return null;
     }
 
-    $data = json_decode($response, true);
+    // Check if this is cached simplified data or fresh API data
+    if (isset($data['sha']) && isset($data['date'])) {
+        // Already simplified from cache
+        return $data;
+    }
 
+    // Fresh API data - extract and cache
     if (!isset($data['commit'])) {
         return null;
     }
@@ -87,41 +128,21 @@ function format_github_date($date) {
 //! @return int|null Number of commits ahead, or null on failure
 function fetch_commits_ahead($owner, $repo, $base, $head) {
     $cache_file = sys_get_temp_dir() . "/github_compare_{$owner}_{$repo}_{$base}_{$head}.json";
-    $cache_duration = 300; //!< 5 minutes
-
-    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $cache_duration) {
-        $cached_data = file_get_contents($cache_file);
-        $result = json_decode($cached_data, true);
-        return $result['ahead_by'] ?? null;
-    }
-
     $url = "https://api.github.com/repos/{$owner}/{$repo}/compare/{$base}...{$head}";
 
-    $options = [
-        'http' => [
-            'method' => 'GET',
-            'header' => [
-                'User-Agent: PHP',
-                'Accept: application/vnd.github.v3+json'
-            ],
-            'timeout' => 5
-        ]
-    ];
+    $data = fetch_cached_github_api($url, $cache_file);
 
-    $context = stream_context_create($options);
-    $response = @file_get_contents($url, false, $context);
-
-    if ($response === false) {
-        if (file_exists($cache_file)) {
-            $cached_data = file_get_contents($cache_file);
-            $result = json_decode($cached_data, true);
-            return $result['ahead_by'] ?? null;
-        }
+    if ($data === null) {
         return null;
     }
 
-    $data = json_decode($response, true);
+    // Check if this is already simplified cached data
+    if (isset($data['ahead_by']) && !isset($data['status'])) {
+        // Already simplified from cache
+        return $data['ahead_by'];
+    }
 
+    // Fresh API data - extract and cache
     if (!isset($data['ahead_by'])) {
         return null;
     }
