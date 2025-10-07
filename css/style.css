@@ -603,6 +603,16 @@ footer {
     border-image: var(--gradient-red) 1;
     grid-column: left-column-start / right-column-end;
     grid-row: footer-start / footer-end;
+    display: grid;
+    /* Fallback: single column for browsers without subgrid support */
+    grid-template-columns: 1fr;
+}
+
+/* Modern browsers: use subgrid to align footer content with body columns */
+@supports (grid-template-columns: subgrid) {
+    footer {
+        grid-template-columns: subgrid;
+    }
 }
 
 footer p {
@@ -627,6 +637,55 @@ footer a:focus {
 footer a:focus-visible {
     outline: 0.125rem solid var(--red);
     outline-offset: 0.25rem;
+}
+
+/* GitHub info in footer with alignment grid */
+.github-info {
+    margin: calc(var(--spacing-unit) * 1.5) 0;
+    padding-left: calc(var(--spacing-unit) * 1);
+    border-left: 0.25rem solid var(--black);
+    font-size: 0.85rem;
+}
+
+/* Subgrid support: align GitHub info with right column */
+@supports (grid-template-columns: subgrid) {
+    .github-info {
+        grid-column: right-column-start / right-column-end;
+    }
+
+    footer > p {
+        grid-column: left-column-start / right-column-end;
+    }
+}
+
+.branch-status {
+    display: grid;
+    grid-template-columns: minmax(7rem, auto) minmax(8rem, 1fr) minmax(10rem, auto);
+    gap: calc(var(--spacing-unit) * 1);
+    align-items: baseline;
+    margin: 0.375rem 0;
+    line-height: 1.6;
+}
+
+.branch-name {
+    font-weight: 600;
+    color: var(--black);
+}
+
+.branch-name a {
+    color: var(--black);
+}
+
+.branch-meta {
+    color: var(--process-black);
+    font-size: 0.9em;
+    letter-spacing: 0.01em;
+}
+
+.branch-time {
+    color: var(--process-black);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 @media (min-width: 769px) {
@@ -718,9 +777,43 @@ footer a:focus-visible {
         height: 150px;
     }
 
-    /* Footer: full width */
+    /* Footer: full width, disable subgrid on mobile */
     footer {
         grid-column: 1 / -1;
         padding: calc(var(--spacing-unit) * 1.5);
+        display: block;
+    }
+
+    /* GitHub info: use block flow on mobile instead of grid */
+    .github-info {
+        display: block;
+        margin: calc(var(--spacing-unit) * 1) 0;
+        padding-left: calc(var(--spacing-unit) * 0.75);
+        border-left-width: 0.1875rem;
+    }
+
+    .branch-status {
+        display: block;
+        margin: calc(var(--spacing-unit) * 0.75) 0;
+    }
+
+    .branch-name {
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .branch-meta {
+        display: inline;
+        font-size: 0.85em;
+    }
+
+    .branch-meta:not(:empty)::after {
+        content: ' • ';
+        color: var(--process-black);
+    }
+
+    .branch-time {
+        display: inline;
+        text-align: left;
     }
 }
