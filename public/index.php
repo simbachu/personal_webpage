@@ -11,14 +11,14 @@ $is_dev = (basename(__DIR__) === 'dev');
 
 if ($is_dev) {
     // Dev environment: .../httpd.www/dev/
-    // Go up two levels to reach home directory, then add /private/dev and /vendor/dev
-    define('PRIVATE_DIR', dirname(dirname(__DIR__)) . '/private/dev');
-    $vendor_autoload = dirname(dirname(__DIR__)) . '/vendor/dev/autoload.php';
+    // Go up two levels to reach home, then into httpd.private for vendor and private files
+    define('PRIVATE_DIR', dirname(dirname(__DIR__)) . '/httpd.private/private/dev');
+    $vendor_autoload = dirname(dirname(__DIR__)) . '/httpd.private/vendor/dev/autoload.php';
 } else {
     // Main environment: .../httpd.www/
-    // Go up one level to reach home directory, then add /private and /vendor
-    define('PRIVATE_DIR', dirname(__DIR__) . '/private');
-    $vendor_autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    // Go up one level to reach home, then into httpd.private for vendor and private files
+    define('PRIVATE_DIR', dirname(__DIR__) . '/httpd.private/private');
+    $vendor_autoload = dirname(__DIR__) . '/httpd.private/vendor/autoload.php';
 }
 
 // Load Composer autoloader
