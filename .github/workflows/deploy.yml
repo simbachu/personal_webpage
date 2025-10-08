@@ -14,14 +14,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set deployment path
+      - name: Set deployment paths
         id: deploy_path
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "path=${{ secrets.SSH_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          # Handle case where the branch is developing by appending a dev/ prefix to the paths
+          # On main: www/, private/, vendor/
+          # On dev:  www/dev/, private/dev/, vendor/dev/ (separate vendor to avoid conflicts)
+          if [ "$GITHUB_REF" = "refs/heads/developing" ]; then
+            PATH_OFFSET="dev/"
           else
-            echo "path=${{ secrets.SSH_DEPLOY_PATH }}/dev" >> $GITHUB_OUTPUT
+            PATH_OFFSET=""
           fi
+
+          PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '/www' }}/${PATH_OFFSET}"
+          PRIVATE_PATH="${{ secrets.SSH_PRIVATE_PATH || '/private' }}/${PATH_OFFSET}"
+          VENDOR_PATH="${{ secrets.SSH_VENDOR_PATH || '/vendor' }}/${PATH_OFFSET}"
+
+          echo "public=$PUBLIC_PATH" >> $GITHUB_OUTPUT
+          echo "private=$PRIVATE_PATH" >> $GITHUB_OUTPUT
+          echo "vendor=$VENDOR_PATH" >> $GITHUB_OUTPUT
+
+
+
+
 
       - name: Setup SSH key
         run: |
@@ -30,27 +45,26 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Set exclusions for main branch
-        id: exclusions
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "extra=--exclude=dev" >> $GITHUB_OUTPUT
-          else
-            echo "extra=" >> $GITHUB_OUTPUT
-          fi
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
 
-      - name: Deploy via rsync over SSH
+      - name: Deploy public files via rsync
         run: |
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='README.md' \
-            --exclude='.gitignore' \
-            --exclude='.vscode' \
-            --exclude='node_modules' \
-            ${{ steps.exclusions.outputs.extra }} \
-            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.path }}/
+            ./public/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.public }}/
+
+      - name: Deploy private files via rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
+            ./private/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}/
+
+      - name: Deploy vendor directory via rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
+            ./vendor/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.vendor }}/
 
       - name: Cleanup SSH key
         if: always()

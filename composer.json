@@ -1,0 +1,9 @@
+{
+    "name": "simbachu/personal-webpage",
+    "description": "Personal webpage for Jennifer Gott",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "twig/twig": "^3.21"
+    }
+}

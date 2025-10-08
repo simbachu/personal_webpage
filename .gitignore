@@ -24,8 +24,9 @@ tmp/
 temp/
 *.tmp
 
-# PHP
+# PHP & Composer
 vendor/
 composer.phar
+composer.lock
 
 
