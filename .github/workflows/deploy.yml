@@ -17,23 +17,21 @@ jobs:
       - name: Set deployment paths
         id: deploy_path
         run: |
-          # Handle case where the branch is developing by appending a dev/ prefix to the paths
+          # Handle case where the branch is developing by using a dev/ subdirectory
           # SSH home is httpd.private, so paths are relative to that directory
-          # On main: ../httpd.www/, private/, vendor/
-          # On dev:  ../httpd.www/dev/, private/dev/, vendor/dev/ (separate vendor to avoid conflicts)
+          # On main: ../httpd.www/, templates/, vendor/, github_info.php at root
+          # On dev:  ../httpd.www/dev/, dev/templates/, dev/vendor/, dev/github_info.php
           if [ "$GITHUB_REF" = "refs/heads/developing" ]; then
-            PATH_OFFSET="dev/"
+            ENV_PREFIX="dev/"
           else
-            PATH_OFFSET=""
+            ENV_PREFIX=""
           fi
 
-          PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '../httpd.www' }}/${PATH_OFFSET}"
-          PRIVATE_PATH="${{ secrets.SSH_PRIVATE_PATH || 'private' }}/${PATH_OFFSET}"
-          VENDOR_PATH="${{ secrets.SSH_VENDOR_PATH || 'vendor' }}/${PATH_OFFSET}"
+          PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '../httpd.www' }}/${ENV_PREFIX}"
+          PRIVATE_PATH="${ENV_PREFIX}"
 
           echo "public=$PUBLIC_PATH" >> $GITHUB_OUTPUT
           echo "private=$PRIVATE_PATH" >> $GITHUB_OUTPUT
-          echo "vendor=$VENDOR_PATH" >> $GITHUB_OUTPUT
 
 
 
@@ -53,7 +51,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-            "mkdir -p ${{ steps.deploy_path.outputs.public }} ${{ steps.deploy_path.outputs.private }} ${{ steps.deploy_path.outputs.vendor }}"
+            "mkdir -p ${{ steps.deploy_path.outputs.public }} ${{ steps.deploy_path.outputs.private }}"
 
       - name: Deploy public files via rsync
         run: |
@@ -65,13 +63,11 @@ jobs:
         run: |
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
-            ./private/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}/
-
-      - name: Deploy vendor directory via rsync
-        run: |
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
-            ./vendor/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.vendor }}/
+            --include='templates/***' \
+            --include='vendor/***' \
+            --include='github_info.php' \
+            --exclude='*' \
+            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}/
 
       - name: Cleanup SSH key
         if: always()

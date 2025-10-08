@@ -9,24 +9,23 @@ define('PUBLIC_DIR', __DIR__);
 // Detect if we're in a dev subdirectory by checking if current directory is named 'dev'
 $is_dev = (basename(__DIR__) === 'dev');
 
-if ($is_dev) {
-    // Dev environment: .../httpd.www/dev/
-    // Go up two levels to reach home, then into httpd.private for vendor and private files
-    define('PRIVATE_DIR', dirname(dirname(__DIR__)) . '/httpd.private/private/dev');
-    $vendor_autoload = dirname(dirname(__DIR__)) . '/httpd.private/vendor/dev/autoload.php';
-} else {
-    // Main environment: .../httpd.www/
-    // Go up one level to reach home, then into httpd.private for vendor and private files
-    define('PRIVATE_DIR', dirname(__DIR__) . '/httpd.private/private');
-    $vendor_autoload = dirname(__DIR__) . '/httpd.private/vendor/autoload.php';
-}
+// Build base path to httpd.private
+// Dev: /httpd.www/dev/ -> go up 2 levels -> /
+// Main: /httpd.www/ -> go up 1 level -> /
+$base_path = $is_dev ? dirname(dirname(__DIR__)) : dirname(__DIR__);
+$env_prefix = $is_dev ? '/dev' : '';
+
+// All private files are in httpd.private[/dev]
+define('TEMPLATES_DIR', $base_path . '/httpd.private' . $env_prefix . '/templates');
+$vendor_autoload = $base_path . '/httpd.private' . $env_prefix . '/vendor/autoload.php';
+$github_info_path = $base_path . '/httpd.private' . $env_prefix . '/github_info.php';
 
 // Load Composer autoloader
 require_once $vendor_autoload;
-require_once PRIVATE_DIR . '/github_info.php';
+require_once $github_info_path;
 
 // Initialize Twig
-$loader = new \Twig\Loader\FilesystemLoader(PRIVATE_DIR . '/templates');
+$loader = new \Twig\Loader\FilesystemLoader(TEMPLATES_DIR);
 $twig = new \Twig\Environment($loader, [
     'cache' => false, // Disable cache for development; enable in production
     'autoescape' => 'html',
