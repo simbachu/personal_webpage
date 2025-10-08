@@ -1,7 +1,8 @@
 # My personal home page
 By @simbachu
-[![Deploy to Shared Hosting](https://github.com/simbachu/personal_webpage/actions/workflows/deploy.yml/badge.svg?branch=developing)](https://github.com/simbachu/personal_webpage/actions/workflows/deploy.yml)
-[![Deploy to Shared Hosting](https://github.com/simbachu/personal_webpage/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/simbachu/personal_webpage/actions/workflows/deploy.yml)
+
+- Stable [![Deploy to Shared Hosting](https://github.com/simbachu/personal_webpage/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/simbachu/personal_webpage/actions/workflows/deploy.yml)
+- Development preview [![Deploy to Shared Hosting](https://github.com/simbachu/personal_webpage/actions/workflows/deploy.yml/badge.svg?branch=developing)](https://github.com/simbachu/personal_webpage/actions/workflows/deploy.yml)
 
 ## Brief
 I wanted to set up a personal homepage using GitHub as source control. I have two versions up on my hosting, a stable version and a development preview.
