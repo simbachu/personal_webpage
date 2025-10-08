@@ -48,6 +48,12 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
 
+      - name: Create deployment directories on server
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            "mkdir -p ${{ steps.deploy_path.outputs.public }} ${{ steps.deploy_path.outputs.private }} ${{ steps.deploy_path.outputs.vendor }}"
+
       - name: Deploy public files via rsync
         run: |
           rsync -avz --delete \
