@@ -26,9 +26,9 @@ jobs:
             PATH_OFFSET=""
           fi
 
-          PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '/www' }}/${PATH_OFFSET}"
-          PRIVATE_PATH="${{ secrets.SSH_PRIVATE_PATH || '/private' }}/${PATH_OFFSET}"
-          VENDOR_PATH="${{ secrets.SSH_VENDOR_PATH || '/vendor' }}/${PATH_OFFSET}"
+          PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || 'www' }}/${PATH_OFFSET}"
+          PRIVATE_PATH="${{ secrets.SSH_PRIVATE_PATH || 'private' }}/${PATH_OFFSET}"
+          VENDOR_PATH="${{ secrets.SSH_VENDOR_PATH || 'vendor' }}/${PATH_OFFSET}"
 
           echo "public=$PUBLIC_PATH" >> $GITHUB_OUTPUT
           echo "private=$PRIVATE_PATH" >> $GITHUB_OUTPUT
