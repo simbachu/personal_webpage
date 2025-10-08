@@ -1,3 +1,6 @@
+# Disable caching, remove for production
+Header add "Cache-Control" "no-cache"
+
 # URL rewriting
 RewriteEngine On
 
