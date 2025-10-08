@@ -17,10 +17,9 @@ jobs:
       - name: Set deployment paths
         id: deploy_path
         run: |
-          # Handle case where the branch is developing by using a dev/ subdirectory
-          # SSH home is httpd.private, so paths are relative to that directory
-          # On main: ../httpd.www/, templates/, vendor/, github_info.php at root
-          # On dev:  ../httpd.www/dev/, dev/templates/, dev/vendor/, dev/github_info.php
+          # SSH home is httpd.private
+          # Repo structure: public/ -> httpd.www, private/ -> httpd.private (SSH root)
+          # Dev environment uses dev/ subdirectory for isolation
           if [ "$GITHUB_REF" = "refs/heads/developing" ]; then
             ENV_PREFIX="dev/"
           else
@@ -33,10 +32,6 @@ jobs:
           echo "public=$PUBLIC_PATH" >> $GITHUB_OUTPUT
           echo "private=$PRIVATE_PATH" >> $GITHUB_OUTPUT
 
-
-
-
-
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
@@ -46,6 +41,9 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
+
+      - name: Move vendor into private for deployment
+        run: mv ./vendor ./private/vendor
 
       - name: Create deployment directories on server
         run: |
@@ -63,11 +61,7 @@ jobs:
         run: |
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
-            --include='templates/***' \
-            --include='vendor/***' \
-            --include='github_info.php' \
-            --exclude='*' \
-            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}/
+            ./private/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}/
 
       - name: Cleanup SSH key
         if: always()
