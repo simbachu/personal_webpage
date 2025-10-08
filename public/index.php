@@ -4,21 +4,21 @@
  */
 
 // Define paths based on deployment structure
-// Main deployment: /www/index.php         → private=/private, vendor=/vendor
-// Dev deployment:  /www/dev/index.php     → private=/private/dev, vendor=/vendor/dev
 define('PUBLIC_DIR', __DIR__);
 
-// Detect if we're in a dev subdirectory by checking path depth
-$is_dev = (basename(dirname(__DIR__)) === 'www');
+// Detect if we're in a dev subdirectory by checking if current directory is named 'dev'
+$is_dev = (basename(__DIR__) === 'dev');
 
 if ($is_dev) {
-    // Dev environment: /www/dev/
-    define('PRIVATE_DIR', dirname(dirname(__DIR__)) . '/private/dev');
-    $vendor_autoload = dirname(dirname(__DIR__)) . '/vendor/dev/autoload.php';
+    // Dev environment: .../httpd.www/dev/
+    // Go up two levels to reach base, then add /private/dev and /vendor/dev
+    define('PRIVATE_DIR', dirname(__DIR__) . '/private/dev');
+    $vendor_autoload = dirname(__DIR__) . '/vendor/dev/autoload.php';
 } else {
-    // Main environment: /www/
-    define('PRIVATE_DIR', dirname(__DIR__) . '/private');
-    $vendor_autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    // Main environment: .../httpd.www/
+    // Private and vendor are siblings of current directory
+    define('PRIVATE_DIR', __DIR__ . '/private');
+    $vendor_autoload = __DIR__ . '/vendor/autoload.php';
 }
 
 // Load Composer autoloader
