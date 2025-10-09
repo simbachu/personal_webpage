@@ -22,10 +22,10 @@
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ meta.twitter_title|default(meta.og_title)|default(meta.title)|default('Jennifer Gott - Software Designer & Information Engineer') }}">
-    <meta name="twitter:description" content="{{ meta.twitter_description|default(meta.description)|default('Software designer, information engineer, and illustrator based in Gothenburg, Sweden.') }}">
-    <meta name="twitter:image" content="{{ meta.twitter_image|default(meta.og_image)|default(base_url ~ '/images/og-image.png') }}">
-    <meta name="twitter:image:alt" content="{{ meta.twitter_image_alt|default(meta.og_image_alt)|default('Jennifer Gott - Software Designer, Information Engineer, and Illustrator') }}">
+    <meta name="twitter:title" content="{{ meta.twitter_title is defined ? meta.twitter_title : (meta.og_title is defined ? meta.og_title : (meta.title is defined ? meta.title : 'Jennifer Gott - Software Designer & Information Engineer')) }}">
+    <meta name="twitter:description" content="{{ meta.twitter_description is defined ? meta.twitter_description : (meta.description is defined ? meta.description : 'Software designer, information engineer, and illustrator based in Gothenburg, Sweden.') }}">
+    <meta name="twitter:image" content="{{ meta.twitter_image is defined ? meta.twitter_image : (meta.og_image is defined ? meta.og_image : base_url ~ '/images/og-image.png') }}">
+    <meta name="twitter:image:alt" content="{{ meta.twitter_image_alt is defined ? meta.twitter_image_alt : (meta.og_image_alt is defined ? meta.og_image_alt : 'Jennifer Gott - Software Designer, Information Engineer, and Illustrator') }}">
 
     <!-- Additional Meta Tags -->
     <meta name="author" content="Jennifer Gott">
