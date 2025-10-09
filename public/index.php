@@ -24,6 +24,11 @@ $github_info_path = $base_path . '/httpd.private' . $env_prefix . '/github_info.
 require_once $vendor_autoload;
 require_once $github_info_path;
 
+// Initialize content repository and presenter
+$content_path = $base_path . '/httpd.private' . $env_prefix . '/content';
+$contentRepository = new \App\Model\ContentRepository($content_path);
+$homePresenter = new \App\Presenter\HomePresenter($contentRepository);
+
 // Initialize Twig
 $loader = new \Twig\Loader\FilesystemLoader(TEMPLATES_DIR);
 $twig = new \Twig\Environment($loader, [
@@ -91,6 +96,9 @@ if (isset($routes[$path])) {
     $route = $routes[$path];
     $template = $route['template'];
     $meta = $route['meta'] ?? [];
+
+    // Get content data for home page
+    $content_data = ($template === 'home') ? $homePresenter->present() : [];
 } else {
     // 404 Not Found
     http_response_code(404);
@@ -99,6 +107,7 @@ if (isset($routes[$path])) {
         'title' => 'Page Not Found - Jennifer Gott',
         'description' => 'The page you are looking for does not exist.',
     ];
+    $content_data = [];
 }
 
 // Fetch GitHub info for footer
@@ -120,7 +129,7 @@ $github = [
 ];
 
 // Render the template
-render($template, [
+render($template, array_merge([
     'meta' => $meta,
     'github' => $github,
     'base_url' => $base_url,
@@ -128,4 +137,4 @@ render($template, [
     'canonical_url' => $current_url,
     'cache_bust' => time(),
     'current_year' => date('Y'),
-]);
+], $content_data));

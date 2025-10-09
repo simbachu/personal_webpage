@@ -1,4 +1,4 @@
-name: Deploy to Shared Hosting
+name: Test and Deploy to Shared Hosting
 
 on:
   push:
@@ -7,8 +7,34 @@ on:
       - developing
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Run smoke tests
+        run: vendor/bin/phpunit --testsuite=Smoke
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit --testsuite=Unit
+
+      - name: Run integration tests
+        run: vendor/bin/phpunit --testsuite=Integration
+
   deploy:
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Checkout code
