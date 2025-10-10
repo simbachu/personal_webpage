@@ -26,6 +26,6 @@ temp/
 
 # PHP & Composer
 /vendor/
-/private/vendor/
 .phpunit.cache/
 .phpunit.result.cache
+composer.phar

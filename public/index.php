@@ -18,11 +18,9 @@ $env_prefix = $is_dev ? '/dev' : '';
 // All private files are in httpd.private[/dev]
 define('TEMPLATES_DIR', $base_path . '/httpd.private' . $env_prefix . '/templates');
 $vendor_autoload = $base_path . '/httpd.private' . $env_prefix . '/vendor/autoload.php';
-$github_info_path = $base_path . '/httpd.private' . $env_prefix . '/github_info.php';
 
 // Load Composer autoloader
 require_once $vendor_autoload;
-require_once $github_info_path;
 
 // Initialize content repository and presenter
 $content_path = $base_path . '/httpd.private' . $env_prefix . '/content';
@@ -111,19 +109,20 @@ if (isset($routes[$path])) {
 }
 
 // Fetch GitHub info for footer
-$github_raw = get_github_info('simbachu', 'personal_webpage');
+$githubService = new \App\Service\GitHubService();
+$github_raw = $githubService->getRepositoryInfo('simbachu', 'personal_webpage');
 
 // Format GitHub dates for Twig
 $github = [
     'main' => $github_raw['main'] ? [
         'url' => $github_raw['main']['url'],
         'message' => $github_raw['main']['message'],
-        'date_formatted' => format_github_date($github_raw['main']['date']),
+        'date_formatted' => $githubService->formatDate($github_raw['main']['date']),
     ] : null,
     'dev' => $github_raw['dev'] ? [
         'url' => $github_raw['dev']['url'],
         'message' => $github_raw['dev']['message'],
-        'date_formatted' => format_github_date($github_raw['dev']['date']),
+        'date_formatted' => $githubService->formatDate($github_raw['dev']['date']),
     ] : null,
     'commits_ahead' => $github_raw['commits_ahead'] ?? 0,
 ];

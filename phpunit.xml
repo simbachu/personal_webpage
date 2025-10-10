@@ -20,7 +20,7 @@
     </testsuites>
     <source>
         <include>
-            <directory>private/src</directory>
+            <directory>src</directory>
         </include>
     </source>
 </phpunit>

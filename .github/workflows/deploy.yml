@@ -65,42 +65,41 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader
-
-      - name: Move vendor into private for deployment
-        run: |
-          mv ./vendor ./private/vendor
-          cp ./composer.json ./private/composer.json
-          cp ./composer.lock ./private/composer.lock
-
-      - name: Update composer.json paths for deployment
-        working-directory: ./private
-        run: |
-          # Update autoload path from "private/src/" to "src/" since composer.json is now in private/
-          sed -i 's|"App\\\\": "private/src/"|"App\\\\": "src/"|g' composer.json
-
-      - name: Regenerate autoloader with correct paths
-        working-directory: ./private
-        run: composer dump-autoload --no-dev --optimize --classmap-authoritative
-
       - name: Create deployment directories on server
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
             "mkdir -p ${{ steps.deploy_path.outputs.public }} ${{ steps.deploy_path.outputs.private }}"
 
-      - name: Deploy public files via rsync
+      - name: Deploy application files to private directory
+        run: |
+          rsync -avz --delete \
+            --include='src/***' \
+            --include='templates/***' \
+            --include='content/***' \
+            --include='composer.json' \
+            --include='composer.lock' \
+            --exclude='*' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
+            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}/
+
+      - name: Deploy public files
         run: |
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
             ./public/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.public }}/
 
-      - name: Deploy private files via rsync
+      - name: Install Composer dependencies on server
         run: |
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
-            ./private/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}/
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ steps.deploy_path.outputs.private }} && composer install --no-dev --optimize-autoloader --classmap-authoritative --no-interaction"
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ steps.deploy_path.outputs.private }} && php -r \"require 'vendor/autoload.php'; if (!class_exists('App\\\\Model\\\\ContentRepository')) { echo 'ERROR: Autoloader verification failed'; exit(1); } echo 'Autoloader OK';\""
 
       - name: Cleanup SSH key
         if: always()
