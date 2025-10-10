@@ -69,7 +69,20 @@ jobs:
         run: composer install --no-dev --optimize-autoloader
 
       - name: Move vendor into private for deployment
-        run: mv ./vendor ./private/vendor
+        run: |
+          mv ./vendor ./private/vendor
+          cp ./composer.json ./private/composer.json
+          cp ./composer.lock ./private/composer.lock
+
+      - name: Update composer.json paths for deployment
+        working-directory: ./private
+        run: |
+          # Update autoload path from "private/src/" to "src/" since composer.json is now in private/
+          sed -i 's|"App\\\\": "private/src/"|"App\\\\": "src/"|g' composer.json
+
+      - name: Regenerate autoloader with correct paths
+        working-directory: ./private
+        run: composer dump-autoload --no-dev --optimize --classmap-authoritative
 
       - name: Create deployment directories on server
         run: |
