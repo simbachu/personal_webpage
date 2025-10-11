@@ -8,7 +8,7 @@ As Product Owner at Volvo Buses, I transformed how service technicians diagnose 
 
 As Scrum Product Owner for three teams delivering diagnostic content and technical documentation, I worked across the entire product lifecycle. This included R&D roadmap ownership, production process industrialization and closing the feedback loop from field diagnostics back to development. I drove agile transformation as coach for our international aftermarket department, championing standardized processes to move teams from uncertainty to clear, actionable planning.
 
-Working with vehicle electronics and communication protocols, I witnessed the automotive industry transforming into a software-defined ecosystem. This inspired me to move from documenting these systems to building them. I enrolled at <a href="https://chasacademy.se/">Chas Academy</a> to study System Development. Now I work with the whole development chain from embedded device development to backend APIs and web applications.
+Working with vehicle electronics and communication protocols, I witnessed the automotive industry transforming into a software-defined ecosystem. This inspired me to move from documenting these systems to building them. I enrolled at [Chas Academy](https://chasacademy.se/) to study System Development. Now I work with the whole development chain from embedded device development to backend APIs and web applications.
 
 My experience with vehicle electronics and diagnostics informs my approach to system design. I build solutions that are not just functional, but testable, maintainable and diagnosable from day one.
 

@@ -98,8 +98,8 @@ YAML;
         $this->assertEquals('/images/test.png', $data['about']['profile_image']);
         $this->assertEquals('Test portrait', $data['about']['profile_alt']);
         $this->assertCount(2, $data['about']['paragraphs']);
-        $this->assertEquals('Software designer and developer.', $data['about']['paragraphs'][0]);
-        $this->assertEquals('Based in Sweden.', $data['about']['paragraphs'][1]);
+        $this->assertEquals('<p>Software designer and developer.</p>', $data['about']['paragraphs'][0]);
+        $this->assertEquals('<p>Based in Sweden.</p>', $data['about']['paragraphs'][1]);
 
         //! Skills
         $this->assertCount(2, $data['skills']);

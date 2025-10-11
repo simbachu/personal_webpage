@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model;
 
 use Symfony\Component\Yaml\Yaml;
+use League\CommonMark\CommonMarkConverter;
 
 //! @brief ContentRepository - Loads content from YAML and Markdown files
 //!
@@ -51,9 +52,9 @@ class ContentRepository
 
     //! @brief Load about section paragraphs from about.md
     //!
-    //! Splits markdown content by double newlines into paragraphs
+    //! Splits markdown content by double newlines into paragraphs and parses each to HTML
     //!
-    //! @retval string[] Array of paragraph strings
+    //! @retval string[] Array of HTML paragraph strings
     public function getAboutParagraphs(): array
     {
         $filePath = $this->contentPath . '/about.md';
@@ -75,7 +76,19 @@ class ContentRepository
         }
 
         //! Filter out empty paragraphs and trim whitespace
-        return array_values(array_filter(array_map('trim', $paragraphs)));
+        $paragraphs = array_values(array_filter(array_map('trim', $paragraphs)));
+
+        //! Parse each paragraph from Markdown to HTML
+        $converter = new CommonMarkConverter();
+        $htmlParagraphs = [];
+        
+        foreach ($paragraphs as $paragraph) {
+            $html = $converter->convert($paragraph)->getContent();
+            //! Remove trailing newline that CommonMark adds
+            $htmlParagraphs[] = rtrim($html);
+        }
+
+        return $htmlParagraphs;
     }
 
     //! @brief Load configuration from config.yaml
