@@ -23,7 +23,7 @@
                         {% if monster.type1 %}
                             <li class="type type-{{ monster.type1 }}">{{ monster.type1 }}</li>
                         {% endif %}
-                        {% if monster.type2 %}
+                        {% if monster.type2 is defined and monster.type2 %}
                             <li class="type type-{{ monster.type2 }}">{{ monster.type2 }}</li>
                         {% endif %}
                     </ul>
