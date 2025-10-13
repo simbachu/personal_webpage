@@ -430,10 +430,115 @@ article {
     );
 }
 
+/* Monster Card Evolution Links */
+.monster-card-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--spacing-unit) * 2);
+    margin-top: calc(var(--spacing-unit) * 1.5);
+    padding-top: calc(var(--spacing-unit) * 1);
+    border-top: var(--line-weight) solid var(--process-black);
+}
+
+.evolution-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--black);
+    margin: 0 0 calc(var(--spacing-unit) * 0.5) 0;
+}
+
+.evolution-link {
+    margin: 0;
+}
+
+.evolution-link a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 0.125rem solid var(--red);
+    transition: background-color var(--transition-base), color var(--transition-base);
+    display: inline-block;
+}
+
+.evolution-link a:hover,
+.evolution-link a:focus {
+    background-color: var(--red);
+    color: var(--white);
+    outline: none;
+}
+
+.evolution-link a:focus-visible {
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
+}
+
+.evolution-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 0.25);
+}
+
+.evolution-list li {
+    margin: 0;
+}
+
+.evolution-list a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 0.125rem solid var(--red);
+    transition: background-color var(--transition-base), color var(--transition-base);
+    display: inline-block;
+}
+
+.evolution-list a:hover,
+.evolution-list a:focus {
+    background-color: var(--red);
+    color: var(--white);
+    outline: none;
+}
+
+.evolution-list a:focus-visible {
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .monster-card-links {
+        grid-template-columns: 1fr;
+        gap: calc(var(--spacing-unit) * 1);
+    }
+
+    .evolution-label-left,
+    .evolution-link-left {
+        grid-column: 1;
+    }
+
+    .evolution-label-right,
+    .evolution-link-right {
+        grid-column: 1;
+    }
+}
+
 @media (min-width: 769px) {
     .monster-card-body {
         grid-template-columns: 1fr 1fr;
         align-items: start;
+    }
+
+    .evolution-label-left,
+    .evolution-link-left {
+        grid-column: 1;
+    }
+
+    .evolution-label-right,
+    .evolution-link-right {
+        grid-column: 2;
     }
 }
 

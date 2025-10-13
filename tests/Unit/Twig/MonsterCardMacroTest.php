@@ -114,8 +114,9 @@ TWIG;
         $this->assertStringContainsString('Ditto', $html);
         $this->assertStringContainsString('data-type1="normal"', $html);
         $this->assertStringNotContainsString('monster-card-links', $html);
-        $this->assertStringNotContainsString('From:', $html);
-        $this->assertStringNotContainsString('To:', $html);
+        $this->assertStringNotContainsString('<dl class="monster-card-links">', $html);
+        $this->assertStringNotContainsString('From', $html);
+        $this->assertStringNotContainsString('To', $html);
     }
 
     public function test_macro_renders_bulbasaur_with_successor_link(): void
@@ -139,9 +140,11 @@ TWIG;
         // Assert
         $this->assertStringContainsString('Bulbasaur', $html);
         $this->assertStringContainsString('monster-card-links', $html);
-        $this->assertStringContainsString('To:', $html);
+        $this->assertStringContainsString('<dl class="monster-card-links">', $html);
+        $this->assertStringContainsString('<dt class="evolution-label evolution-label-right">To</dt>', $html);
+        $this->assertStringContainsString('<dd class="evolution-link evolution-link-right">', $html);
         $this->assertStringContainsString('<a href="/dex/2">Ivysaur</a>', $html);
-        $this->assertStringNotContainsString('From:', $html);
+        $this->assertStringNotContainsString('From', $html);
     }
 
     public function test_macro_renders_venusaur_with_precursor_link(): void
@@ -165,9 +168,11 @@ TWIG;
         // Assert
         $this->assertStringContainsString('Venusaur', $html);
         $this->assertStringContainsString('monster-card-links', $html);
-        $this->assertStringContainsString('From:', $html);
+        $this->assertStringContainsString('<dl class="monster-card-links">', $html);
+        $this->assertStringContainsString('<dt class="evolution-label evolution-label-left">From</dt>', $html);
+        $this->assertStringContainsString('<dd class="evolution-link evolution-link-left">', $html);
         $this->assertStringContainsString('<a href="/dex/2">Ivysaur</a>', $html);
-        $this->assertStringNotContainsString('To:', $html);
+        $this->assertStringNotContainsString('To', $html);
     }
 
     public function test_macro_renders_monster_with_both_evolution_links(): void
@@ -195,8 +200,11 @@ TWIG;
         // Assert
         $this->assertStringContainsString('Ivysaur', $html);
         $this->assertStringContainsString('monster-card-links', $html);
-        $this->assertStringContainsString('From:', $html);
-        $this->assertStringContainsString('To:', $html);
+        $this->assertStringContainsString('<dl class="monster-card-links">', $html);
+        $this->assertStringContainsString('<dt class="evolution-label evolution-label-left">From</dt>', $html);
+        $this->assertStringContainsString('<dt class="evolution-label evolution-label-right">To</dt>', $html);
+        $this->assertStringContainsString('<dd class="evolution-link evolution-link-left">', $html);
+        $this->assertStringContainsString('<dd class="evolution-link evolution-link-right">', $html);
         $this->assertStringContainsString('<a href="/dex/1">Bulbasaur</a>', $html);
         $this->assertStringContainsString('<a href="/dex/3">Venusaur</a>', $html);
     }
@@ -227,7 +235,9 @@ TWIG;
         // Assert
         $this->assertStringContainsString('Eevee', $html);
         $this->assertStringContainsString('monster-card-links', $html);
-        $this->assertStringContainsString('To:', $html);
+        $this->assertStringContainsString('<dl class="monster-card-links">', $html);
+        $this->assertStringContainsString('<dt class="evolution-label evolution-label-right">To</dt>', $html);
+        $this->assertStringContainsString('<dd class="evolution-link evolution-link-right">', $html);
         $this->assertStringContainsString('evolution-list', $html);
 
         // Check that all evolution links are present
