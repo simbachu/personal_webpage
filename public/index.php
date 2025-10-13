@@ -1,7 +1,5 @@
 <?php
-/**
- * Front Controller - handles routing and template rendering with Twig
- */
+//! @brief Front Controller - handles routing and template rendering with Twig
 
 // Define paths based on deployment structure
 define('PUBLIC_DIR', __DIR__);
@@ -35,20 +33,16 @@ $twig = new \Twig\Environment($loader, [
     'strict_variables' => true,
 ]);
 
-/**
- * Renders a Twig template
- * @param string $template Template name (without .twig extension)
- * @param array $data Data to pass to template
- */
+//! @brief Renders a Twig template
+//! @param string $template Template name (without .twig extension)
+//! @param array $data Data to pass to template
 function render(string $template, array $data = []): void {
     global $twig;
     echo $twig->render($template . '.twig', $data);
 }
 
-/**
- * Gets the current request path
- * @return string Normalized path (e.g., '/', '/about')
- */
+//! @brief Gets the current request path
+//! @return string Normalized path (e.g., '/', '/about')
 function get_request_path(): string {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     // Normalize: remove trailing slash unless it's root
@@ -58,19 +52,15 @@ function get_request_path(): string {
     return $path;
 }
 
-/**
- * Builds base URL for the site
- * @return string Base URL (e.g., 'https://example.com')
- */
+//! @brief Builds base URL for the site
+//! @return string Base URL (e.g., 'https://example.com')
 function get_base_url(): string {
     $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
     return $protocol . '://' . $_SERVER['HTTP_HOST'];
 }
 
-/**
- * Route definitions
- * Each route maps a path to a template and metadata
- */
+//! @brief Route definitions
+//! Each route maps a path to a template and metadata
 $routes = [
     '/' => [
         'template' => 'home',
