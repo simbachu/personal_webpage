@@ -20,7 +20,9 @@
                 </figure>
                 <div class="monster-card-info">
                     <ul class="monster-types">
-                        <li class="type type-{{ monster.type1 }}">{{ monster.type1 }}</li>
+                        {% if monster.type1 %}
+                            <li class="type type-{{ monster.type1 }}">{{ monster.type1 }}</li>
+                        {% endif %}
                         {% if monster.type2 %}
                             <li class="type type-{{ monster.type2 }}">{{ monster.type2 }}</li>
                         {% endif %}

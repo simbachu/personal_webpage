@@ -17,11 +17,11 @@ class DexPresenter
     }
 
     //! @brief Prepare view model for the dex page
-    //! @param id_or_name Pokemon id or name
+    //! @param id_or_name Monster id or name
     //! @return array{template:string,monster:array}
     public function present(string $id_or_name): array
     {
-        $monster = $this->pokeapi->fetchPokemon($id_or_name);
+        $monster = $this->pokeapi->fetchMonster($id_or_name);
         return [
             'template' => 'dex',
             'monster' => $monster,

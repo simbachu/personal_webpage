@@ -33,12 +33,12 @@ class PokeApiService
         };
     }
 
-    //! @brief Fetch a pokemon by id or name and map to monster view model
-    //! @param id_or_name Pokemon id or name
+    //! @brief Fetch a monster by id or name and map to monster view model
+    //! @param id_or_name Monster id or name
     //! @param cache_dir Optional directory for file cache (defaults to sys temp)
     //! @param ttl_seconds Time-to-live for cache in seconds (defaults to 300)
     //! @return array{id:int,name:string,image:string,type1:string,type2?:string}
-    public function fetchPokemon(string $id_or_name, ?string $cache_dir = null, int $ttl_seconds = 300): array
+    public function fetchMonster(string $id_or_name, ?string $cache_dir = null, int $ttl_seconds = 300): array
     {
         $id_or_name = trim($id_or_name);
         $url = 'https://pokeapi.co/api/v2/pokemon/' . rawurlencode($id_or_name);
@@ -81,7 +81,7 @@ class PokeApiService
         });
 
         $type1 = $types[0]['type']['name'] ?? '';
-        $type2 = $types[1]['type']['name'] ?? null;
+        $type2 = isset($types[1]) ? ($types[1]['type']['name'] ?? null) : null;
 
         $image = $data['sprites']['other']['official-artwork']['front_default']
             ?? $data['sprites']['front_default']
