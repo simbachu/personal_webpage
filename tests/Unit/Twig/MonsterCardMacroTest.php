@@ -200,6 +200,49 @@ TWIG;
         $this->assertStringContainsString('<a href="/dex/1">Bulbasaur</a>', $html);
         $this->assertStringContainsString('<a href="/dex/3">Venusaur</a>', $html);
     }
+
+    public function test_macro_renders_eevee_with_multiple_evolutions(): void
+    {
+        // Arrange
+        $monster = [
+            'id' => 133,
+            'name' => 'Eevee',
+            'image' => 'https://img.example/eevee.png',
+            'type1' => 'normal',
+            'successors' => [
+                ['name' => 'Vaporeon', 'url' => '/dex/vaporeon'],
+                ['name' => 'Jolteon', 'url' => '/dex/jolteon'],
+                ['name' => 'Flareon', 'url' => '/dex/flareon'],
+                ['name' => 'Espeon', 'url' => '/dex/espeon'],
+                ['name' => 'Umbreon', 'url' => '/dex/umbreon'],
+                ['name' => 'Leafeon', 'url' => '/dex/leafeon'],
+                ['name' => 'Glaceon', 'url' => '/dex/glaceon'],
+                ['name' => 'Sylveon', 'url' => '/dex/sylveon']
+            ]
+        ];
+
+        // Act
+        $html = $this->twig->render('inline.twig', ['monster' => $monster]);
+
+        // Assert
+        $this->assertStringContainsString('Eevee', $html);
+        $this->assertStringContainsString('monster-card-links', $html);
+        $this->assertStringContainsString('To:', $html);
+        $this->assertStringContainsString('evolution-list', $html);
+
+        // Check that all evolution links are present
+        $this->assertStringContainsString('<a href="/dex/vaporeon">Vaporeon</a>', $html);
+        $this->assertStringContainsString('<a href="/dex/jolteon">Jolteon</a>', $html);
+        $this->assertStringContainsString('<a href="/dex/flareon">Flareon</a>', $html);
+        $this->assertStringContainsString('<a href="/dex/espeon">Espeon</a>', $html);
+        $this->assertStringContainsString('<a href="/dex/umbreon">Umbreon</a>', $html);
+        $this->assertStringContainsString('<a href="/dex/leafeon">Leafeon</a>', $html);
+        $this->assertStringContainsString('<a href="/dex/glaceon">Glaceon</a>', $html);
+        $this->assertStringContainsString('<a href="/dex/sylveon">Sylveon</a>', $html);
+
+        // Should not have single successor
+        $this->assertStringNotContainsString('successor', $html);
+    }
 }
 
 

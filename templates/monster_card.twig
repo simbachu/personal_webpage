@@ -33,16 +33,26 @@
             <p class="monster-card-description">{{ monster.description }}</p>
             {% endif %} {# monster.description is defined #}
         </div>
-        {% if monster.precursor is defined or monster.successor is defined %}
-            <ul class="monster-card-links">
-                {% if monster.precursor is defined %}
-                    <li class="monster-card-link"><p>From:</p><a href="{{ monster.precursor.url }}">{{ monster.precursor.name }}</a></li>
-                {% endif %} {# monster.precursor is defined #}
-                {% if monster.successor is defined %}
-                    <li class="monster-card-link"><p>To:</p><a href="{{ monster.successor.url }}">{{ monster.successor.name }}</a></li>
-                {% endif %} {# monster.successor is defined #}
-            </ul>
-        {% endif %} {# monster.precursor is defined or monster.successor is defined #}
+            {% if monster.precursor is defined or monster.successor is defined or monster.successors is defined %}
+                <ul class="monster-card-links">
+                    {% if monster.precursor is defined %}
+                        <li class="monster-card-link"><p>From:</p><a href="{{ monster.precursor.url }}">{{ monster.precursor.name }}</a></li>
+                    {% endif %} {# monster.precursor is defined #}
+                    {% if monster.successor is defined %}
+                        <li class="monster-card-link"><p>To:</p><a href="{{ monster.successor.url }}">{{ monster.successor.name }}</a></li>
+                    {% endif %} {# monster.successor is defined #}
+                    {% if monster.successors is defined %}
+                        <li class="monster-card-link">
+                            <p>To:</p>
+                            <ul class="evolution-list">
+                                {% for successor in monster.successors %}
+                                    <li><a href="{{ successor.url }}">{{ successor.name }}</a></li>
+                                {% endfor %} {# for successor in monster.successors #}
+                            </ul>
+                        </li>
+                    {% endif %} {# monster.successors is defined #}
+                </ul>
+            {% endif %} {# monster.precursor is defined or monster.successor is defined or monster.successors is defined #}
     </div>
 </article>
 {% endmacro %} {# monster_card #}

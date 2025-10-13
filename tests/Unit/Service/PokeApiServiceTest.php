@@ -557,6 +557,90 @@ final class PokeApiServiceTest extends TestCase
             $this->cleanupTestCacheDir($cacheDir);
         }
     }
+
+    public function test_fetch_monster_handles_multiple_evolutions(): void
+    {
+        //! @section Arrange - Test Eevee with multiple evolutions
+        $cacheDir = $this->createTestCacheDir();
+        $eeveeJson = json_encode([
+            'id' => 133,
+            'name' => 'eevee',
+            'types' => [
+                ['slot' => 1, 'type' => ['name' => 'normal']]
+            ],
+            'sprites' => [
+                'other' => [
+                    'official-artwork' => [
+                        'front_default' => 'https://img.example/eevee.png'
+                    ]
+                ]
+            ],
+            'species' => [
+                'url' => 'https://pokeapi.co/api/v2/pokemon-species/133/'
+            ]
+        ]);
+
+        $speciesJson = json_encode([
+            'evolution_chain' => [
+                'url' => 'https://pokeapi.co/api/v2/evolution-chain/67/'
+            ]
+        ]);
+
+        $evolutionChainJson = json_encode([
+            'chain' => [
+                'species' => ['name' => 'eevee'],
+                'evolves_to' => [
+                    ['species' => ['name' => 'vaporeon'], 'evolves_to' => []],
+                    ['species' => ['name' => 'jolteon'], 'evolves_to' => []],
+                    ['species' => ['name' => 'flareon'], 'evolves_to' => []],
+                    ['species' => ['name' => 'espeon'], 'evolves_to' => []],
+                    ['species' => ['name' => 'umbreon'], 'evolves_to' => []],
+                    ['species' => ['name' => 'leafeon'], 'evolves_to' => []],
+                    ['species' => ['name' => 'glaceon'], 'evolves_to' => []],
+                    ['species' => ['name' => 'sylveon'], 'evolves_to' => []]
+                ]
+            ]
+        ]);
+
+        $service = new PokeApiService(function (string $url) use ($eeveeJson, $speciesJson, $evolutionChainJson): string {
+            if (str_contains($url, 'pokemon-species')) {
+                return $speciesJson;
+            } elseif (str_contains($url, 'evolution-chain')) {
+                return $evolutionChainJson;
+            } elseif (str_contains($url, 'pokemon/eevee')) {
+                return $eeveeJson;
+            } else {
+                throw new \RuntimeException('Unexpected URL: ' . $url);
+            }
+        });
+
+        try {
+            //! @section Act
+            $monster = $service->fetchMonster('eevee', $cacheDir);
+
+            //! @section Assert
+            $this->assertSame(133, $monster['id']);
+            $this->assertSame('Eevee', $monster['name']);
+            $this->assertArrayHasKey('successors', $monster);
+            $this->assertCount(8, $monster['successors']);
+
+            // Check that all evolutions are present
+            $evolutionNames = array_column($monster['successors'], 'name');
+            $this->assertContains('Vaporeon', $evolutionNames);
+            $this->assertContains('Jolteon', $evolutionNames);
+            $this->assertContains('Flareon', $evolutionNames);
+            $this->assertContains('Espeon', $evolutionNames);
+            $this->assertContains('Umbreon', $evolutionNames);
+            $this->assertContains('Leafeon', $evolutionNames);
+            $this->assertContains('Glaceon', $evolutionNames);
+            $this->assertContains('Sylveon', $evolutionNames);
+
+            // Check URLs
+            $this->assertStringContainsString('/dex/vaporeon', $monster['successors'][0]['url']);
+        } finally {
+            $this->cleanupTestCacheDir($cacheDir);
+        }
+    }
 }
 
 

@@ -214,7 +214,7 @@ class PokeApiService
     //! @param array $chain Current chain node
     //! @param string $target_pokemon Name of Pokemon to find
     //! @param array|null $precursor Parent Pokemon (for precursor relationship)
-    //! @return array{precursor?:array{name:string,url:string},successor?:array{name:string,url:string}}|null
+    //! @return array{precursor?:array{name:string,url:string},successors?:array<array{name:string,url:string}>}|null
     private function findPokemonInChain(array $chain, string $target_pokemon, ?array $precursor = null): ?array
     {
         $currentSpecies = $chain['species']['name'] ?? '';
@@ -231,14 +231,22 @@ class PokeApiService
                 ];
             }
 
-            // Add successor if there's an evolution
+            // Add all successors (handle multiple evolutions like Eevee)
             $evolvesTo = $chain['evolves_to'] ?? [];
-            if (!empty($evolvesTo) && isset($evolvesTo[0]['species']['name'])) {
-                $successorName = $evolvesTo[0]['species']['name'];
-                $result['successor'] = [
-                    'name' => self::titleCase($successorName),
-                    'url' => '/dex/' . $successorName
-                ];
+            if (!empty($evolvesTo)) {
+                $successors = [];
+                foreach ($evolvesTo as $evolution) {
+                    if (isset($evolution['species']['name'])) {
+                        $successorName = $evolution['species']['name'];
+                        $successors[] = [
+                            'name' => self::titleCase($successorName),
+                            'url' => '/dex/' . $successorName
+                        ];
+                    }
+                }
+                if (!empty($successors)) {
+                    $result['successors'] = $successors;
+                }
             }
 
             return $result;

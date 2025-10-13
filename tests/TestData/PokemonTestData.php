@@ -173,4 +173,38 @@ class PokemonTestData
             ]
         ];
     }
+
+    //! @brief Get test data for Eevee (ID: 133) - multiple evolutions
+    //! @return array{id:int,name:string,image:string,type1:string}
+    public static function getEevee(): array
+    {
+        return [
+            'id' => 133,
+            'name' => 'Eevee',
+            'image' => 'https://img.example/eevee.png',
+            'type1' => 'normal',
+        ];
+    }
+
+    //! @brief Get test data for Eevee with multiple evolution data
+    //! @return array{id:int,name:string,image:string,type1:string,successors:array<array{name:string,url:string}>}
+    public static function getEeveeWithMultipleEvolutions(): array
+    {
+        return [
+            'id' => 133,
+            'name' => 'Eevee',
+            'image' => 'https://img.example/eevee.png',
+            'type1' => 'normal',
+            'successors' => [
+                ['name' => 'Vaporeon', 'url' => '/dex/vaporeon'],
+                ['name' => 'Jolteon', 'url' => '/dex/jolteon'],
+                ['name' => 'Flareon', 'url' => '/dex/flareon'],
+                ['name' => 'Espeon', 'url' => '/dex/espeon'],
+                ['name' => 'Umbreon', 'url' => '/dex/umbreon'],
+                ['name' => 'Leafeon', 'url' => '/dex/leafeon'],
+                ['name' => 'Glaceon', 'url' => '/dex/glaceon'],
+                ['name' => 'Sylveon', 'url' => '/dex/sylveon']
+            ]
+        ];
+    }
 }
