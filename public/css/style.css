@@ -33,6 +33,25 @@
 
     --gradient-red: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
     --gradient-process-black: linear-gradient(135deg, var(--process-black) 0%, var(--process-black-light) 100%);
+    /* Monster type colors (WCAG-aware approximations) */
+    --type-normal: #A8A77A;
+    --type-fire: #EE8130;
+    --type-water: #6390F0;
+    --type-electric: #F7D02C;
+    --type-grass: #7AC74C;
+    --type-ice: #96D9D6;
+    --type-fighting: #C22E28;
+    --type-poison: #A33EA1;
+    --type-ground: #E2BF65;
+    --type-flying: #A98FF3;
+    --type-psychic: #F95587;
+    --type-bug: #A6B91A;
+    --type-rock: #B6A136;
+    --type-ghost: #735797;
+    --type-dragon: #6F35FC;
+    --type-dark: #705746;
+    --type-steel: #B7B7CE;
+    --type-fairy: #D685AD;
 }
 
 body {
@@ -269,6 +288,153 @@ article {
     display: flex;
     flex-direction: column;
     gap: 0; /* sections handle their own margins */
+}
+
+/* Monster Card */
+.monster-card {
+    background: var(--white);
+    border: var(--line-weight-thick) solid transparent;
+    border-image: var(--gradient-process-black) 1;
+    margin-top: calc(var(--spacing-unit) * 4);
+}
+
+.monster-card-header {
+    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
+    background: linear-gradient(90deg, transparent, transparent);
+}
+
+.monster-card-title {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.monster-card-id {
+    color: var(--process-black);
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.monster-card-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--spacing-unit) * 2);
+    padding: calc(var(--spacing-unit) * 2);
+}
+
+.monster-card-image .pinstripe {
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(0,0,0,0.08) 0,
+        rgba(0,0,0,0.08) 2px,
+        transparent 2px,
+        transparent 6px
+    );
+    border: var(--line-weight) solid var(--process-black);
+    padding: 0.75rem;
+}
+
+.monster-card-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: var(--white);
+}
+
+.monster-card-info .monster-types {
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 0 1rem 0;
+    padding: 0;
+}
+
+.monster-card-info .type {
+    padding: 0.2rem 0.5rem;
+    border: var(--line-weight) solid var(--process-black);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--white);
+}
+
+/* Type color helpers */
+.type-normal { background-color: var(--type-normal); }
+.type-fire { background-color: var(--type-fire); }
+.type-water { background-color: var(--type-water); }
+.type-electric { background-color: var(--type-electric); }
+.type-grass { background-color: var(--type-grass); }
+.type-ice { background-color: var(--type-ice); }
+.type-fighting { background-color: var(--type-fighting); }
+.type-poison { background-color: var(--type-poison); }
+.type-ground { background-color: var(--type-ground); }
+.type-flying { background-color: var(--type-flying); }
+.type-psychic { background-color: var(--type-psychic); }
+.type-bug { background-color: var(--type-bug); }
+.type-rock { background-color: var(--type-rock); }
+.type-ghost { background-color: var(--type-ghost); }
+.type-dragon { background-color: var(--type-dragon); }
+.type-dark { background-color: var(--type-dark); }
+.type-steel { background-color: var(--type-steel); }
+.type-fairy { background-color: var(--type-fairy); }
+
+/* Build CSS vars for type1/type2 using attribute selectors */
+[data-type1="normal"] { --type-attr1: var(--type-normal); }
+[data-type1="fire"] { --type-attr1: var(--type-fire); }
+[data-type1="water"] { --type-attr1: var(--type-water); }
+[data-type1="electric"] { --type-attr1: var(--type-electric); }
+[data-type1="grass"] { --type-attr1: var(--type-grass); }
+[data-type1="ice"] { --type-attr1: var(--type-ice); }
+[data-type1="fighting"] { --type-attr1: var(--type-fighting); }
+[data-type1="poison"] { --type-attr1: var(--type-poison); }
+[data-type1="ground"] { --type-attr1: var(--type-ground); }
+[data-type1="flying"] { --type-attr1: var(--type-flying); }
+[data-type1="psychic"] { --type-attr1: var(--type-psychic); }
+[data-type1="bug"] { --type-attr1: var(--type-bug); }
+[data-type1="rock"] { --type-attr1: var(--type-rock); }
+[data-type1="ghost"] { --type-attr1: var(--type-ghost); }
+[data-type1="dragon"] { --type-attr1: var(--type-dragon); }
+[data-type1="dark"] { --type-attr1: var(--type-dark); }
+[data-type1="steel"] { --type-attr1: var(--type-steel); }
+[data-type1="fairy"] { --type-attr1: var(--type-fairy); }
+
+[data-type2="normal"] { --type-attr2: var(--type-normal); }
+[data-type2="fire"] { --type-attr2: var(--type-fire); }
+[data-type2="water"] { --type-attr2: var(--type-water); }
+[data-type2="electric"] { --type-attr2: var(--type-electric); }
+[data-type2="grass"] { --type-attr2: var(--type-grass); }
+[data-type2="ice"] { --type-attr2: var(--type-ice); }
+[data-type2="fighting"] { --type-attr2: var(--type-fighting); }
+[data-type2="poison"] { --type-attr2: var(--type-poison); }
+[data-type2="ground"] { --type-attr2: var(--type-ground); }
+[data-type2="flying"] { --type-attr2: var(--type-flying); }
+[data-type2="psychic"] { --type-attr2: var(--type-psychic); }
+[data-type2="bug"] { --type-attr2: var(--type-bug); }
+[data-type2="rock"] { --type-attr2: var(--type-rock); }
+[data-type2="ghost"] { --type-attr2: var(--type-ghost); }
+[data-type2="dragon"] { --type-attr2: var(--type-dragon); }
+[data-type2="dark"] { --type-attr2: var(--type-dark); }
+[data-type2="steel"] { --type-attr2: var(--type-steel); }
+[data-type2="fairy"] { --type-attr2: var(--type-fairy); }
+
+/* Header gradient logic: single vs dual types with 1rem transition */
+.monster-card[data-type1][data-type2=""] .monster-card-header {
+    background: linear-gradient(90deg, var(--type-attr1, var(--type-normal)) 0%, var(--type-attr1, var(--type-normal)) 100%);
+}
+
+.monster-card[data-type1]:not([data-type2=""]) .monster-card-header {
+    background: linear-gradient(90deg,
+        var(--type-attr1) 0%,
+        var(--type-attr1) calc(50% - 0.5rem),
+        var(--type-attr2) calc(50% + 0.5rem),
+        var(--type-attr2) 100%
+    );
+}
+
+@media (min-width: 769px) {
+    .monster-card-body {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+    }
 }
 
 @supports (grid-template-columns: subgrid) {

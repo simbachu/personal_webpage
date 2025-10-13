@@ -24,6 +24,7 @@ require_once $vendor_autoload;
 $content_path = $base_path . '/httpd.private' . $env_prefix . '/content';
 $contentRepository = new \App\Model\ContentRepository($content_path);
 $homePresenter = new \App\Presenter\HomePresenter($contentRepository);
+$dexPresenter = new \App\Presenter\DexPresenter(new \App\Service\PokeApiService());
 
 // Initialize Twig
 $loader = new \Twig\Loader\FilesystemLoader(TEMPLATES_DIR);
@@ -81,6 +82,9 @@ $routes = [
     ],
     // Add more routes here as needed
     // '/about' => ['template' => 'about', 'meta' => [...]],
+    '/dex' => [
+        'template' => 'dex',
+    ],
 ];
 
 // Get current request
@@ -89,13 +93,34 @@ $base_url = get_base_url();
 $current_url = $base_url . $_SERVER['REQUEST_URI'];
 
 // Find matching route
-if (isset($routes[$path])) {
-    $route = $routes[$path];
-    $template = $route['template'];
-    $meta = $route['meta'] ?? [];
-
-    // Get content data for home page
-    $content_data = ($template === 'home') ? $homePresenter->present() : [];
+if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
+    if (isset($routes[$path])) {
+        $route = $routes[$path];
+        $template = $route['template'];
+        $meta = $route['meta'] ?? [];
+        $content_data = ($template === 'home') ? $homePresenter->present() : [];
+    } else {
+        // Dynamic dex route: /dex/{id_or_name}
+        $segments = explode('/', trim($path, '/'));
+        $id_or_name = $segments[1] ?? '';
+        if ($id_or_name === '') {
+            http_response_code(400);
+            $template = '404';
+            $meta = [
+                'title' => 'Invalid Pokédex Request',
+                'description' => 'No Pokémon specified.',
+            ];
+            $content_data = [];
+        } else {
+            $presented = $dexPresenter->present($id_or_name);
+            $template = $presented['template'];
+            $content_data = ['monster' => $presented['monster']];
+            $meta = [
+                'title' => $presented['monster']['name'] . ' #' . $presented['monster']['id'],
+                'description' => 'Pokédex entry for ' . $presented['monster']['name'],
+            ];
+        }
+    }
 } else {
     // 404 Not Found
     http_response_code(404);

@@ -1,0 +1,34 @@
+{# @brief Renders a monster card
+@param monster The monster to render
+  monster.name: The name of the monster
+  monster.image: The image of the monster
+  monster.description: The description of the monster
+  monster.type1: The type of the monster
+  monster.type2: The optional second type of the monster
+@return string The rendered monster card
+#}
+{% macro monster_card(monster) %}
+        <article class="monster-card" data-type1="{{ monster.type1 }}" data-type2="{{ monster.type2|default('') }}">
+            <header class="monster-card-header">
+                <h1 class="monster-card-title">{{ monster.name }} <span class="monster-card-id">#{{ monster.id }}</span></h1>
+            </header>
+            <div class="monster-card-body">
+                <figure class="monster-card-image">
+                    <div class="pinstripe">
+                        <img src="{{ monster.image }}" alt="{{ monster.name }}">
+                    </div>
+                </figure>
+                <div class="monster-card-info">
+                    <ul class="monster-types">
+                        <li class="type type-{{ monster.type1 }}">{{ monster.type1 }}</li>
+                        {% if monster.type2 %}
+                            <li class="type type-{{ monster.type2 }}">{{ monster.type2 }}</li>
+                        {% endif %}
+                    </ul>
+                    {% if monster.description is defined %}
+                    <p class="monster-card-description">{{ monster.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+{% endmacro %} {# monster_card #}
