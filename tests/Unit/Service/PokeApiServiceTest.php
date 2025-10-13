@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use App\Service\PokeApiService;
 use App\Type\Result;
 use App\Type\MonsterData;
+use App\Type\MonsterIdentifier;
 
 final class PokeApiServiceTest extends TestCase
 {
@@ -80,7 +81,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('bulbasaur', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());
@@ -109,7 +110,7 @@ final class PokeApiServiceTest extends TestCase
         );
 
         //! @section Act
-        $result = $service->fetchMonster('132');
+        $result = $service->fetchMonster(MonsterIdentifier::fromString('132'));
 
         //! @section Assert
         $this->assertTrue($result->isSuccess());
@@ -132,7 +133,7 @@ final class PokeApiServiceTest extends TestCase
         $service = $this->createServiceWithMockHttp([$pokemonJson]);
 
         //! @section Act
-        $result = $service->fetchMonster('pikachu');
+        $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'));
 
         //! @section Assert - should be sorted by slot
         $this->assertTrue($result->isSuccess());
@@ -160,7 +161,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());
@@ -187,7 +188,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());
@@ -211,7 +212,7 @@ final class PokeApiServiceTest extends TestCase
         );
 
         //! @section Act
-        $result = $service->fetchMonster('  bulbasaur  ');
+        $result = $service->fetchMonster(MonsterIdentifier::fromString('  bulbasaur  '));
 
         //! @section Assert
         $this->assertTrue($result->isSuccess());
@@ -229,7 +230,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isFailure());
@@ -249,7 +250,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isFailure());
@@ -272,7 +273,7 @@ final class PokeApiServiceTest extends TestCase
         $service = $this->createServiceWithMockHttp([$pokemonJson]);
 
         //! @section Act
-        $result = $service->fetchMonster('bulbasaur');
+        $result = $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'));
 
         //! @section Assert
         $this->assertTrue($result->isSuccess());
@@ -297,7 +298,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('bulbasaur', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());
@@ -322,7 +323,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());
@@ -349,7 +350,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('bulbasaur', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());
@@ -378,7 +379,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());
@@ -426,9 +427,9 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act: first call populates cache
-            $monster1 = $service->fetchMonster('pikachu', $cacheDir, self::CACHE_TTL_SECONDS);
+            $monster1 = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir, self::CACHE_TTL_SECONDS);
             //! @section Act: second call should use cache (no http call)
-            $monster2 = $service->fetchMonster('pikachu', $cacheDir, self::CACHE_TTL_SECONDS);
+            $monster2 = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir, self::CACHE_TTL_SECONDS);
 
             //! @section Assert
             $this->assertSame(1, $callCount);
@@ -462,9 +463,9 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act: first call populates cache
-            $monster1 = $service->fetchMonster('4', $cacheDir, self::STALE_CACHE_TTL);
+            $monster1 = $service->fetchMonster(MonsterIdentifier::fromString('4'), $cacheDir, self::STALE_CACHE_TTL);
             //! @section Act: second call fails network but should return cached data
-            $monster2 = $service->fetchMonster('4', $cacheDir, self::STALE_CACHE_TTL);
+            $monster2 = $service->fetchMonster(MonsterIdentifier::fromString('4'), $cacheDir, self::STALE_CACHE_TTL);
 
             //! @section Assert
             $this->assertSame(2, $callCount);
@@ -492,7 +493,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $service->fetchMonster('pikachu', $cacheDir);
+            $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
             //! @section Assert
             $this->assertDirectoryExists($cacheDir);
@@ -512,7 +513,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isFailure());
@@ -539,10 +540,10 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act: populate cache
-            $service->fetchMonster('pikachu', $cacheDir, 0); // TTL = 0 (immediately stale)
+            $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir, 0); // TTL = 0 (immediately stale)
 
             //! @section Act: second call should hit network again due to expired cache
-            $service->fetchMonster('pikachu', $cacheDir, 0);
+            $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir, 0);
 
             //! @section Assert
             $this->assertSame(2, $callCount);
@@ -577,7 +578,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('bulbasaur', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());
@@ -650,7 +651,7 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $result = $service->fetchMonster('eevee', $cacheDir);
+            $result = $service->fetchMonster(MonsterIdentifier::fromString('eevee'), $cacheDir);
 
             //! @section Assert
             $this->assertTrue($result->isSuccess());

@@ -6,6 +6,7 @@ namespace App\Presenter;
 
 use App\Service\PokeApiService;
 use App\Type\MonsterData;
+use App\Type\MonsterIdentifier;
 
 //! @brief Presenter for Pokemon dex detail view with clean separation of concerns
 //!
@@ -51,12 +52,12 @@ class DexPresenter
     }
 
     //! @brief Fetch monster data from service and handle Result type internally
-    //! @param id_or_name Pokemon ID (e.g., "25") or name (e.g., "pikachu")
+    //! @param identifier MonsterIdentifier containing ID or name (e.g., "25" or "pikachu")
     //! @return MonsterData Clean MonsterData object for presentation
     //! @throws \RuntimeException If the service returns a failure Result
-    public function fetchMonsterData(string $id_or_name): MonsterData
+    public function fetchMonsterData(MonsterIdentifier $identifier): MonsterData
     {
-        $result = $this->pokeapi->fetchMonster($id_or_name, null, $this->cacheTtl);
+        $result = $this->pokeapi->fetchMonster($identifier, null, $this->cacheTtl);
 
         if ($result->isFailure()) {
             throw new \RuntimeException($result->getError());

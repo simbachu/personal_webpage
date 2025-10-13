@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Type\Result;
 use App\Type\MonsterData;
 use App\Type\EvolutionData;
+use App\Type\MonsterIdentifier;
 
 //! @brief Service for fetching Pokemon data from the PokeAPI with caching and error handling
 //!
@@ -54,14 +55,14 @@ class PokeApiService
         };
     }
 
-    //! @brief Fetch a Pokemon monster by ID or name and return as MonsterData
-    //! @param id_or_name Pokemon ID (e.g., "25") or name (e.g., "pikachu")
+    //! @brief Fetch a Pokemon monster by identifier and return as MonsterData
+    //! @param identifier MonsterIdentifier containing ID or name (e.g., "25" or "pikachu")
     //! @param cache_dir Optional directory for file-based caching (defaults to system temp directory)
     //! @param ttl_seconds Time-to-live for cache entries in seconds (defaults to 300)
     //! @return Result<MonsterData> Success containing MonsterData, or failure with error message
-    public function fetchMonster(string $id_or_name, ?string $cache_dir = null, int $ttl_seconds = 300): Result
+    public function fetchMonster(MonsterIdentifier $identifier, ?string $cache_dir = null, int $ttl_seconds = 300): Result
     {
-        $id_or_name = trim($id_or_name);
+        $id_or_name = $identifier->getValue();
         $url = 'https://pokeapi.co/api/v2/pokemon/' . rawurlencode($id_or_name);
 
         // Simple file-based cache

@@ -7,6 +7,7 @@ use App\Presenter\DexPresenter;
 use App\Service\PokeApiService;
 use App\Type\Result;
 use App\Type\MonsterData;
+use App\Type\MonsterIdentifier;
 
 final class DexPresenterTest extends TestCase
 {
@@ -85,7 +86,7 @@ final class DexPresenterTest extends TestCase
         $presenter = new DexPresenter($service, 60); // Custom 60-second TTL
 
         //! @section Act
-        $fetchedData = $presenter->fetchMonsterData('25');
+        $fetchedData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('25'));
 
         //! @section Assert
         $this->assertSame($monsterData, $fetchedData);
@@ -103,7 +104,7 @@ final class DexPresenterTest extends TestCase
         //! @section Act & Assert
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Pokemon not found');
-        $presenter->fetchMonsterData('999');
+        $presenter->fetchMonsterData(MonsterIdentifier::fromString('999'));
     }
 }
 

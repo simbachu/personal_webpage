@@ -115,8 +115,9 @@ if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
             $content_data = [];
         } else {
             try {
-                // Fetch monster data from service (handles Result internally)
-                $monsterData = $dexPresenter->fetchMonsterData($id_or_name);
+                // Create MonsterIdentifier and fetch monster data from service (handles Result internally)
+                $identifier = \App\Type\MonsterIdentifier::fromString($id_or_name);
+                $monsterData = $dexPresenter->fetchMonsterData($identifier);
 
                 // Present the clean data to view
                 $presented = $dexPresenter->present($monsterData);

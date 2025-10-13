@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use App\Service\PokeApiService;
 use App\Presenter\DexPresenter;
 use App\Type\Result;
+use App\Type\MonsterIdentifier;
 use Tests\TestData\PokemonTestData;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -58,7 +59,7 @@ class DexIntegrationTest extends TestCase
 
         try {
             //! @section Act
-            $monsterData = $presenter->fetchMonsterData('charmander_single');
+            $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('charmander_single'));
             $viewData = $presenter->present($monsterData);
             $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
 
@@ -95,7 +96,7 @@ class DexIntegrationTest extends TestCase
 
         try {
             //! @section Act
-            $monsterData = $presenter->fetchMonsterData('bulbasaur_dual');
+            $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('bulbasaur_dual'));
             $viewData = $presenter->present($monsterData);
             $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
 
@@ -132,7 +133,7 @@ class DexIntegrationTest extends TestCase
 
         try {
             //! @section Act
-            $monsterData = $presenter->fetchMonsterData('unknown_no_types');
+            $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('unknown_no_types'));
             $viewData = $presenter->present($monsterData);
             $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
 
@@ -182,7 +183,7 @@ class DexIntegrationTest extends TestCase
 
         try {
             //! @section Act
-            $monsterData = $presenter->fetchMonsterData('pikachu_sorted');
+            $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('pikachu_sorted'));
             $viewData = $presenter->present($monsterData);
             $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
 
