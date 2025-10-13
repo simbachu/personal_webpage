@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use App\Service\PokeApiService;
+use App\Type\Result;
+use App\Type\MonsterData;
 
 final class PokeApiServiceTest extends TestCase
 {
@@ -78,14 +80,17 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('bulbasaur', $cacheDir);
+            $result = $service->fetchMonster('bulbasaur', $cacheDir);
 
             //! @section Assert
-            $this->assertSame(1, $monster['id']);
-            $this->assertSame('Bulbasaur', $monster['name']);
-            $this->assertSame('https://img.example/bulbasaur.png', $monster['image']);
-            $this->assertSame('grass', $monster['type1']);
-            $this->assertSame('poison', $monster['type2']);
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertInstanceOf(MonsterData::class, $monster);
+            $this->assertSame(1, $monster->id);
+            $this->assertSame('Bulbasaur', $monster->name);
+            $this->assertSame('https://img.example/bulbasaur.png', $monster->image);
+            $this->assertSame('grass', $monster->type1);
+            $this->assertSame('poison', $monster->type2);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -104,14 +109,16 @@ final class PokeApiServiceTest extends TestCase
         );
 
         //! @section Act
-        $monster = $service->fetchMonster('132');
+        $result = $service->fetchMonster('132');
 
         //! @section Assert
-        $this->assertSame(132, $monster['id']);
-        $this->assertSame('Ditto', $monster['name']);
-        $this->assertSame('https://img.example/ditto.png', $monster['image']);
-        $this->assertSame('normal', $monster['type1']);
-        $this->assertArrayNotHasKey('type2', $monster);
+        $this->assertTrue($result->isSuccess());
+        $monster = $result->getValue();
+        $this->assertSame(132, $monster->id);
+        $this->assertSame('Ditto', $monster->name);
+        $this->assertSame('https://img.example/ditto.png', $monster->image);
+        $this->assertSame('normal', $monster->type1);
+        $this->assertNull($monster->type2);
     }
 
     public function testFetchPokemonSortsTypesBySlot(): void
@@ -125,11 +132,13 @@ final class PokeApiServiceTest extends TestCase
         $service = $this->createServiceWithMockHttp([$pokemonJson]);
 
         //! @section Act
-        $monster = $service->fetchMonster('pikachu');
+        $result = $service->fetchMonster('pikachu');
 
         //! @section Assert - should be sorted by slot
-        $this->assertSame('electric', $monster['type1']);
-        $this->assertSame('flying', $monster['type2']);
+        $this->assertTrue($result->isSuccess());
+        $monster = $result->getValue();
+        $this->assertSame('electric', $monster->type1);
+        $this->assertSame('flying', $monster->type2);
     }
 
     public function testFetchPokemonHandlesMissingOfficialArtwork(): void
@@ -151,10 +160,12 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster('pikachu', $cacheDir);
 
             //! @section Assert
-            $this->assertSame('https://img.example/pikachu-fallback.png', $monster['image']);
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertSame('https://img.example/pikachu-fallback.png', $monster->image);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -176,10 +187,12 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster('pikachu', $cacheDir);
 
             //! @section Assert
-            $this->assertSame('', $monster['image']);
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertSame('', $monster->image);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -198,13 +211,15 @@ final class PokeApiServiceTest extends TestCase
         );
 
         //! @section Act
-        $monster = $service->fetchMonster('  bulbasaur  ');
+        $result = $service->fetchMonster('  bulbasaur  ');
 
         //! @section Assert
-        $this->assertSame('Bulbasaur', $monster['name']);
+        $this->assertTrue($result->isSuccess());
+        $monster = $result->getValue();
+        $this->assertSame('Bulbasaur', $monster->name);
     }
 
-    public function testFetchPokemonThrowsOnMalformedJson(): void
+    public function testFetchPokemonReturnsFailureOnMalformedJson(): void
     {
         //! @section Arrange
         $cacheDir = $this->createTestCacheDir();
@@ -213,15 +228,18 @@ final class PokeApiServiceTest extends TestCase
         });
 
         try {
-            //! @section Act & Assert
-            $this->expectException(\JsonException::class);
-            $service->fetchMonster('pikachu', $cacheDir);
+            //! @section Act
+            $result = $service->fetchMonster('pikachu', $cacheDir);
+
+            //! @section Assert
+            $this->assertTrue($result->isFailure());
+            $this->assertStringContainsString('Invalid JSON response', $result->getError());
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
     }
 
-    public function testFetchPokemonThrowsOnNetworkFailureWithoutCache(): void
+    public function testFetchPokemonReturnsFailureOnNetworkFailureWithoutCache(): void
     {
         //! @section Arrange
         $cacheDir = $this->createTestCacheDir();
@@ -230,10 +248,12 @@ final class PokeApiServiceTest extends TestCase
         });
 
         try {
-            //! @section Act & Assert
-            $this->expectException(\RuntimeException::class);
-            $this->expectExceptionMessage('Network failure');
-            $service->fetchMonster('pikachu', $cacheDir);
+            //! @section Act
+            $result = $service->fetchMonster('pikachu', $cacheDir);
+
+            //! @section Assert
+            $this->assertTrue($result->isFailure());
+            $this->assertStringContainsString('Failed to fetch Pokemon data: Network failure', $result->getError());
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -252,10 +272,12 @@ final class PokeApiServiceTest extends TestCase
         $service = $this->createServiceWithMockHttp([$pokemonJson]);
 
         //! @section Act
-        $monster = $service->fetchMonster('bulbasaur');
+        $result = $service->fetchMonster('bulbasaur');
 
         //! @section Assert
-        $this->assertSame('Bulbasaur', $monster['name']);
+        $this->assertTrue($result->isSuccess());
+        $monster = $result->getValue();
+        $this->assertSame('Bulbasaur', $monster->name);
     }
 
     public function testTitleCaseHandlesEmptyName(): void
@@ -275,10 +297,12 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('bulbasaur', $cacheDir);
+            $result = $service->fetchMonster('bulbasaur', $cacheDir);
 
             //! @section Assert
-            $this->assertSame('', $monster['name']);
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertSame('', $monster->name);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -298,12 +322,13 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster('pikachu', $cacheDir);
 
             //! @section Assert
-            $this->assertArrayHasKey('type1', $monster);
-            $this->assertSame('electric', $monster['type1']);
-            $this->assertArrayNotHasKey('type2', $monster);
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertSame('electric', $monster->type1);
+            $this->assertNull($monster->type2);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -324,13 +349,13 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('bulbasaur', $cacheDir);
+            $result = $service->fetchMonster('bulbasaur', $cacheDir);
 
             //! @section Assert
-            $this->assertArrayHasKey('type1', $monster);
-            $this->assertSame('grass', $monster['type1']);
-            $this->assertArrayHasKey('type2', $monster);
-            $this->assertSame('poison', $monster['type2']);
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertSame('grass', $monster->type1);
+            $this->assertSame('poison', $monster->type2);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -353,12 +378,13 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('pikachu', $cacheDir);
+            $result = $service->fetchMonster('pikachu', $cacheDir);
 
             //! @section Assert
-            $this->assertArrayHasKey('type1', $monster);
-            $this->assertSame('', $monster['type1']);
-            $this->assertArrayNotHasKey('type2', $monster);
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertSame('', $monster->type1);
+            $this->assertNull($monster->type2);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -406,7 +432,9 @@ final class PokeApiServiceTest extends TestCase
 
             //! @section Assert
             $this->assertSame(1, $callCount);
-            $this->assertSame($monster1, $monster2);
+            $this->assertTrue($monster1->isSuccess());
+            $this->assertTrue($monster2->isSuccess());
+            $this->assertEquals($monster1->getValue(), $monster2->getValue());
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -440,7 +468,9 @@ final class PokeApiServiceTest extends TestCase
 
             //! @section Assert
             $this->assertSame(2, $callCount);
-            $this->assertSame($monster1, $monster2);
+            $this->assertTrue($monster1->isSuccess());
+            $this->assertTrue($monster2->isSuccess());
+            $this->assertEquals($monster1->getValue(), $monster2->getValue());
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -472,7 +502,7 @@ final class PokeApiServiceTest extends TestCase
         }
     }
 
-    public function testThrowsWhenNetworkFailsAndNoStaleCache(): void
+    public function testReturnsFailureWhenNetworkFailsAndNoStaleCache(): void
     {
         //! @section Arrange
         $cacheDir = $this->createTestCacheDir();
@@ -481,10 +511,12 @@ final class PokeApiServiceTest extends TestCase
         });
 
         try {
-            //! @section Act & Assert
-            $this->expectException(\RuntimeException::class);
-            $this->expectExceptionMessage('Network failure');
-            $service->fetchMonster('pikachu', $cacheDir);
+            //! @section Act
+            $result = $service->fetchMonster('pikachu', $cacheDir);
+
+            //! @section Assert
+            $this->assertTrue($result->isFailure());
+            $this->assertStringContainsString('Failed to fetch Pokemon data: Network failure', $result->getError());
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -545,14 +577,16 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('bulbasaur', $cacheDir);
+            $result = $service->fetchMonster('bulbasaur', $cacheDir);
 
             //! @section Assert
-            $this->assertSame(1, $monster['id']);
-            $this->assertSame('Bulbasaur', $monster['name']);
-            $this->assertSame('grass', $monster['type1']);
-            $this->assertSame('poison', $monster['type2']);
-            $this->assertArrayNotHasKey('successor', $monster); // No evolution data expected
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertSame(1, $monster->id);
+            $this->assertSame('Bulbasaur', $monster->name);
+            $this->assertSame('grass', $monster->type1);
+            $this->assertSame('poison', $monster->type2);
+            $this->assertEmpty($monster->successors); // No evolution data expected
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -616,16 +650,17 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act
-            $monster = $service->fetchMonster('eevee', $cacheDir);
+            $result = $service->fetchMonster('eevee', $cacheDir);
 
             //! @section Assert
-            $this->assertSame(133, $monster['id']);
-            $this->assertSame('Eevee', $monster['name']);
-            $this->assertArrayHasKey('successors', $monster);
-            $this->assertCount(8, $monster['successors']);
+            $this->assertTrue($result->isSuccess());
+            $monster = $result->getValue();
+            $this->assertSame(133, $monster->id);
+            $this->assertSame('Eevee', $monster->name);
+            $this->assertCount(8, $monster->successors);
 
             // Check that all evolutions are present
-            $evolutionNames = array_column($monster['successors'], 'name');
+            $evolutionNames = array_map(fn($evo) => $evo->name, $monster->successors);
             $this->assertContains('Vaporeon', $evolutionNames);
             $this->assertContains('Jolteon', $evolutionNames);
             $this->assertContains('Flareon', $evolutionNames);
@@ -636,7 +671,7 @@ final class PokeApiServiceTest extends TestCase
             $this->assertContains('Sylveon', $evolutionNames);
 
             // Check URLs
-            $this->assertStringContainsString('/dex/vaporeon', $monster['successors'][0]['url']);
+            $this->assertStringContainsString('/dex/vaporeon', $monster->successors[0]->url);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }

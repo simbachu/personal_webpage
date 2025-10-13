@@ -4,14 +4,35 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-//! @brief Minimal PokeAPI service with injectable HTTP client for testability
+use App\Type\Result;
+use App\Type\MonsterData;
+use App\Type\EvolutionData;
+
+//! @brief Service for fetching Pokemon data from the PokeAPI with caching and error handling
+//!
+//! This service provides methods to fetch Pokemon data from the PokeAPI (https://pokeapi.co/)
+//! with built-in caching, error handling using Result types, and evolution chain support.
+//! The HTTP client is injectable for improved testability.
+//!
+//! @code
+//! // Example usage:
+//! $service = new PokeApiService();
+//! $result = $service->fetchMonster('pikachu');
+//!
+//! if ($result->isSuccess()) {
+//!     $monster = $result->getValue();
+//!     echo $monster->name; // "Pikachu"
+//! } else {
+//!     echo "Error: " . $result->getError();
+//! }
+//! @endcode
 class PokeApiService
 {
     /** @var callable(string):string */
     private $http_client; //!< Simple HTTP client callback returning raw JSON
 
-    //! @brief Constructor
-    //! @param http_client Callable that takes URL and returns JSON string
+    //! @brief Construct a new PokeApiService instance
+    //! @param http_client Optional callable that takes a URL and returns JSON string. If null, uses default HTTP client
     public function __construct(?callable $http_client = null)
     {
         $this->http_client = $http_client ?? function (string $url): string {
@@ -33,12 +54,12 @@ class PokeApiService
         };
     }
 
-    //! @brief Fetch a monster by id or name and map to monster view model
-    //! @param id_or_name Monster id or name
-    //! @param cache_dir Optional directory for file cache (defaults to sys temp)
-    //! @param ttl_seconds Time-to-live for cache in seconds (defaults to 300)
-    //! @return array{id:int,name:string,image:string,type1:string,type2?:string,precursor?:array{name:string,url:string},successor?:array{name:string,url:string}}
-    public function fetchMonster(string $id_or_name, ?string $cache_dir = null, int $ttl_seconds = 300): array
+    //! @brief Fetch a Pokemon monster by ID or name and return as MonsterData
+    //! @param id_or_name Pokemon ID (e.g., "25") or name (e.g., "pikachu")
+    //! @param cache_dir Optional directory for file-based caching (defaults to system temp directory)
+    //! @param ttl_seconds Time-to-live for cache entries in seconds (defaults to 300)
+    //! @return Result<MonsterData> Success containing MonsterData, or failure with error message
+    public function fetchMonster(string $id_or_name, ?string $cache_dir = null, int $ttl_seconds = 300): Result
     {
         $id_or_name = trim($id_or_name);
         $url = 'https://pokeapi.co/api/v2/pokemon/' . rawurlencode($id_or_name);
@@ -68,12 +89,17 @@ class PokeApiService
                     $json = file_get_contents($cache_file) ?: null;
                 }
                 if ($json === null) {
-                    throw $e;
+                    return Result::failure('Failed to fetch Pokemon data: ' . $e->getMessage());
                 }
             }
         }
-        /** @var array<string,mixed> $data */
-        $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+
+        try {
+            /** @var array<string,mixed> $data */
+            $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return Result::failure('Invalid JSON response: ' . $e->getMessage());
+        }
 
         $types = $data['types'] ?? [];
         usort($types, function ($a, $b) {
@@ -87,38 +113,42 @@ class PokeApiService
             ?? $data['sprites']['front_default']
             ?? '';
 
-        $monster = [
-            'id' => (int)($data['id'] ?? 0),
-            'name' => self::titleCase((string)($data['name'] ?? '')),
-            'image' => (string)$image,
-            'type1' => (string)$type1,
-        ];
-
-        if ($type2) {
-            $monster['type2'] = (string)$type2;
-        }
-
         // Fetch evolution chain data
         $currentPokemonName = (string)($data['name'] ?? '');
         $speciesUrl = $data['species']['url'] ?? '';
-        $evolutionData = $this->fetchEvolutionChain($speciesUrl, $currentPokemonName, $cache_dir, $ttl_seconds);
-        if ($evolutionData) {
-            $monster = array_merge($monster, $evolutionData);
+        $evolutionResult = $this->fetchEvolutionChain($speciesUrl, $currentPokemonName, $cache_dir, $ttl_seconds);
+
+        $precursor = null;
+        $successors = [];
+        if ($evolutionResult->isSuccess()) {
+            $evolutionData = $evolutionResult->getValue();
+            $precursor = $evolutionData['precursor'] ?? null;
+            $successors = $evolutionData['successors'] ?? [];
         }
 
-        return $monster;
+        $monsterData = new MonsterData(
+            id: (int)($data['id'] ?? 0),
+            name: self::titleCase((string)($data['name'] ?? '')),
+            image: (string)$image,
+            type1: (string)$type1,
+            type2: $type2 ? (string)$type2 : null,
+            precursor: $precursor,
+            successors: $successors
+        );
+
+        return Result::success($monsterData);
     }
 
-    //! @brief Fetch evolution chain data for a Pokemon
-    //! @param species_url URL to the species endpoint
-    //! @param current_pokemon_name Name of the current Pokemon
-    //! @param cache_dir Cache directory
-    //! @param ttl_seconds Cache TTL
-    //! @return array{precursor?:array{name:string,url:string},successor?:array{name:string,url:string}}|null
-    private function fetchEvolutionChain(string $species_url, string $current_pokemon_name, ?string $cache_dir, int $ttl_seconds): ?array
+    //! @brief Fetch evolution chain data for a Pokemon from its species URL
+    //! @param species_url URL to the Pokemon species endpoint from PokeAPI
+    //! @param current_pokemon_name Name of the current Pokemon to find in the evolution chain
+    //! @param cache_dir Cache directory for storing evolution data
+    //! @param ttl_seconds Time-to-live for evolution data cache entries
+    //! @return Result<array{precursor?:EvolutionData,successors:EvolutionData[]}> Success with evolution data or failure
+    private function fetchEvolutionChain(string $species_url, string $current_pokemon_name, ?string $cache_dir, int $ttl_seconds): Result
     {
         if (empty($species_url)) {
-            return null;
+            return Result::failure('No species URL provided');
         }
 
         $cache_dir = $cache_dir ?? (sys_get_temp_dir() . '/pokeapi_cache');
@@ -138,7 +168,7 @@ class PokeApiService
                     $json = file_get_contents($cache_file) ?: null;
                 }
                 if ($json === null) {
-                    return null; // Fail silently for evolution data
+                    return Result::failure('Failed to fetch species data: ' . $e->getMessage());
                 }
             }
         }
@@ -149,22 +179,24 @@ class PokeApiService
             $evolutionChainUrl = $speciesData['evolution_chain']['url'] ?? '';
 
             if (empty($evolutionChainUrl)) {
-                return null;
+                return Result::failure('No evolution chain URL found');
             }
 
             return $this->parseEvolutionChain($evolutionChainUrl, $current_pokemon_name, $cache_dir, $ttl_seconds);
+        } catch (\JsonException $e) {
+            return Result::failure('Invalid species JSON: ' . $e->getMessage());
         } catch (\Throwable $e) {
-            return null; // Fail silently for evolution data
+            return Result::failure('Failed to parse species data: ' . $e->getMessage());
         }
     }
 
-    //! @brief Parse evolution chain to find precursor and successor
-    //! @param evolution_chain_url URL to evolution chain endpoint
-    //! @param current_pokemon_name Name of the current Pokemon
-    //! @param cache_dir Cache directory
-    //! @param ttl_seconds Cache TTL
-    //! @return array{precursor?:array{name:string,url:string},successor?:array{name:string,url:string}}|null
-    private function parseEvolutionChain(string $evolution_chain_url, string $current_pokemon_name, ?string $cache_dir, int $ttl_seconds): ?array
+    //! @brief Parse evolution chain data to find precursor and successor relationships
+    //! @param evolution_chain_url URL to the evolution chain endpoint from PokeAPI
+    //! @param current_pokemon_name Name of the current Pokemon to locate in the evolution chain
+    //! @param cache_dir Cache directory for storing parsed evolution chain data
+    //! @param ttl_seconds Time-to-live for evolution chain cache entries
+    //! @return Result<array{precursor?:EvolutionData,successors:EvolutionData[]}> Success with evolution data or failure
+    private function parseEvolutionChain(string $evolution_chain_url, string $current_pokemon_name, ?string $cache_dir, int $ttl_seconds): Result
     {
         $cache_dir = $cache_dir ?? (sys_get_temp_dir() . '/pokeapi_cache');
         $cache_file = $cache_dir . '/evolution_chain_' . md5($evolution_chain_url) . '.json';
@@ -183,7 +215,7 @@ class PokeApiService
                     $json = file_get_contents($cache_file) ?: null;
                 }
                 if ($json === null) {
-                    return null;
+                    return Result::failure('Failed to fetch evolution chain: ' . $e->getMessage());
                 }
             }
         }
@@ -194,28 +226,37 @@ class PokeApiService
             $chain = $chainData['chain'] ?? [];
 
             return $this->parseEvolutionChainData($chain, $current_pokemon_name);
+        } catch (\JsonException $e) {
+            return Result::failure('Invalid evolution chain JSON: ' . $e->getMessage());
         } catch (\Throwable $e) {
-            return null;
+            return Result::failure('Failed to parse evolution chain: ' . $e->getMessage());
         }
     }
 
-    //! @brief Parse evolution chain data to find precursor and successor relationships
-    //! @param array $chain Evolution chain data from PokeAPI
-    //! @param string $current_pokemon_name Name of the current Pokemon
-    //! @return array{precursor?:array{name:string,url:string},successor?:array{name:string,url:string}}|null
-    private function parseEvolutionChainData(array $chain, string $current_pokemon_name): ?array
+    //! @brief Parse evolution chain data to extract precursor and successors for a specific Pokemon
+    //! @param chain The evolution chain data array from PokeAPI
+    //! @param current_pokemon_name Name of the current Pokemon to find in the chain
+    //! @return Result<array{precursor?:EvolutionData,successors:EvolutionData[]}> Success with evolution data or failure
+    private function parseEvolutionChainData(array $chain, string $current_pokemon_name): Result
     {
-        // Recursively search the evolution chain to find the current Pokemon and its relationships
-        $result = $this->findPokemonInChain($chain, $current_pokemon_name);
-        return empty($result) ? null : $result;
+        try {
+            // Recursively search the evolution chain to find the current Pokemon and its relationships
+            $result = $this->findPokemonInChain($chain, $current_pokemon_name);
+            if (empty($result)) {
+                return Result::failure('Pokemon not found in evolution chain');
+            }
+            return Result::success($result);
+        } catch (\Throwable $e) {
+            return Result::failure('Failed to parse evolution chain data: ' . $e->getMessage());
+        }
     }
 
-    //! @brief Recursively find a Pokemon in the evolution chain and return its relationships
-    //! @param array $chain Current chain node
-    //! @param string $target_pokemon Name of Pokemon to find
-    //! @param array|null $precursor Parent Pokemon (for precursor relationship)
-    //! @return array{precursor?:array{name:string,url:string},successors?:array<array{name:string,url:string}>}|null
-    private function findPokemonInChain(array $chain, string $target_pokemon, ?array $precursor = null): ?array
+    //! @brief Recursively search evolution chain to find precursor and successors for a target Pokemon
+    //! @param chain Current evolution chain level to search
+    //! @param target_pokemon Name of the Pokemon to find in the evolution chain
+    //! @param precursor Current precursor EvolutionData (what the target evolves from)
+    //! @return array{precursor?:EvolutionData,successors:EvolutionData[]}|null Evolution data array with precursor and successors, or null if not found
+    private function findPokemonInChain(array $chain, string $target_pokemon, ?EvolutionData $precursor = null): ?array
     {
         $currentSpecies = $chain['species']['name'] ?? '';
 
@@ -225,29 +266,22 @@ class PokeApiService
 
             // Add precursor if we have one
             if ($precursor) {
-                $result['precursor'] = [
-                    'name' => self::titleCase($precursor['name']),
-                    'url' => '/dex/' . $precursor['name']
-                ];
+                $result['precursor'] = $precursor;
             }
 
             // Add all successors (handle multiple evolutions like Eevee)
             $evolvesTo = $chain['evolves_to'] ?? [];
-            if (!empty($evolvesTo)) {
-                $successors = [];
-                foreach ($evolvesTo as $evolution) {
-                    if (isset($evolution['species']['name'])) {
-                        $successorName = $evolution['species']['name'];
-                        $successors[] = [
-                            'name' => self::titleCase($successorName),
-                            'url' => '/dex/' . $successorName
-                        ];
-                    }
-                }
-                if (!empty($successors)) {
-                    $result['successors'] = $successors;
+            $successors = [];
+            foreach ($evolvesTo as $evolution) {
+                if (isset($evolution['species']['name'])) {
+                    $successorName = $evolution['species']['name'];
+                    $successors[] = new EvolutionData(
+                        name: self::titleCase($successorName),
+                        url: '/dex/' . $successorName
+                    );
                 }
             }
+            $result['successors'] = $successors;
 
             return $result;
         }
@@ -255,9 +289,11 @@ class PokeApiService
         // Recursively search in evolution branches
         $evolvesTo = $chain['evolves_to'] ?? [];
         foreach ($evolvesTo as $evolution) {
-            $found = $this->findPokemonInChain($evolution, $target_pokemon, [
-                'name' => $currentSpecies
-            ]);
+            $currentPrecursor = new EvolutionData(
+                name: self::titleCase($currentSpecies),
+                url: '/dex/' . $currentSpecies
+            );
+            $found = $this->findPokemonInChain($evolution, $target_pokemon, $currentPrecursor);
             if ($found) {
                 return $found;
             }
@@ -266,7 +302,9 @@ class PokeApiService
         return null;
     }
 
-    //! @brief Title case helper (first letter uppercase, rest lowercase)
+    //! @brief Convert a string to title case (first letter capitalized)
+    //! @param name Input string to convert to title case
+    //! @return string String with first letter capitalized and rest lowercase
     private static function titleCase(string $name): string
     {
         if ($name === '') {

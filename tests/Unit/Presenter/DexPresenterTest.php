@@ -5,24 +5,25 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use App\Presenter\DexPresenter;
 use App\Service\PokeApiService;
+use App\Type\Result;
+use App\Type\MonsterData;
 
 final class DexPresenterTest extends TestCase
 {
     public function test_present_builds_view_model_for_single_type_pokemon(): void
     {
         //! @section Arrange
-        $service = $this->createMock(PokeApiService::class);
-        $service->method('fetchMonster')->with('7')->willReturn([
-            'id' => 7,
-            'name' => 'Squirtle',
-            'image' => 'https://img.example/squirtle.png',
-            'type1' => 'water',
-        ]);
+        $monsterData = new MonsterData(
+            id: 7,
+            name: 'Squirtle',
+            image: 'https://img.example/squirtle.png',
+            type1: 'water'
+        );
 
-        $presenter = new DexPresenter($service, 300);
+        $presenter = new DexPresenter($this->createMock(PokeApiService::class), 300);
 
         //! @section Act
-        $view = $presenter->present('7');
+        $view = $presenter->present($monsterData);
 
         //! @section Assert
         $this->assertArrayHasKey('monster', $view);
@@ -39,19 +40,18 @@ final class DexPresenterTest extends TestCase
     public function test_present_builds_view_model_for_dual_type_pokemon(): void
     {
         //! @section Arrange
-        $service = $this->createMock(PokeApiService::class);
-        $service->method('fetchMonster')->with('1')->willReturn([
-            'id' => 1,
-            'name' => 'Bulbasaur',
-            'image' => 'https://img.example/bulbasaur.png',
-            'type1' => 'grass',
-            'type2' => 'poison',
-        ]);
+        $monsterData = new MonsterData(
+            id: 1,
+            name: 'Bulbasaur',
+            image: 'https://img.example/bulbasaur.png',
+            type1: 'grass',
+            type2: 'poison'
+        );
 
-        $presenter = new DexPresenter($service, 300);
+        $presenter = new DexPresenter($this->createMock(PokeApiService::class), 300);
 
         //! @section Act
-        $view = $presenter->present('1');
+        $view = $presenter->present($monsterData);
 
         //! @section Assert
         $this->assertArrayHasKey('monster', $view);
@@ -66,29 +66,44 @@ final class DexPresenterTest extends TestCase
         $this->assertArrayHasKey('type2', $view['monster']);
     }
 
-    public function test_present_uses_custom_cache_ttl(): void
+    public function test_fetch_monster_data_uses_custom_cache_ttl(): void
     {
         //! @section Arrange
+        $monsterData = new MonsterData(
+            id: 25,
+            name: 'Pikachu',
+            image: 'https://img.example/pikachu.png',
+            type1: 'electric'
+        );
+
         $service = $this->createMock(PokeApiService::class);
         $service->expects($this->once())
             ->method('fetchMonster')
             ->with('25', null, 60) // Verify custom TTL is passed
-            ->willReturn([
-                'id' => 25,
-                'name' => 'Pikachu',
-                'image' => 'https://img.example/pikachu.png',
-                'type1' => 'electric',
-            ]);
+            ->willReturn(Result::success($monsterData));
 
         $presenter = new DexPresenter($service, 60); // Custom 60-second TTL
 
         //! @section Act
-        $view = $presenter->present('25');
+        $fetchedData = $presenter->fetchMonsterData('25');
 
         //! @section Assert
-        $this->assertArrayHasKey('monster', $view);
-        $this->assertSame('Pikachu', $view['monster']['name']);
-        $this->assertSame('dex', $view['template']);
+        $this->assertSame($monsterData, $fetchedData);
+        $this->assertSame('Pikachu', $fetchedData->name);
+    }
+
+    public function test_fetch_monster_data_throws_on_service_failure(): void
+    {
+        //! @section Arrange
+        $service = $this->createMock(PokeApiService::class);
+        $service->method('fetchMonster')->willReturn(Result::failure('Pokemon not found'));
+
+        $presenter = new DexPresenter($service, 300);
+
+        //! @section Act & Assert
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Pokemon not found');
+        $presenter->fetchMonsterData('999');
     }
 }
 

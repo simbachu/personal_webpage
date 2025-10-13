@@ -7,6 +7,7 @@ namespace Tests\Integration;
 use PHPUnit\Framework\TestCase;
 use App\Service\PokeApiService;
 use App\Presenter\DexPresenter;
+use App\Type\Result;
 use Tests\TestData\PokemonTestData;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -57,7 +58,8 @@ class DexIntegrationTest extends TestCase
 
         try {
             //! @section Act
-            $viewData = $presenter->present('charmander_single');
+            $monsterData = $presenter->fetchMonsterData('charmander_single');
+            $viewData = $presenter->present($monsterData);
             $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
 
             //! @section Assert
@@ -93,7 +95,8 @@ class DexIntegrationTest extends TestCase
 
         try {
             //! @section Act
-            $viewData = $presenter->present('bulbasaur_dual');
+            $monsterData = $presenter->fetchMonsterData('bulbasaur_dual');
+            $viewData = $presenter->present($monsterData);
             $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
 
             //! @section Assert
@@ -129,7 +132,8 @@ class DexIntegrationTest extends TestCase
 
         try {
             //! @section Act
-            $viewData = $presenter->present('unknown_no_types');
+            $monsterData = $presenter->fetchMonsterData('unknown_no_types');
+            $viewData = $presenter->present($monsterData);
             $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
 
             //! @section Assert
@@ -178,7 +182,8 @@ class DexIntegrationTest extends TestCase
 
         try {
             //! @section Act
-            $viewData = $presenter->present('pikachu_sorted');
+            $monsterData = $presenter->fetchMonsterData('pikachu_sorted');
+            $viewData = $presenter->present($monsterData);
             $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
 
             //! @section Assert

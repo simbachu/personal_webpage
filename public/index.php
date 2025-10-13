@@ -114,13 +114,28 @@ if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
             ];
             $content_data = [];
         } else {
-            $presented = $dexPresenter->present($id_or_name);
-            $template = $presented['template'];
-            $content_data = ['monster' => $presented['monster']];
-            $meta = [
-                'title' => $presented['monster']['name'] . ' #' . $presented['monster']['id'],
-                'description' => 'Pokédex entry for ' . $presented['monster']['name'],
-            ];
+            try {
+                // Fetch monster data from service (handles Result internally)
+                $monsterData = $dexPresenter->fetchMonsterData($id_or_name);
+
+                // Present the clean data to view
+                $presented = $dexPresenter->present($monsterData);
+                $template = $presented['template'];
+                $content_data = ['monster' => $presented['monster']];
+                $meta = [
+                    'title' => $presented['monster']['name'] . ' #' . $presented['monster']['id'],
+                    'description' => 'Pokédex entry for ' . $presented['monster']['name'],
+                ];
+            } catch (\RuntimeException $e) {
+                // Handle Pokemon fetch failure
+                http_response_code(404);
+                $template = '404';
+                $meta = [
+                    'title' => 'Pokémon Not Found',
+                    'description' => $e->getMessage(),
+                ];
+                $content_data = [];
+            }
         }
     }
 } else {
