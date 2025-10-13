@@ -7,6 +7,7 @@ namespace Tests\Unit\Type;
 use PHPUnit\Framework\TestCase;
 use App\Type\MonsterData;
 use App\Type\EvolutionData;
+use App\Type\MonsterType;
 
 final class MonsterDataTest extends TestCase
 {
@@ -18,17 +19,17 @@ final class MonsterDataTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://example.com/pikachu.png',
-            type1: 'electric'
+            type1: MonsterType::ELECTRIC
         );
 
         //! @section Assert
         $this->assertSame(25, $monster->id);
         $this->assertSame('Pikachu', $monster->name);
         $this->assertSame('https://example.com/pikachu.png', $monster->image);
-        $this->assertSame('electric', $monster->type1);
+        $this->assertSame(MonsterType::ELECTRIC, $monster->type1);
         $this->assertNull($monster->type2);
         $this->assertFalse($monster->isDualType());
-        $this->assertSame(['electric'], $monster->getTypes());
+        $this->assertSame([MonsterType::ELECTRIC], $monster->getTypes());
     }
 
     //! @brief Test creating MonsterData with dual types
@@ -39,15 +40,15 @@ final class MonsterDataTest extends TestCase
             id: 1,
             name: 'Bulbasaur',
             image: 'https://example.com/bulbasaur.png',
-            type1: 'grass',
-            type2: 'poison'
+            type1: MonsterType::GRASS,
+            type2: MonsterType::POISON
         );
 
         //! @section Assert
-        $this->assertSame('grass', $monster->type1);
-        $this->assertSame('poison', $monster->type2);
+        $this->assertSame(MonsterType::GRASS, $monster->type1);
+        $this->assertSame(MonsterType::POISON, $monster->type2);
         $this->assertTrue($monster->isDualType());
-        $this->assertSame(['grass', 'poison'], $monster->getTypes());
+        $this->assertSame([MonsterType::GRASS, MonsterType::POISON], $monster->getTypes());
     }
 
     //! @brief Test creating MonsterData with evolution data
@@ -64,7 +65,7 @@ final class MonsterDataTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://example.com/pikachu.png',
-            type1: 'electric',
+            type1: MonsterType::ELECTRIC,
             precursor: $precursor,
             successors: $successors
         );
@@ -83,7 +84,7 @@ final class MonsterDataTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://example.com/pikachu.png',
-            type1: 'electric'
+            type1: MonsterType::ELECTRIC
         );
 
         //! @section Assert
@@ -103,7 +104,7 @@ final class MonsterDataTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://example.com/pikachu.png',
-            type1: 'electric',
+            type1: MonsterType::ELECTRIC,
             type2: null,
             precursor: $precursor,
             successors: $successors
@@ -140,7 +141,7 @@ final class MonsterDataTest extends TestCase
             id: 133,
             name: 'Eevee',
             image: 'https://example.com/eevee.png',
-            type1: 'normal',
+            type1: MonsterType::NORMAL,
             successors: $successors
         );
 
@@ -182,7 +183,7 @@ final class MonsterDataTest extends TestCase
         $this->assertSame(25, $monster->id);
         $this->assertSame('Pikachu', $monster->name);
         $this->assertSame('https://example.com/pikachu.png', $monster->image);
-        $this->assertSame('electric', $monster->type1);
+        $this->assertSame(MonsterType::ELECTRIC, $monster->type1);
         $this->assertNull($monster->type2);
         $this->assertNotNull($monster->precursor);
         $this->assertSame('Pichu', $monster->precursor->name);
@@ -231,7 +232,7 @@ final class MonsterDataTest extends TestCase
         //! @section Assert
         $this->assertSame(25, $monster->id);
         $this->assertSame('Pikachu', $monster->name);
-        $this->assertSame('electric', $monster->type1);
+        $this->assertSame(MonsterType::ELECTRIC, $monster->type1);
         $this->assertNull($monster->type2);
         $this->assertNull($monster->precursor);
         $this->assertEmpty($monster->successors);
@@ -253,8 +254,8 @@ final class MonsterDataTest extends TestCase
         $monster = MonsterData::fromArray($array);
 
         //! @section Assert
-        $this->assertSame('grass', $monster->type1);
-        $this->assertSame('poison', $monster->type2);
+        $this->assertSame(MonsterType::GRASS, $monster->type1);
+        $this->assertSame(MonsterType::POISON, $monster->type2);
         $this->assertTrue($monster->isDualType());
     }
 

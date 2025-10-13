@@ -8,6 +8,8 @@ use App\Service\PokeApiService;
 use App\Type\Result;
 use App\Type\MonsterData;
 use App\Type\MonsterIdentifier;
+use App\Type\TemplateName;
+use App\Type\MonsterType;
 
 final class DexPresenterTest extends TestCase
 {
@@ -18,7 +20,7 @@ final class DexPresenterTest extends TestCase
             id: 7,
             name: 'Squirtle',
             image: 'https://img.example/squirtle.png',
-            type1: 'water'
+            type1: MonsterType::WATER
         );
 
         $presenter = new DexPresenter($this->createMock(PokeApiService::class), 300);
@@ -32,7 +34,7 @@ final class DexPresenterTest extends TestCase
         $this->assertSame(7, $view['monster']['id']);
         $this->assertSame('water', $view['monster']['type1']);
         $this->assertSame('https://img.example/squirtle.png', $view['monster']['image']);
-        $this->assertSame('dex', $view['template']);
+        $this->assertSame(TemplateName::DEX, $view['template']);
 
         //! Ensure type2 is absent for single-type Pokemon
         $this->assertArrayNotHasKey('type2', $view['monster']);
@@ -45,8 +47,8 @@ final class DexPresenterTest extends TestCase
             id: 1,
             name: 'Bulbasaur',
             image: 'https://img.example/bulbasaur.png',
-            type1: 'grass',
-            type2: 'poison'
+            type1: MonsterType::GRASS,
+            type2: MonsterType::POISON
         );
 
         $presenter = new DexPresenter($this->createMock(PokeApiService::class), 300);
@@ -61,7 +63,7 @@ final class DexPresenterTest extends TestCase
         $this->assertSame('grass', $view['monster']['type1']);
         $this->assertSame('poison', $view['monster']['type2']);
         $this->assertSame('https://img.example/bulbasaur.png', $view['monster']['image']);
-        $this->assertSame('dex', $view['template']);
+        $this->assertSame(TemplateName::DEX, $view['template']);
 
         //! Ensure type2 exists for dual-type Pokemon
         $this->assertArrayHasKey('type2', $view['monster']);
@@ -74,7 +76,7 @@ final class DexPresenterTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://img.example/pikachu.png',
-            type1: 'electric'
+            type1: MonsterType::ELECTRIC
         );
 
         $service = $this->createMock(PokeApiService::class);

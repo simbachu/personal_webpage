@@ -61,7 +61,7 @@ class DexIntegrationTest extends TestCase
             //! @section Act
             $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('charmander_single'));
             $viewData = $presenter->present($monsterData);
-            $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
+            $rendered = $this->twig->render($viewData['template']->value . '.twig', $viewData);
 
             //! @section Assert
             $this->assertStringContainsString('Charmander', $rendered);
@@ -98,7 +98,7 @@ class DexIntegrationTest extends TestCase
             //! @section Act
             $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('bulbasaur_dual'));
             $viewData = $presenter->present($monsterData);
-            $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
+            $rendered = $this->twig->render($viewData['template']->value . '.twig', $viewData);
 
             //! @section Assert
             $this->assertStringContainsString('Bulbasaur', $rendered);
@@ -131,25 +131,15 @@ class DexIntegrationTest extends TestCase
         });
         $presenter = new DexPresenter($service, 300);
 
-        try {
-            //! @section Act
-            $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('unknown_no_types'));
-            $viewData = $presenter->present($monsterData);
-            $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
+        //! @section Act & Assert
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('No primary type found for Pokemon');
 
-            //! @section Assert
-            $this->assertStringContainsString('Unknown', $rendered);
-            $this->assertStringContainsString('#999', $rendered);
-            $this->assertStringContainsString('data-type1=""', $rendered);
-            $this->assertStringContainsString('data-type2=""', $rendered);
+        $presenter->fetchMonsterData(MonsterIdentifier::fromString('unknown_no_types'));
 
-            //! Should not crash even with missing types
-            $this->assertStringNotContainsString('class="type type-"', $rendered);
-        } finally {
-            if (is_dir($cacheDir)) {
-                array_map('unlink', glob($cacheDir . '/*') ?: []);
-                @rmdir($cacheDir);
-            }
+        if (is_dir($cacheDir)) {
+            array_map('unlink', glob($cacheDir . '/*') ?: []);
+            @rmdir($cacheDir);
         }
     }
 
@@ -185,7 +175,7 @@ class DexIntegrationTest extends TestCase
             //! @section Act
             $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('pikachu_sorted'));
             $viewData = $presenter->present($monsterData);
-            $rendered = $this->twig->render($viewData['template'] . '.twig', $viewData);
+            $rendered = $this->twig->render($viewData['template']->value . '.twig', $viewData);
 
             //! @section Assert
             $this->assertStringContainsString('data-type1="electric"', $rendered);

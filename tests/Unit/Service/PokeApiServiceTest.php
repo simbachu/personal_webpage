@@ -7,6 +7,7 @@ use App\Service\PokeApiService;
 use App\Type\Result;
 use App\Type\MonsterData;
 use App\Type\MonsterIdentifier;
+use App\Type\MonsterType;
 
 final class PokeApiServiceTest extends TestCase
 {
@@ -90,8 +91,8 @@ final class PokeApiServiceTest extends TestCase
             $this->assertSame(1, $monster->id);
             $this->assertSame('Bulbasaur', $monster->name);
             $this->assertSame('https://img.example/bulbasaur.png', $monster->image);
-            $this->assertSame('grass', $monster->type1);
-            $this->assertSame('poison', $monster->type2);
+        $this->assertSame(MonsterType::GRASS, $monster->type1);
+        $this->assertSame(MonsterType::POISON, $monster->type2);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -118,7 +119,7 @@ final class PokeApiServiceTest extends TestCase
         $this->assertSame(132, $monster->id);
         $this->assertSame('Ditto', $monster->name);
         $this->assertSame('https://img.example/ditto.png', $monster->image);
-        $this->assertSame('normal', $monster->type1);
+        $this->assertSame(MonsterType::NORMAL, $monster->type1);
         $this->assertNull($monster->type2);
     }
 
@@ -138,8 +139,8 @@ final class PokeApiServiceTest extends TestCase
         //! @section Assert - should be sorted by slot
         $this->assertTrue($result->isSuccess());
         $monster = $result->getValue();
-        $this->assertSame('electric', $monster->type1);
-        $this->assertSame('flying', $monster->type2);
+        $this->assertSame(MonsterType::ELECTRIC, $monster->type1);
+        $this->assertSame(MonsterType::FLYING, $monster->type2);
     }
 
     public function testFetchPokemonHandlesMissingOfficialArtwork(): void
@@ -328,7 +329,7 @@ final class PokeApiServiceTest extends TestCase
             //! @section Assert
             $this->assertTrue($result->isSuccess());
             $monster = $result->getValue();
-            $this->assertSame('electric', $monster->type1);
+            $this->assertSame(MonsterType::ELECTRIC, $monster->type1);
             $this->assertNull($monster->type2);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
@@ -355,8 +356,8 @@ final class PokeApiServiceTest extends TestCase
             //! @section Assert
             $this->assertTrue($result->isSuccess());
             $monster = $result->getValue();
-            $this->assertSame('grass', $monster->type1);
-            $this->assertSame('poison', $monster->type2);
+        $this->assertSame(MonsterType::GRASS, $monster->type1);
+        $this->assertSame(MonsterType::POISON, $monster->type2);
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
@@ -377,18 +378,14 @@ final class PokeApiServiceTest extends TestCase
             return $pokemonJson;
         });
 
-        try {
-            //! @section Act
-            $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
+        //! @section Act
+        $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), $cacheDir);
 
-            //! @section Assert
-            $this->assertTrue($result->isSuccess());
-            $monster = $result->getValue();
-            $this->assertSame('', $monster->type1);
-            $this->assertNull($monster->type2);
-        } finally {
-            $this->cleanupTestCacheDir($cacheDir);
-        }
+        //! @section Assert
+        $this->assertTrue($result->isFailure());
+        $this->assertStringContainsString('No primary type found for Pokemon', $result->getError());
+
+        $this->cleanupTestCacheDir($cacheDir);
     }
 
     //! @brief Create isolated cache directory for testing
@@ -585,8 +582,8 @@ final class PokeApiServiceTest extends TestCase
             $monster = $result->getValue();
             $this->assertSame(1, $monster->id);
             $this->assertSame('Bulbasaur', $monster->name);
-            $this->assertSame('grass', $monster->type1);
-            $this->assertSame('poison', $monster->type2);
+        $this->assertSame(MonsterType::GRASS, $monster->type1);
+        $this->assertSame(MonsterType::POISON, $monster->type2);
             $this->assertEmpty($monster->successors); // No evolution data expected
         } finally {
             $this->cleanupTestCacheDir($cacheDir);

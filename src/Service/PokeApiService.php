@@ -8,6 +8,7 @@ use App\Type\Result;
 use App\Type\MonsterData;
 use App\Type\EvolutionData;
 use App\Type\MonsterIdentifier;
+use App\Type\MonsterType;
 
 //! @brief Service for fetching Pokemon data from the PokeAPI with caching and error handling
 //!
@@ -107,8 +108,19 @@ class PokeApiService
             return ($a['slot'] ?? 0) <=> ($b['slot'] ?? 0);
         });
 
-        $type1 = $types[0]['type']['name'] ?? '';
-        $type2 = isset($types[1]) ? ($types[1]['type']['name'] ?? null) : null;
+        $type1String = $types[0]['type']['name'] ?? '';
+        $type2String = isset($types[1]) ? ($types[1]['type']['name'] ?? null) : null;
+
+        if (empty($type1String)) {
+            return Result::failure('No primary type found for Pokemon');
+        }
+
+        try {
+            $type1 = MonsterType::fromString($type1String);
+            $type2 = $type2String ? MonsterType::fromString($type2String) : null;
+        } catch (\InvalidArgumentException $e) {
+            return Result::failure('Invalid Pokemon type: ' . $e->getMessage());
+        }
 
         $image = $data['sprites']['other']['official-artwork']['front_default']
             ?? $data['sprites']['front_default']
@@ -131,8 +143,8 @@ class PokeApiService
             id: (int)($data['id'] ?? 0),
             name: self::titleCase((string)($data['name'] ?? '')),
             image: (string)$image,
-            type1: (string)$type1,
-            type2: $type2 ? (string)$type2 : null,
+            type1: $type1,
+            type2: $type2,
             precursor: $precursor,
             successors: $successors
         );

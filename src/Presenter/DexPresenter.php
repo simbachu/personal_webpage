@@ -7,6 +7,7 @@ namespace App\Presenter;
 use App\Service\PokeApiService;
 use App\Type\MonsterData;
 use App\Type\MonsterIdentifier;
+use App\Type\TemplateName;
 
 //! @brief Presenter for Pokemon dex detail view with clean separation of concerns
 //!
@@ -42,11 +43,11 @@ class DexPresenter
 
     //! @brief Prepare view model for the dex page from clean MonsterData
     //! @param monsterData The MonsterData object to present to the template
-    //! @return array{template:string,monster:array} View data structure for template rendering
+    //! @return array{template:TemplateName,monster:array} View data structure for template rendering
     public function present(MonsterData $monsterData): array
     {
         return [
-            'template' => 'dex',
+            'template' => TemplateName::DEX,
             'monster' => $monsterData->toArray(),
         ];
     }

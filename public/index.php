@@ -20,6 +20,9 @@ $vendor_autoload = $base_path . '/httpd.private' . $env_prefix . '/vendor/autolo
 // Load Composer autoloader
 require_once $vendor_autoload;
 
+// Import TemplateName for type safety
+use App\Type\TemplateName;
+
 // Initialize content repository and presenter
 $content_path = $base_path . '/httpd.private' . $env_prefix . '/content';
 $contentRepository = new \App\Model\ContentRepository($content_path);
@@ -46,11 +49,11 @@ if ($is_dev) {
 $twig = new \Twig\Environment($loader, $twigOptions);
 
 //! @brief Renders a Twig template
-//! @param string $template Template name (without .twig extension)
+//! @param TemplateName $template Template name (without .twig extension)
 //! @param array $data Data to pass to template
-function render(string $template, array $data = []): void {
+function render(TemplateName $template, array $data = []): void {
     global $twig;
-    echo $twig->render($template . '.twig', $data);
+    echo $twig->render($template->value . '.twig', $data);
 }
 
 //! @brief Gets the current request path
@@ -75,7 +78,7 @@ function get_base_url(): string {
 //! Each route maps a path to a template and metadata
 $routes = [
     '/' => [
-        'template' => 'home',
+        'template' => TemplateName::HOME,
         'meta' => [
             'title' => 'Jennifer Gott',
             'description' => 'Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.',
@@ -83,9 +86,9 @@ $routes = [
         ]
     ],
     // Add more routes here as needed
-    // '/about' => ['template' => 'about', 'meta' => [...]],
+    // '/about' => ['template' => TemplateName::ABOUT, 'meta' => [...]],
     '/dex' => [
-        'template' => 'dex',
+        'template' => TemplateName::DEX,
     ],
 ];
 
@@ -100,14 +103,14 @@ if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
         $route = $routes[$path];
         $template = $route['template'];
         $meta = $route['meta'] ?? [];
-        $content_data = ($template === 'home') ? $homePresenter->present() : [];
+        $content_data = ($template === TemplateName::HOME) ? $homePresenter->present() : [];
     } else {
         // Dynamic dex route: /dex/{id_or_name}
         $segments = explode('/', trim($path, '/'));
         $id_or_name = $segments[1] ?? '';
         if ($id_or_name === '') {
             http_response_code(400);
-            $template = '404';
+            $template = TemplateName::NOT_FOUND;
             $meta = [
                 'title' => 'Invalid Pokédex Request',
                 'description' => 'No Pokémon specified.',
@@ -130,7 +133,7 @@ if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
             } catch (\RuntimeException $e) {
                 // Handle Pokemon fetch failure
                 http_response_code(404);
-                $template = '404';
+                $template = TemplateName::NOT_FOUND;
                 $meta = [
                     'title' => 'Pokémon Not Found',
                     'description' => $e->getMessage(),
@@ -142,7 +145,7 @@ if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
 } else {
     // 404 Not Found
     http_response_code(404);
-    $template = '404';
+    $template = TemplateName::NOT_FOUND;
     $meta = [
         'title' => 'Page Not Found - Jennifer Gott',
         'description' => 'The page you are looking for does not exist.',

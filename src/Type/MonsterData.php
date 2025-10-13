@@ -30,7 +30,7 @@ final class MonsterData
     //! @param id The Pokemon's unique ID number
     //! @param name The Pokemon's name in title case (e.g., "Pikachu")
     //! @param image The URL to the Pokemon's official artwork image
-    //! @param type1 The Pokemon's primary type (e.g., "electric", "fire")
+    //! @param type1 The Pokemon's primary type (e.g., MonsterType::ELECTRIC, MonsterType::FIRE)
     //! @param type2 The Pokemon's secondary type, null if single-type
     //! @param precursor Evolution precursor data (what this Pokemon evolves from)
     //! @param successors Array of evolution successor data (what this Pokemon evolves into)
@@ -38,8 +38,8 @@ final class MonsterData
         public readonly int $id,
         public readonly string $name,
         public readonly string $image,
-        public readonly string $type1,
-        public readonly ?string $type2 = null,
+        public readonly MonsterType $type1,
+        public readonly ?MonsterType $type2 = null,
         public readonly ?EvolutionData $precursor = null,
         public readonly array $successors = []
     ) {}
@@ -59,7 +59,7 @@ final class MonsterData
     }
 
     //! @brief Get all types for this Pokemon as an array
-    //! @return string[] Array containing the primary type, and secondary type if present
+    //! @return MonsterType[] Array containing the primary type, and secondary type if present
     public function getTypes(): array
     {
         $types = [$this->type1];
@@ -77,11 +77,11 @@ final class MonsterData
             'id' => $this->id,
             'name' => $this->name,
             'image' => $this->image,
-            'type1' => $this->type1,
+            'type1' => $this->type1->value,
         ];
 
         if ($this->type2 !== null) {
-            $data['type2'] = $this->type2;
+            $data['type2'] = $this->type2->value;
         }
 
         if ($this->precursor !== null) {
@@ -123,8 +123,8 @@ final class MonsterData
             id: (int)($data['id'] ?? 0),
             name: (string)($data['name'] ?? ''),
             image: (string)($data['image'] ?? ''),
-            type1: (string)($data['type1'] ?? ''),
-            type2: isset($data['type2']) ? (string)$data['type2'] : null,
+            type1: MonsterType::fromString((string)($data['type1'] ?? '')),
+            type2: isset($data['type2']) ? MonsterType::fromString((string)$data['type2']) : null,
             precursor: $precursor,
             successors: $successors
         );
