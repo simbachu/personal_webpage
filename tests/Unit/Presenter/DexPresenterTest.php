@@ -19,7 +19,7 @@ final class DexPresenterTest extends TestCase
             'type1' => 'water',
         ]);
 
-        $presenter = new DexPresenter($service);
+        $presenter = new DexPresenter($service, 300);
 
         //! @section Act
         $view = $presenter->present('7');
@@ -31,7 +31,7 @@ final class DexPresenterTest extends TestCase
         $this->assertSame('water', $view['monster']['type1']);
         $this->assertSame('https://img.example/squirtle.png', $view['monster']['image']);
         $this->assertSame('dex', $view['template']);
-        
+
         //! Ensure type2 is absent for single-type Pokemon
         $this->assertArrayNotHasKey('type2', $view['monster']);
     }
@@ -48,7 +48,7 @@ final class DexPresenterTest extends TestCase
             'type2' => 'poison',
         ]);
 
-        $presenter = new DexPresenter($service);
+        $presenter = new DexPresenter($service, 300);
 
         //! @section Act
         $view = $presenter->present('1');
@@ -61,9 +61,34 @@ final class DexPresenterTest extends TestCase
         $this->assertSame('poison', $view['monster']['type2']);
         $this->assertSame('https://img.example/bulbasaur.png', $view['monster']['image']);
         $this->assertSame('dex', $view['template']);
-        
+
         //! Ensure type2 exists for dual-type Pokemon
         $this->assertArrayHasKey('type2', $view['monster']);
+    }
+
+    public function test_present_uses_custom_cache_ttl(): void
+    {
+        //! @section Arrange
+        $service = $this->createMock(PokeApiService::class);
+        $service->expects($this->once())
+            ->method('fetchMonster')
+            ->with('25', null, 60) // Verify custom TTL is passed
+            ->willReturn([
+                'id' => 25,
+                'name' => 'Pikachu',
+                'image' => 'https://img.example/pikachu.png',
+                'type1' => 'electric',
+            ]);
+
+        $presenter = new DexPresenter($service, 60); // Custom 60-second TTL
+
+        //! @section Act
+        $view = $presenter->present('25');
+
+        //! @section Assert
+        $this->assertArrayHasKey('monster', $view);
+        $this->assertSame('Pikachu', $view['monster']['name']);
+        $this->assertSame('dex', $view['template']);
     }
 }
 

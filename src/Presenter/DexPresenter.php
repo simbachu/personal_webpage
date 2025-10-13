@@ -10,10 +10,12 @@ use App\Service\PokeApiService;
 class DexPresenter
 {
     private PokeApiService $pokeapi; //!< Service for fetching pokemon data
+    private int $cacheTtl; //!< Cache TTL in seconds
 
-    public function __construct(PokeApiService $pokeapi)
+    public function __construct(PokeApiService $pokeapi, int $cacheTtl = 300)
     {
         $this->pokeapi = $pokeapi;
+        $this->cacheTtl = $cacheTtl;
     }
 
     //! @brief Prepare view model for the dex page
@@ -21,7 +23,7 @@ class DexPresenter
     //! @return array{template:string,monster:array}
     public function present(string $id_or_name): array
     {
-        $monster = $this->pokeapi->fetchMonster($id_or_name);
+        $monster = $this->pokeapi->fetchMonster($id_or_name, null, $this->cacheTtl);
         return [
             'template' => 'dex',
             'monster' => $monster,

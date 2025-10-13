@@ -48,12 +48,12 @@ class DexIntegrationTest extends TestCase
         //! @section Arrange
         $cacheDir = $this->testCacheDir . '_single_type';
         @mkdir($cacheDir, 0777, true);
-        
+
         $pokemonJson = PokemonTestData::getCharmanderJson();
         $service = new PokeApiService(function (string $url) use ($pokemonJson): string {
             return $pokemonJson;
         });
-        $presenter = new DexPresenter($service);
+        $presenter = new DexPresenter($service, 300);
 
         try {
             //! @section Act
@@ -66,7 +66,7 @@ class DexIntegrationTest extends TestCase
             $this->assertStringContainsString('fire', $rendered);
             $this->assertStringContainsString('data-type1="fire"', $rendered);
             $this->assertStringContainsString('data-type2=""', $rendered);
-            
+
             //! Ensure only one type is rendered
             $this->assertEquals(1, substr_count($rendered, 'class="type type-fire"'));
             $this->assertStringNotContainsString('type-grass', $rendered);
@@ -84,12 +84,12 @@ class DexIntegrationTest extends TestCase
         //! @section Arrange
         $cacheDir = $this->testCacheDir . '_dual_type';
         @mkdir($cacheDir, 0777, true);
-        
+
         $pokemonJson = PokemonTestData::getBulbasaurJson();
         $service = new PokeApiService(function (string $url) use ($pokemonJson): string {
             return $pokemonJson;
         });
-        $presenter = new DexPresenter($service);
+        $presenter = new DexPresenter($service, 300);
 
         try {
             //! @section Act
@@ -103,7 +103,7 @@ class DexIntegrationTest extends TestCase
             $this->assertStringContainsString('poison', $rendered);
             $this->assertStringContainsString('data-type1="grass"', $rendered);
             $this->assertStringContainsString('data-type2="poison"', $rendered);
-            
+
             //! Ensure both types are rendered
             $this->assertEquals(1, substr_count($rendered, 'class="type type-grass"'));
             $this->assertEquals(1, substr_count($rendered, 'class="type type-poison"'));
@@ -120,12 +120,12 @@ class DexIntegrationTest extends TestCase
         //! @section Arrange
         $cacheDir = $this->testCacheDir . '_no_types';
         @mkdir($cacheDir, 0777, true);
-        
+
         $pokemonJson = PokemonTestData::getTypelessPokemonJson();
         $service = new PokeApiService(function (string $url) use ($pokemonJson): string {
             return $pokemonJson;
         });
-        $presenter = new DexPresenter($service);
+        $presenter = new DexPresenter($service, 300);
 
         try {
             //! @section Act
@@ -137,7 +137,7 @@ class DexIntegrationTest extends TestCase
             $this->assertStringContainsString('#999', $rendered);
             $this->assertStringContainsString('data-type1=""', $rendered);
             $this->assertStringContainsString('data-type2=""', $rendered);
-            
+
             //! Should not crash even with missing types
             $this->assertStringNotContainsString('class="type type-"', $rendered);
         } finally {
@@ -153,7 +153,7 @@ class DexIntegrationTest extends TestCase
         //! @section Arrange
         $cacheDir = $this->testCacheDir . '_sorted_types';
         @mkdir($cacheDir, 0777, true);
-        
+
         //! Create test data with types in wrong order to test sorting
         $pokemonJson = json_encode([
             'id' => 25,
@@ -174,7 +174,7 @@ class DexIntegrationTest extends TestCase
         $service = new PokeApiService(function (string $url) use ($pokemonJson): string {
             return $pokemonJson;
         });
-        $presenter = new DexPresenter($service);
+        $presenter = new DexPresenter($service, 300);
 
         try {
             //! @section Act
@@ -184,7 +184,7 @@ class DexIntegrationTest extends TestCase
             //! @section Assert
             $this->assertStringContainsString('data-type1="electric"', $rendered);
             $this->assertStringContainsString('data-type2="flying"', $rendered);
-            
+
             //! Types should appear in correct order in HTML
             $type1Pos = strpos($rendered, 'type-electric');
             $type2Pos = strpos($rendered, 'type-flying');
