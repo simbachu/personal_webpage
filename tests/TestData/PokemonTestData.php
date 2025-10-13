@@ -101,4 +101,76 @@ class PokemonTestData
             ]
         ]);
     }
+
+    //! @brief Get test data for Ditto (ID: 132) - no evolution
+    //! @return array{id:int,name:string,image:string,type1:string}
+    public static function getDitto(): array
+    {
+        return [
+            'id' => 132,
+            'name' => 'Ditto',
+            'image' => 'https://img.example/ditto.png',
+            'type1' => 'normal',
+        ];
+    }
+
+    //! @brief Get test data for Ivysaur (ID: 002) - middle evolution
+    //! @return array{id:int,name:string,image:string,type1:string,type2:string}
+    public static function getIvysaur(): array
+    {
+        return [
+            'id' => 2,
+            'name' => 'Ivysaur',
+            'image' => 'https://img.example/ivysaur.png',
+            'type1' => 'grass',
+            'type2' => 'poison',
+        ];
+    }
+
+    //! @brief Get test data for Venusaur (ID: 003) - final evolution
+    //! @return array{id:int,name:string,image:string,type1:string,type2:string}
+    public static function getVenusaur(): array
+    {
+        return [
+            'id' => 3,
+            'name' => 'Venusaur',
+            'image' => 'https://img.example/venusaur.png',
+            'type1' => 'grass',
+            'type2' => 'poison',
+        ];
+    }
+
+    //! @brief Get test data for Bulbasaur with evolution data (has successor)
+    //! @return array{id:int,name:string,image:string,type1:string,type2:string,successor:array{name:string,url:string}}
+    public static function getBulbasaurWithEvolution(): array
+    {
+        return [
+            'id' => 1,
+            'name' => 'Bulbasaur',
+            'image' => 'https://img.example/bulbasaur.png',
+            'type1' => 'grass',
+            'type2' => 'poison',
+            'successor' => [
+                'name' => 'Ivysaur',
+                'url' => '/dex/2'
+            ]
+        ];
+    }
+
+    //! @brief Get test data for Venusaur with evolution data (has precursor)
+    //! @return array{id:int,name:string,image:string,type1:string,type2:string,precursor:array{name:string,url:string}}
+    public static function getVenusaurWithEvolution(): array
+    {
+        return [
+            'id' => 3,
+            'name' => 'Venusaur',
+            'image' => 'https://img.example/venusaur.png',
+            'type1' => 'grass',
+            'type2' => 'poison',
+            'precursor' => [
+                'name' => 'Ivysaur',
+                'url' => '/dex/2'
+            ]
+        ];
+    }
 }

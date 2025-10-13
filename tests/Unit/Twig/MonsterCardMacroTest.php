@@ -95,6 +95,111 @@ TWIG;
         $this->assertEquals(1, substr_count($html, 'class="type type-electric"'));
         $this->assertStringNotContainsString('type-flying', $html);
     }
+
+    public function test_macro_renders_ditto_with_no_evolution_links(): void
+    {
+        // Arrange
+        $monster = [
+            'id' => 132,
+            'name' => 'Ditto',
+            'image' => 'https://img.example/ditto.png',
+            'type1' => 'normal',
+            // No precursor or successor
+        ];
+
+        // Act
+        $html = $this->twig->render('inline.twig', ['monster' => $monster]);
+
+        // Assert
+        $this->assertStringContainsString('Ditto', $html);
+        $this->assertStringContainsString('data-type1="normal"', $html);
+        $this->assertStringNotContainsString('monster-card-links', $html);
+        $this->assertStringNotContainsString('From:', $html);
+        $this->assertStringNotContainsString('To:', $html);
+    }
+
+    public function test_macro_renders_bulbasaur_with_successor_link(): void
+    {
+        // Arrange
+        $monster = [
+            'id' => 1,
+            'name' => 'Bulbasaur',
+            'image' => 'https://img.example/bulbasaur.png',
+            'type1' => 'grass',
+            'type2' => 'poison',
+            'successor' => [
+                'name' => 'Ivysaur',
+                'url' => '/dex/2'
+            ]
+        ];
+
+        // Act
+        $html = $this->twig->render('inline.twig', ['monster' => $monster]);
+
+        // Assert
+        $this->assertStringContainsString('Bulbasaur', $html);
+        $this->assertStringContainsString('monster-card-links', $html);
+        $this->assertStringContainsString('To:', $html);
+        $this->assertStringContainsString('<a href="/dex/2">Ivysaur</a>', $html);
+        $this->assertStringNotContainsString('From:', $html);
+    }
+
+    public function test_macro_renders_venusaur_with_precursor_link(): void
+    {
+        // Arrange
+        $monster = [
+            'id' => 3,
+            'name' => 'Venusaur',
+            'image' => 'https://img.example/venusaur.png',
+            'type1' => 'grass',
+            'type2' => 'poison',
+            'precursor' => [
+                'name' => 'Ivysaur',
+                'url' => '/dex/2'
+            ]
+        ];
+
+        // Act
+        $html = $this->twig->render('inline.twig', ['monster' => $monster]);
+
+        // Assert
+        $this->assertStringContainsString('Venusaur', $html);
+        $this->assertStringContainsString('monster-card-links', $html);
+        $this->assertStringContainsString('From:', $html);
+        $this->assertStringContainsString('<a href="/dex/2">Ivysaur</a>', $html);
+        $this->assertStringNotContainsString('To:', $html);
+    }
+
+    public function test_macro_renders_monster_with_both_evolution_links(): void
+    {
+        // Arrange
+        $monster = [
+            'id' => 2,
+            'name' => 'Ivysaur',
+            'image' => 'https://img.example/ivysaur.png',
+            'type1' => 'grass',
+            'type2' => 'poison',
+            'precursor' => [
+                'name' => 'Bulbasaur',
+                'url' => '/dex/1'
+            ],
+            'successor' => [
+                'name' => 'Venusaur',
+                'url' => '/dex/3'
+            ]
+        ];
+
+        // Act
+        $html = $this->twig->render('inline.twig', ['monster' => $monster]);
+
+        // Assert
+        $this->assertStringContainsString('Ivysaur', $html);
+        $this->assertStringContainsString('monster-card-links', $html);
+        $this->assertStringContainsString('From:', $html);
+        $this->assertStringContainsString('To:', $html);
+        $this->assertStringContainsString('<a href="/dex/1">Bulbasaur</a>', $html);
+        $this->assertStringContainsString('<a href="/dex/3">Venusaur</a>', $html);
+    }
 }
 
 

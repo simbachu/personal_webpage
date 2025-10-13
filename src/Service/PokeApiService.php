@@ -37,7 +37,7 @@ class PokeApiService
     //! @param id_or_name Monster id or name
     //! @param cache_dir Optional directory for file cache (defaults to sys temp)
     //! @param ttl_seconds Time-to-live for cache in seconds (defaults to 300)
-    //! @return array{id:int,name:string,image:string,type1:string,type2?:string}
+    //! @return array{id:int,name:string,image:string,type1:string,type2?:string,precursor?:array{name:string,url:string},successor?:array{name:string,url:string}}
     public function fetchMonster(string $id_or_name, ?string $cache_dir = null, int $ttl_seconds = 300): array
     {
         $id_or_name = trim($id_or_name);
@@ -98,7 +98,104 @@ class PokeApiService
             $monster['type2'] = (string)$type2;
         }
 
+        // Fetch evolution chain data
+        $evolutionData = $this->fetchEvolutionChain($data['species']['url'] ?? '', $cache_dir, $ttl_seconds);
+        if ($evolutionData) {
+            $monster = array_merge($monster, $evolutionData);
+        }
+
         return $monster;
+    }
+
+    //! @brief Fetch evolution chain data for a Pokemon
+    //! @param species_url URL to the species endpoint
+    //! @param cache_dir Cache directory
+    //! @param ttl_seconds Cache TTL
+    //! @return array{precursor?:array{name:string,url:string},successor?:array{name:string,url:string}}|null
+    private function fetchEvolutionChain(string $species_url, ?string $cache_dir, int $ttl_seconds): ?array
+    {
+        if (empty($species_url)) {
+            return null;
+        }
+
+        $cache_dir = $cache_dir ?? (sys_get_temp_dir() . '/pokeapi_cache');
+        $cache_file = $cache_dir . '/evolution_' . md5($species_url) . '.json';
+
+        $json = null;
+        if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $ttl_seconds) {
+            $json = file_get_contents($cache_file) ?: null;
+        }
+
+        if ($json === null) {
+            try {
+                $json = ($this->http_client)($species_url);
+                @file_put_contents($cache_file, $json);
+            } catch (\Throwable $e) {
+                if (file_exists($cache_file)) {
+                    $json = file_get_contents($cache_file) ?: null;
+                }
+                if ($json === null) {
+                    return null; // Fail silently for evolution data
+                }
+            }
+        }
+
+        try {
+            /** @var array<string,mixed> $speciesData */
+            $speciesData = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+            $evolutionChainUrl = $speciesData['evolution_chain']['url'] ?? '';
+
+            if (empty($evolutionChainUrl)) {
+                return null;
+            }
+
+            return $this->parseEvolutionChain($evolutionChainUrl, $cache_dir, $ttl_seconds);
+        } catch (\Throwable $e) {
+            return null; // Fail silently for evolution data
+        }
+    }
+
+    //! @brief Parse evolution chain to find precursor and successor
+    //! @param evolution_chain_url URL to evolution chain endpoint
+    //! @param cache_dir Cache directory
+    //! @param ttl_seconds Cache TTL
+    //! @return array{precursor?:array{name:string,url:string},successor?:array{name:string,url:string}}|null
+    private function parseEvolutionChain(string $evolution_chain_url, ?string $cache_dir, int $ttl_seconds): ?array
+    {
+        $cache_dir = $cache_dir ?? (sys_get_temp_dir() . '/pokeapi_cache');
+        $cache_file = $cache_dir . '/evolution_chain_' . md5($evolution_chain_url) . '.json';
+
+        $json = null;
+        if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $ttl_seconds) {
+            $json = file_get_contents($cache_file) ?: null;
+        }
+
+        if ($json === null) {
+            try {
+                $json = ($this->http_client)($evolution_chain_url);
+                @file_put_contents($cache_file, $json);
+            } catch (\Throwable $e) {
+                if (file_exists($cache_file)) {
+                    $json = file_get_contents($cache_file) ?: null;
+                }
+                if ($json === null) {
+                    return null;
+                }
+            }
+        }
+
+        try {
+            /** @var array<string,mixed> $chainData */
+            $chainData = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+            $chain = $chainData['chain'] ?? [];
+
+            // For now, return null - we'll implement the chain parsing logic
+            // This is a placeholder that will be implemented based on the specific
+            // evolution chain structure we need to handle
+            return null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     //! @brief Title case helper (first letter uppercase, rest lowercase)
