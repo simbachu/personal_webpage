@@ -388,7 +388,7 @@ final class PokeApiServiceTest extends TestCase
         //! @section Arrange
         $cacheDir = $this->createTestCacheDir();
         $callCount = 0;
-        
+
         $pikachuJson = $this->createPokemonJson(25, 'pikachu', [
             ['slot' => 1, 'type' => ['name' => 'electric']]
         ], 'https://img/pika.png');
@@ -417,7 +417,7 @@ final class PokeApiServiceTest extends TestCase
         //! @section Arrange
         $cacheDir = $this->createTestCacheDir();
         $callCount = 0;
-        
+
         $charmanderJson = $this->createPokemonJson(4, 'charmander', [
             ['slot' => 1, 'type' => ['name' => 'fire']]
         ], 'https://img/char.png');
@@ -495,7 +495,7 @@ final class PokeApiServiceTest extends TestCase
         //! @section Arrange
         $cacheDir = $this->createTestCacheDir();
         $callCount = 0;
-        
+
         $pikachuJson = $this->createPokemonJson(25, 'pikachu', [
             ['slot' => 1, 'type' => ['name' => 'electric']]
         ], 'https://img/pika.png');
@@ -508,12 +508,51 @@ final class PokeApiServiceTest extends TestCase
         try {
             //! @section Act: populate cache
             $service->fetchMonster('pikachu', $cacheDir, 0); // TTL = 0 (immediately stale)
-            
+
             //! @section Act: second call should hit network again due to expired cache
             $service->fetchMonster('pikachu', $cacheDir, 0);
 
             //! @section Assert
             $this->assertSame(2, $callCount);
+        } finally {
+            $this->cleanupTestCacheDir($cacheDir);
+        }
+    }
+
+    public function test_fetch_monster_includes_evolution_data_when_available(): void
+    {
+        //! @section Arrange - Test basic functionality first
+        $cacheDir = $this->createTestCacheDir();
+        $bulbasaurJson = json_encode([
+            'id' => 1,
+            'name' => 'bulbasaur',
+            'types' => [
+                ['slot' => 1, 'type' => ['name' => 'grass']],
+                ['slot' => 2, 'type' => ['name' => 'poison']]
+            ],
+            'sprites' => [
+                'other' => [
+                    'official-artwork' => [
+                        'front_default' => 'https://img.example/bulbasaur.png'
+                    ]
+                ]
+            ]
+        ]);
+
+        $service = new PokeApiService(function (string $url) use ($bulbasaurJson): string {
+            return $bulbasaurJson;
+        });
+
+        try {
+            //! @section Act
+            $monster = $service->fetchMonster('bulbasaur', $cacheDir);
+
+            //! @section Assert
+            $this->assertSame(1, $monster['id']);
+            $this->assertSame('Bulbasaur', $monster['name']);
+            $this->assertSame('grass', $monster['type1']);
+            $this->assertSame('poison', $monster['type2']);
+            $this->assertArrayNotHasKey('successor', $monster); // No evolution data expected
         } finally {
             $this->cleanupTestCacheDir($cacheDir);
         }
