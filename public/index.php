@@ -27,11 +27,20 @@ $homePresenter = new \App\Presenter\HomePresenter($contentRepository);
 
 // Initialize Twig
 $loader = new \Twig\Loader\FilesystemLoader(TEMPLATES_DIR);
-$twig = new \Twig\Environment($loader, [
-    'cache' => false, // Disable cache for development; enable in production
+$twigOptions = [
     'autoescape' => 'html',
     'strict_variables' => true,
-]);
+];
+
+if ($is_dev) {
+    $twigOptions['cache'] = false; // Disable cache in development
+    $twigOptions['debug'] = true;
+} else {
+    $twigOptions['cache'] = sys_get_temp_dir() . '/twig'; // Enable cache in production
+    $twigOptions['debug'] = false;
+}
+
+$twig = new \Twig\Environment($loader, $twigOptions);
 
 //! @brief Renders a Twig template
 //! @param string $template Template name (without .twig extension)
