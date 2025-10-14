@@ -7,6 +7,8 @@ namespace App\Service;
 use App\Type\FilePath;
 use App\Type\CommitInfo;
 use App\Type\RepositoryInfo;
+use App\Type\RepositoryIdentifier;
+use App\Type\BranchName;
 
 //! @brief Service for fetching GitHub repository information with caching
 //!
@@ -89,10 +91,13 @@ class GitHubService
     //! @param repo Repository name
     //! @param branch Branch name
     //! @retval array|null Array with commit info or null on failure
-    private function fetchBranchInfo(string $owner, string $repo, string $branch): ?array
+    private function fetchBranchInfo(RepositoryIdentifier $repoId, BranchName $branch): ?array
     {
-        $cache_file = FilePath::fromString(sys_get_temp_dir() . "/github_cache_{$owner}_{$repo}_{$branch}.json");
-        $url = "https://api.github.com/repos/{$owner}/{$repo}/branches/{$branch}";
+        $cache_dir = FilePath::fromString(sys_get_temp_dir());
+        $cache_file = GitHubCacheKeys::branch($cache_dir, $repoId, $branch);
+        $owner = $repoId->getOwner();
+        $repo = $repoId->getRepository();
+        $url = "https://api.github.com/repos/{$owner}/{$repo}/branches/{$branch->getValue()}";
 
         $data = $this->fetchCachedApi($url, $cache_file);
 
@@ -129,10 +134,13 @@ class GitHubService
     //! @param base Base branch
     //! @param head Head branch to compare
     //! @retval int|null Number of commits ahead, or null on failure
-    private function fetchCommitsAhead(string $owner, string $repo, string $base, string $head): ?int
+    private function fetchCommitsAhead(RepositoryIdentifier $repoId, BranchName $base, BranchName $head): ?int
     {
-        $cache_file = FilePath::fromString(sys_get_temp_dir() . "/github_compare_{$owner}_{$repo}_{$base}_{$head}.json");
-        $url = "https://api.github.com/repos/{$owner}/{$repo}/compare/{$base}...{$head}";
+        $cache_dir = FilePath::fromString(sys_get_temp_dir());
+        $cache_file = GitHubCacheKeys::compare($cache_dir, $repoId, $base, $head);
+        $owner = $repoId->getOwner();
+        $repo = $repoId->getRepository();
+        $url = "https://api.github.com/repos/{$owner}/{$repo}/compare/{$base->getValue()}...{$head->getValue()}";
 
         $data = $this->fetchCachedApi($url, $cache_file);
 
@@ -194,11 +202,12 @@ class GitHubService
     //!     dev: array{sha: string, date: string, message: string, url: string}|null,
     //!     commits_ahead: int|null
     //! } Array with 'main' and 'dev' branch info
-    public function getRepositoryInfo(string $owner, string $repo, string $dev_branch = 'developing'): array
+    public function getRepositoryInfo(RepositoryIdentifier $repoId, BranchName $dev_branch = null): array
     {
-        $main_info = $this->fetchBranchInfo($owner, $repo, 'main');
-        $dev_info = $this->fetchBranchInfo($owner, $repo, $dev_branch);
-        $commits_ahead = $this->fetchCommitsAhead($owner, $repo, 'main', $dev_branch);
+        $dev_branch = $dev_branch ?? BranchName::fromString('developing');
+        $main_info = $this->fetchBranchInfo($repoId, BranchName::fromString('main'));
+        $dev_info = $this->fetchBranchInfo($repoId, $dev_branch);
+        $commits_ahead = $this->fetchCommitsAhead($repoId, BranchName::fromString('main'), $dev_branch);
 
         return [
             'main' => $main_info,
@@ -212,11 +221,12 @@ class GitHubService
     //! @param repo Repository name
     //! @param dev_branch Development branch name (defaults to 'developing')
     //! @return RepositoryInfo Repository info with optional commit summaries
-    public function getRepositoryInfoTyped(string $owner, string $repo, string $dev_branch = 'developing'): RepositoryInfo
+    public function getRepositoryInfoTyped(RepositoryIdentifier $repoId, BranchName $dev_branch = null): RepositoryInfo
     {
-        $main_raw = $this->fetchBranchInfo($owner, $repo, 'main');
-        $dev_raw = $this->fetchBranchInfo($owner, $repo, $dev_branch);
-        $ahead = $this->fetchCommitsAhead($owner, $repo, 'main', $dev_branch);
+        $dev_branch = $dev_branch ?? BranchName::fromString('developing');
+        $main_raw = $this->fetchBranchInfo($repoId, BranchName::fromString('main'));
+        $dev_raw = $this->fetchBranchInfo($repoId, $dev_branch);
+        $ahead = $this->fetchCommitsAhead($repoId, BranchName::fromString('main'), $dev_branch);
 
         $main = $main_raw ? new CommitInfo(
             sha: (string)($main_raw['sha'] ?? ''),

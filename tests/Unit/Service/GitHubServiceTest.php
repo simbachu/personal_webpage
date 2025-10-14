@@ -7,6 +7,8 @@ namespace Tests\Unit\Service;
 use PHPUnit\Framework\TestCase;
 use App\Service\GitHubService;
 use App\Type\RepositoryInfo;
+use App\Type\RepositoryIdentifier;
+use App\Type\BranchName;
 
 //! @brief Test suite for GitHubService
 //!
@@ -146,7 +148,7 @@ class GitHubServiceTest extends TestCase
     public function test_get_repository_info_returns_correct_structure(): void
     {
         //! @section Act
-        $result = $this->service->getRepositoryInfo('test', 'repo', 'dev');
+        $result = $this->service->getRepositoryInfo(RepositoryIdentifier::fromOwnerAndRepository('test', 'repo'), BranchName::fromString('dev'));
 
         //! @section Assert
         $this->assertIsArray($result);
@@ -159,7 +161,7 @@ class GitHubServiceTest extends TestCase
     public function test_get_repository_info_typed_returns_value_object(): void
     {
         //! @section Act
-        $result = $this->service->getRepositoryInfoTyped('test', 'repo', 'dev');
+        $result = $this->service->getRepositoryInfoTyped(RepositoryIdentifier::fromOwnerAndRepository('test', 'repo'), BranchName::fromString('dev'));
 
         //! @section Assert
         $this->assertInstanceOf(RepositoryInfo::class, $result);
@@ -172,7 +174,7 @@ class GitHubServiceTest extends TestCase
     public function test_get_repository_info_handles_missing_branches(): void
     {
         //! @section Act
-        $result = $this->service->getRepositoryInfo('nonexistent', 'repo123', 'branch');
+        $result = $this->service->getRepositoryInfo(RepositoryIdentifier::fromOwnerAndRepository('nonexistent', 'repo123'), BranchName::fromString('branch'));
 
         //! @section Assert
         $this->assertIsArray($result);
@@ -203,7 +205,7 @@ class GitHubServiceTest extends TestCase
         touch($cacheFile);
 
         //! @section Act
-        $result = $this->service->getRepositoryInfo($owner, $repo, 'developing');
+        $result = $this->service->getRepositoryInfo(RepositoryIdentifier::fromOwnerAndRepository($owner, $repo), BranchName::fromString('developing'));
 
         //! @section Assert
         //! Main branch should use cached data
@@ -237,7 +239,7 @@ class GitHubServiceTest extends TestCase
         touch($cacheFile, time() - 600);
 
         //! @section Act
-        $result = $this->service->getRepositoryInfo($owner, $repo, 'developing');
+        $result = $this->service->getRepositoryInfo(RepositoryIdentifier::fromOwnerAndRepository($owner, $repo), BranchName::fromString('developing'));
 
         //! @section Assert
         //! Should either refresh or return null (since repo doesn't exist)
@@ -265,7 +267,7 @@ class GitHubServiceTest extends TestCase
         }
 
         //! @section Act
-        $result = $this->service->getRepositoryInfo($owner, $repo, 'master');
+        $result = $this->service->getRepositoryInfo(RepositoryIdentifier::fromOwnerAndRepository($owner, $repo), BranchName::fromString('master'));
 
         //! @section Assert
         $this->assertIsArray($result);
@@ -294,7 +296,7 @@ class GitHubServiceTest extends TestCase
     {
         //! @section Act
         //! Use invalid hostname to trigger network failure
-        $result = $this->service->getRepositoryInfo('invalid', 'repo', 'branch');
+        $result = $this->service->getRepositoryInfo(RepositoryIdentifier::fromOwnerAndRepository('invalid', 'repo'), BranchName::fromString('branch'));
 
         //! @section Assert
         $this->assertIsArray($result);

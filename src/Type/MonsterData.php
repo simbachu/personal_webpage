@@ -41,7 +41,9 @@ final class MonsterData
         public readonly MonsterType $type1,
         public readonly ?MonsterType $type2 = null,
         public readonly ?EvolutionData $precursor = null,
-        public readonly array $successors = []
+        public readonly array $successors = [],
+        public readonly ?int $height = null,
+        public readonly ?int $weight = null
     ) {}
 
     //! @brief Check if this Pokemon has a secondary type
@@ -96,6 +98,13 @@ final class MonsterData
             }
         }
 
+        if ($this->height !== null) {
+            $data['height'] = $this->height;
+        }
+        if ($this->weight !== null) {
+            $data['weight'] = $this->weight;
+        }
+
         return $data;
     }
 
@@ -126,7 +135,9 @@ final class MonsterData
             type1: MonsterType::fromString((string)($data['type1'] ?? '')),
             type2: isset($data['type2']) ? MonsterType::fromString((string)$data['type2']) : null,
             precursor: $precursor,
-            successors: $successors
+            successors: $successors,
+            height: isset($data['height']) ? (int)$data['height'] : null,
+            weight: isset($data['weight']) ? (int)$data['weight'] : null
         );
     }
 }

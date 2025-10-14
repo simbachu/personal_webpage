@@ -7,6 +7,7 @@ namespace Tests\Integration;
 use PHPUnit\Framework\TestCase;
 use App\Model\ContentRepository;
 use App\Presenter\HomePresenter;
+use App\Type\FilePath;
 
 //! @brief Integration test for the complete MVP flow
 //!
@@ -25,7 +26,7 @@ class HomePageIntegrationTest extends TestCase
 
         $this->createTestContentFiles();
 
-        $this->repository = new ContentRepository($this->testContentPath);
+        $this->repository = new ContentRepository(FilePath::fromString($this->testContentPath));
         $this->presenter = new HomePresenter($this->repository);
     }
 
@@ -125,7 +126,7 @@ YAML;
         //! Create repository with empty directory
         $emptyPath = sys_get_temp_dir() . '/test_empty_' . uniqid();
         mkdir($emptyPath);
-        $emptyRepository = new ContentRepository($emptyPath);
+        $emptyRepository = new ContentRepository(FilePath::fromString($emptyPath));
         $emptyPresenter = new HomePresenter($emptyRepository);
 
         //! @section Act

@@ -19,9 +19,17 @@ class ContentRepository
 
     //! @brief Constructor
     //! @param contentPath Path to content directory
-    public function __construct(string $contentPath)
+    public function __construct(FilePath $contentPath)
     {
-        $this->contentPath = FilePath::fromString($contentPath);
+        $this->contentPath = $contentPath;
+    }
+
+    //! @brief Convenience factory from string
+    //! @param contentPath Path string
+    //! @return self
+    public static function fromString(string $contentPath): self
+    {
+        return new self(FilePath::fromString($contentPath));
     }
 
     //! @brief Load projects from projects.yaml

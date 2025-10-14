@@ -202,4 +202,94 @@ class TemplateNameTest extends TestCase
         $this->assertSame('Dex template', $templates[TemplateName::DEX->value]);
         $this->assertSame('404 template', $templates[TemplateName::NOT_FOUND->value]);
     }
+
+    public function test_to_twig_path_returns_filename_with_extension(): void
+    {
+        //! @section Act & Assert
+        $this->assertSame('home.twig', TemplateName::HOME->toTwigPath());
+        $this->assertSame('dex.twig', TemplateName::DEX->toTwigPath());
+        $this->assertSame('404.twig', TemplateName::NOT_FOUND->toTwigPath());
+    }
+
+    public function test_to_path_builds_file_path_under_templates_dir(): void
+    {
+        //! @section Arrange
+        $tmp = sys_get_temp_dir() . '/templates_' . uniqid();
+        @mkdir($tmp, 0777, true);
+
+        try {
+            $base = \App\Type\FilePath::fromString($tmp);
+
+            //! @section Act
+            $path = TemplateName::DEX->toPath($base);
+
+            //! @section Assert
+            $this->assertStringEndsWith('/dex.twig', $path->getValue());
+        } finally {
+            @rmdir($tmp);
+        }
+    }
+
+    public function test_ensure_exists_throws_when_template_missing(): void
+    {
+        //! @section Arrange
+        $tmp = sys_get_temp_dir() . '/templates_missing_' . uniqid();
+        @mkdir($tmp, 0777, true);
+        $base = \App\Type\FilePath::fromString($tmp);
+
+        try {
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessageMatches('/Template not found:/');
+
+            //! @section Act
+            TemplateName::DEX->ensureExists($base);
+        } finally {
+            @rmdir($tmp);
+        }
+    }
+
+    public function test_ensure_exists_succeeds_when_file_present(): void
+    {
+        //! @section Arrange
+        $tmp = sys_get_temp_dir() . '/templates_present_' . uniqid();
+        @mkdir($tmp, 0777, true);
+        $file = $tmp . '/home.twig';
+        file_put_contents($file, '{# test #}');
+        $base = \App\Type\FilePath::fromString($tmp);
+
+        try {
+            //! @section Act
+            $path = TemplateName::HOME->ensureExists($base);
+
+            //! @section Assert
+            $this->assertTrue($path->exists());
+            $this->assertTrue($path->isFile());
+            $this->assertStringEndsWith('/home.twig', $path->getValue());
+        } finally {
+            @unlink($file);
+            @rmdir($tmp);
+        }
+    }
+
+    public function test_ensure_exists_rejects_directories_named_like_template(): void
+    {
+        //! @section Arrange
+        $tmp = sys_get_temp_dir() . '/templates_dir_conflict_' . uniqid();
+        @mkdir($tmp, 0777, true);
+        // Create a directory with the name '404.twig'
+        @mkdir($tmp . '/404.twig', 0777, true);
+        $base = \App\Type\FilePath::fromString($tmp);
+
+        try {
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessageMatches('/Template not found:/');
+
+            //! @section Act
+            TemplateName::NOT_FOUND->ensureExists($base);
+        } finally {
+            // Cleanup
+            @rmdir($tmp . '/404.twig');
+            @rmdir($tmp);
+        }
+    }
 }

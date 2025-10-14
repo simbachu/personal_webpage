@@ -89,4 +89,39 @@ enum TemplateName: string
     {
         return $this->value;
     }
+
+    //! @brief Backward-compatible accessor matching other value objects
+    //! @return string The raw template name value
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+
+    //! @brief Get the Twig template file path for this name
+    //! @return string The filename with .twig extension (e.g., "home.twig")
+    public function toTwigPath(): string
+    {
+        return $this->value . '.twig';
+    }
+
+    //! @brief Build a FilePath to this template under a templates directory
+    //! @param templatesDir Base directory containing twig templates
+    //! @return FilePath Full path to the twig file
+    public function toPath(\App\Type\FilePath $templatesDir): \App\Type\FilePath
+    {
+        return $templatesDir->join($this->toTwigPath());
+    }
+
+    //! @brief Ensure this template file exists under given templates directory
+    //! @param templatesDir Base directory containing twig templates
+    //! @return FilePath Full path to the twig file
+    //! @throws \RuntimeException If the template file does not exist
+    public function ensureExists(\App\Type\FilePath $templatesDir): \App\Type\FilePath
+    {
+        $path = $this->toPath($templatesDir);
+        if (!$path->exists() || !$path->isFile()) {
+            throw new \RuntimeException('Template not found: ' . $path->getValue());
+        }
+        return $path;
+    }
 }

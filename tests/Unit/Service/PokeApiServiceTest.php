@@ -9,6 +9,7 @@ use App\Type\MonsterData;
 use App\Type\MonsterIdentifier;
 use App\Type\MonsterType;
 use App\Type\FilePath;
+use App\Type\CacheVersion;
 
 final class PokeApiServiceTest extends TestCase
 {
@@ -530,9 +531,9 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act: first call writes v1 cache
-            $first = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), FilePath::fromString($cacheDir), $ttl, 'v1');
+            $first = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), FilePath::fromString($cacheDir), $ttl, CacheVersion::V1);
             //! @section Act: second call with new version should refetch and write v2 cache
-            $second = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), FilePath::fromString($cacheDir), $ttl, 'v2');
+            $second = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), FilePath::fromString($cacheDir), $ttl, CacheVersion::V2);
 
             //! @section Assert
             $this->assertTrue($first->isSuccess());
@@ -566,9 +567,9 @@ final class PokeApiServiceTest extends TestCase
 
         try {
             //! @section Act: fetch v1 (populates cache)
-            $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'), FilePath::fromString($cacheDir), $ttl, 'v1');
+            $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'), FilePath::fromString($cacheDir), $ttl, CacheVersion::V1);
             //! @section Act: fetch v2 within TTL should still call HTTP once more
-            $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'), FilePath::fromString($cacheDir), $ttl, 'v2');
+            $service->fetchMonster(MonsterIdentifier::fromString('bulbasaur'), FilePath::fromString($cacheDir), $ttl, CacheVersion::V2);
 
             //! @section Assert
             $this->assertSame(2, $callCount);
@@ -855,6 +856,61 @@ final class PokeApiServiceTest extends TestCase
             $this->assertTrue($first->isSuccess());
             $this->assertTrue($second->isSuccess());
             $this->assertSame(1, $callCount, 'HTTP should be called only once when switching name->id within TTL');
+        } finally {
+            $this->cleanupTestCacheDir(FilePath::fromString($cacheDir));
+        }
+    }
+
+    public function test_v2_includes_height_and_weight_but_v1_does_not(): void
+    {
+        //! @section Arrange
+        $cacheDir = $this->createTestCacheDir();
+        $ttl = 3600;
+        $callCount = 0;
+
+        $json = json_encode([
+            'id' => 25,
+            'name' => 'pikachu',
+            'height' => 4,
+            'weight' => 60,
+            'types' => [
+                ['slot' => 1, 'type' => ['name' => 'electric']]
+            ],
+            'sprites' => [
+                'other' => [
+                    'official-artwork' => [
+                        'front_default' => 'https://img.example/pikachu.png'
+                    ]
+                ]
+            ]
+        ]);
+
+        $service = new PokeApiService(function (string $url) use (&$callCount, $json): string {
+            $callCount++;
+            return $json;
+        });
+
+        try {
+            //! @section Act: fetch V1
+            $v1 = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), FilePath::fromString($cacheDir), $ttl, CacheVersion::V1);
+            //! @section Act: fetch V2 (refetch to capture mapping)
+            $v2 = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), FilePath::fromString($cacheDir), 0, CacheVersion::V2);
+
+            //! @section Assert
+            $this->assertTrue($v1->isSuccess());
+            $this->assertTrue($v2->isSuccess());
+            $arrayV1 = $v1->getValue()->toArray();
+            $arrayV2 = $v2->getValue()->toArray();
+
+            // V1 should not expose height/weight to templates
+            $this->assertArrayNotHasKey('height', $arrayV1);
+            $this->assertArrayNotHasKey('weight', $arrayV1);
+
+            // V2 should expose height/weight
+            $this->assertArrayHasKey('height', $arrayV2);
+            $this->assertArrayHasKey('weight', $arrayV2);
+            $this->assertSame(4, $arrayV2['height']);
+            $this->assertSame(60, $arrayV2['weight']);
         } finally {
             $this->cleanupTestCacheDir(FilePath::fromString($cacheDir));
         }

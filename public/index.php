@@ -21,11 +21,14 @@ $vendor_autoload = $base_path . '/httpd.private' . $env_prefix . '/vendor/autolo
 require_once $vendor_autoload;
 
 // Import TemplateName for type safety
+use App\Type\RepositoryIdentifier;
+use App\Type\BranchName;
 use App\Type\TemplateName;
+use App\Type\FilePath;
 
 // Initialize content repository and presenter
 $content_path = $base_path . '/httpd.private' . $env_prefix . '/content';
-$contentRepository = new \App\Model\ContentRepository($content_path);
+$contentRepository = new \App\Model\ContentRepository(FilePath::fromString($content_path));
 $homePresenter = new \App\Presenter\HomePresenter($contentRepository);
 // Configure cache TTL based on environment
 $pokeApiCacheTtl = $is_dev ? 30 : 300; // 30 seconds for dev, 5 minutes for production
@@ -53,7 +56,9 @@ $twig = new \Twig\Environment($loader, $twigOptions);
 //! @param array $data Data to pass to template
 function render(TemplateName $template, array $data = []): void {
     global $twig;
-    echo $twig->render($template->value . '.twig', $data);
+    // Validate template exists to fail-fast with a clear error
+    $template->ensureExists(FilePath::fromString(TEMPLATES_DIR));
+    echo $twig->render($template->toTwigPath(), $data);
 }
 
 //! @brief Gets the current request path
@@ -155,7 +160,7 @@ if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
 
 // Fetch GitHub info for footer
 $githubService = new \App\Service\GitHubService();
-$github_info = $githubService->getRepositoryInfoTyped('simbachu', 'personal_webpage');
+$github_info = $githubService->getRepositoryInfoTyped(RepositoryIdentifier::fromString('simbachu'), BranchName::fromString('personal_webpage'));
 
 // Format GitHub dates for Twig
 $github = [

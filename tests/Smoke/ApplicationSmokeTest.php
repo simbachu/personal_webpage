@@ -6,6 +6,7 @@ namespace Tests\Smoke;
 
 use PHPUnit\Framework\TestCase;
 use App\Model\ContentRepository;
+use App\Type\FilePath;
 use App\Presenter\HomePresenter;
 
 //! @brief Smoke tests to verify critical application paths work
@@ -41,7 +42,7 @@ class ApplicationSmokeTest extends TestCase
     public function test_can_instantiate_content_repository(): void
     {
         //! @section Act
-        $repository = new ContentRepository(realpath(__DIR__ . '/../../content'));
+        $repository = new ContentRepository(FilePath::fromString((string)realpath(__DIR__ . '/../../content')));
 
         //! @section Assert
         $this->assertInstanceOf(ContentRepository::class, $repository);
@@ -51,7 +52,7 @@ class ApplicationSmokeTest extends TestCase
     public function test_can_instantiate_and_call_home_presenter(): void
     {
         //! @section Arrange
-        $repository = new ContentRepository(realpath(__DIR__ . '/../../content'));
+        $repository = new ContentRepository(FilePath::fromString((string)realpath(__DIR__ . '/../../content')));
         $presenter = new HomePresenter($repository);
 
         //! @section Act

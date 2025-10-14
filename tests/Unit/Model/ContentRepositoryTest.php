@@ -6,6 +6,7 @@ namespace Tests\Unit\Model;
 
 use PHPUnit\Framework\TestCase;
 use App\Model\ContentRepository;
+use App\Type\FilePath;
 
 //! @brief Test suite for ContentRepository
 //!
@@ -22,7 +23,7 @@ class ContentRepositoryTest extends TestCase
         $this->testContentPath = sys_get_temp_dir() . '/test_content_' . uniqid();
         mkdir($this->testContentPath);
 
-        $this->repository = new ContentRepository($this->testContentPath);
+        $this->repository = new ContentRepository(FilePath::fromString($this->testContentPath));
     }
 
     //! @brief Clean up test environment after each test
@@ -202,7 +203,7 @@ YAML;
         //! Should not throw exception
         try {
             $projects = $this->repository->getProjects();
-            
+
             //! @section Assert
             //! Should return empty array or handle gracefully
             $this->assertIsArray($projects);
@@ -229,7 +230,7 @@ YAML;
         //! Should not throw exception
         try {
             $config = $this->repository->getConfig();
-            
+
             //! @section Assert
             //! Should return defaults or handle gracefully
             $this->assertIsArray($config);
@@ -276,7 +277,7 @@ YAML;
     {
         //! @section Arrange
         $yamlContent = <<<YAML
-- title: 
+- title:
   year: "2025"
   tags:
   description: "Test with null title"
@@ -427,7 +428,7 @@ YAML;
         //! Create a file and make it unreadable (Unix-like systems only)
         $testFile = $this->testContentPath . '/unreadable.yaml';
         file_put_contents($testFile, 'test: data');
-        
+
         //! Attempt to make file unreadable
         $originalPerms = fileperms($testFile);
         @chmod($testFile, 0000);
@@ -435,11 +436,11 @@ YAML;
         //! @section Act
         //! Try to read the file - behavior depends on permissions
         $canMakeUnreadable = !is_readable($testFile);
-        
+
         if ($canMakeUnreadable) {
             //! On systems where we can actually make files unreadable
             $result = @file_get_contents($testFile);
-            
+
             //! @section Assert
             $this->assertFalse($result, 'Should not be able to read unreadable file');
         } else {
@@ -447,7 +448,7 @@ YAML;
             //! Just verify the file exists
             $this->assertFileExists($testFile);
         }
-        
+
         //! Clean up - restore permissions before deleting
         @chmod($testFile, $originalPerms);
         @unlink($testFile);
@@ -458,7 +459,7 @@ YAML;
     {
         //! @section Arrange
         //! Create repository pointing to non-existent base path
-        $invalidRepo = new ContentRepository('/nonexistent/path/that/does/not/exist');
+        $invalidRepo = new ContentRepository(FilePath::fromString('/nonexistent/path/that/does/not/exist'));
 
         //! @section Act
         $projects = $invalidRepo->getProjects();
@@ -474,7 +475,7 @@ YAML;
     {
         //! @section Arrange
         //! Create repository pointing to non-existent base path
-        $invalidRepo = new ContentRepository('/nonexistent/path/that/does/not/exist');
+        $invalidRepo = new ContentRepository(FilePath::fromString('/nonexistent/path/that/does/not/exist'));
 
         //! @section Act
         $paragraphs = $invalidRepo->getAboutParagraphs();
@@ -490,7 +491,7 @@ YAML;
     {
         //! @section Arrange
         //! Create repository pointing to non-existent base path
-        $invalidRepo = new ContentRepository('/nonexistent/path/that/does/not/exist');
+        $invalidRepo = new ContentRepository(FilePath::fromString('/nonexistent/path/that/does/not/exist'));
 
         //! @section Act
         $config = $invalidRepo->getConfig();
