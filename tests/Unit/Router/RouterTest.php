@@ -10,6 +10,7 @@ use App\Router\RouteHandler;
 use App\Router\RouteResult;
 use App\Type\Route;
 use App\Type\TemplateName;
+use App\Type\HttpStatusCode;
 
 //! @brief Unit tests for Router class
 class RouterTest extends TestCase
@@ -68,7 +69,7 @@ class RouterTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::HOME, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
         $this->assertArrayHasKey('meta', $result->getData());
         $this->assertEquals($meta, $result->getData()['meta']);
     }
@@ -92,7 +93,7 @@ class RouterTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::HOME, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
         $this->assertEquals('test', $result->getData()['data']);
         $this->assertArrayHasKey('meta', $result->getData());
     }
@@ -117,7 +118,7 @@ class RouterTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::DEX, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
         $this->assertEquals('pikachu', $result->getData()['monster']);
     }
 
@@ -129,7 +130,7 @@ class RouterTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
-        $this->assertEquals(404, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::NOT_FOUND, $result->getStatusCode());
         $this->assertArrayHasKey('meta', $result->getData());
         $this->assertEquals('Page Not Found', $result->getData()['meta']['title']);
     }
@@ -161,7 +162,7 @@ class RouterTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::HOME, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
     }
 
     //! @brief Test route priority (first match wins)
@@ -203,7 +204,7 @@ class RouterTest extends TestCase
     {
         //! @section Arrange
         $handler = $this->createMock(RouteHandler::class);
-        $handlerResult = new RouteResult(TemplateName::NOT_FOUND, ['error' => 'Not found'], 404);
+        $handlerResult = new RouteResult(TemplateName::NOT_FOUND, ['error' => 'Not found'], HttpStatusCode::NOT_FOUND);
         $handler->expects($this->once())
             ->method('handle')
             ->willReturn($handlerResult);
@@ -217,7 +218,7 @@ class RouterTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
-        $this->assertEquals(404, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::NOT_FOUND, $result->getStatusCode());
         $this->assertEquals('Not found', $result->getData()['error']);
     }
 }

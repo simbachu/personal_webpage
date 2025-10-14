@@ -10,6 +10,7 @@ use App\Type\Route;
 use App\Type\TemplateName;
 use App\Type\MonsterIdentifier;
 use App\Type\MonsterData;
+use App\Type\HttpStatusCode;
 use App\Presenter\DexPresenter;
 
 //! @brief Unit tests for DexRouteHandler
@@ -28,7 +29,7 @@ class DexRouteHandlerTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::DEX, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
         $this->assertEmpty($result->getData());
     }
 
@@ -65,7 +66,7 @@ class DexRouteHandlerTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::DEX, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
         $data = $result->getData();
         $this->assertArrayHasKey('monster', $data);
         $this->assertEquals(25, $data['monster']['id']);
@@ -88,7 +89,7 @@ class DexRouteHandlerTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
-        $this->assertEquals(400, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::BAD_REQUEST, $result->getStatusCode());
         $data = $result->getData();
         $this->assertArrayHasKey('meta', $data);
         $this->assertEquals('Invalid Pokédex Request', $data['meta']['title']);
@@ -114,7 +115,7 @@ class DexRouteHandlerTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
-        $this->assertEquals(404, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::NOT_FOUND, $result->getStatusCode());
         $data = $result->getData();
         $this->assertArrayHasKey('meta', $data);
         $this->assertEquals('Pokémon Not Found', $data['meta']['title']);
@@ -136,6 +137,6 @@ class DexRouteHandlerTest extends TestCase
         //! @section Assert
         // When there are unused parameters (no id_or_name), it should return DEX template for /dex route
         $this->assertEquals(TemplateName::DEX, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
     }
 }

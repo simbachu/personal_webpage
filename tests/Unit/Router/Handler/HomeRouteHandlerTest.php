@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use App\Router\Handler\HomeRouteHandler;
 use App\Type\Route;
 use App\Type\TemplateName;
+use App\Type\HttpStatusCode;
 use App\Presenter\HomePresenter;
 
 //! @brief Unit tests for HomeRouteHandler
@@ -35,7 +36,7 @@ class HomeRouteHandlerTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::HOME, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
         $data = $result->getData();
         $this->assertArrayHasKey('about', $data);
         $this->assertArrayHasKey('skills', $data);
@@ -62,6 +63,6 @@ class HomeRouteHandlerTest extends TestCase
 
         //! @section Assert
         $this->assertEquals(TemplateName::HOME, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
     }
 }
