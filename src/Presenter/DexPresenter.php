@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Presenter;
 
 use App\Service\PokeApiService;
+use App\Service\PokemonOpinionService;
 use App\Type\MonsterData;
 use App\Type\MonsterIdentifier;
 use App\Type\TemplateName;
@@ -30,14 +31,17 @@ use App\Type\TemplateName;
 class DexPresenter
 {
     private PokeApiService $pokeapi; //!< Service for fetching pokemon data
+    private PokemonOpinionService $opinionService; //!< Service for fetching pokemon opinions
     private int $cacheTtl; //!< Cache TTL in seconds
 
     //! @brief Construct a new DexPresenter instance
     //! @param pokeapi PokeAPI service for fetching Pokemon data
+    //! @param opinionService Pokemon opinion service for fetching opinions
     //! @param cacheTtl Cache time-to-live in seconds for Pokemon data (defaults to 300)
-    public function __construct(PokeApiService $pokeapi, int $cacheTtl = 300)
+    public function __construct(PokeApiService $pokeapi, PokemonOpinionService $opinionService, int $cacheTtl = 300)
     {
         $this->pokeapi = $pokeapi;
+        $this->opinionService = $opinionService;
         $this->cacheTtl = $cacheTtl;
     }
 
@@ -46,9 +50,21 @@ class DexPresenter
     //! @return array{template:TemplateName,monster:array} View data structure for template rendering
     public function present(MonsterData $monsterData): array
     {
+        $monsterArray = $monsterData->toArray();
+
+        // Try to add opinion data if available
+        $identifier = MonsterIdentifier::fromString((string)$monsterData->id);
+        $opinionResult = $this->opinionService->getOpinion($identifier);
+
+        if ($opinionResult->isSuccess()) {
+            $opinion = $opinionResult->getValue();
+            $monsterArray['opinion'] = $opinion['opinion'];
+            $monsterArray['rating'] = $opinion['rating'];
+        }
+
         return [
             'template' => TemplateName::DEX,
-            'monster' => $monsterData->toArray(),
+            'monster' => $monsterArray,
         ];
     }
 

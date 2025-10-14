@@ -16,6 +16,7 @@ use App\Model\ContentRepository;
 use App\Presenter\HomePresenter;
 use App\Presenter\DexPresenter;
 use App\Service\PokeApiService;
+use App\Service\PokemonOpinionService;
 
 //! @brief Integration test for the complete Router system
 //!
@@ -40,7 +41,7 @@ class RouterIntegrationTest extends TestCase
 
         // Set up route handlers with real dependencies
         $homePresenter = new HomePresenter($this->repository);
-        $dexPresenter = new DexPresenter(new PokeApiService(), 30); // Short cache for testing
+        $dexPresenter = new DexPresenter(new PokeApiService(), new PokemonOpinionService(), 30); // Short cache for testing
 
         $this->router->registerHandler('home', new HomeRouteHandler($homePresenter));
         $this->router->registerHandler('dex', new DexRouteHandler($dexPresenter));

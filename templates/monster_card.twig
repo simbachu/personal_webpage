@@ -29,11 +29,20 @@
                     <li class="type type-{{ monster.type2 }}">{{ monster.type2 }}</li>
                 {% endif %} {# monster.type2 is defined and monster.type2 #}
             </ul>
+            {% if monster.opinion is defined %}
+            <section class="monster-card-opinion">
+                <p class="monster-card-opinion-text">{{ monster.opinion }}</p>
+                {% if monster.rating is defined %}
+                <p class="monster-card-rating">Rating: <span class="monster-card-rating-value">{{ monster.rating }}</span></p>
+                {% endif %} {# monster.rating is defined #}
+            </section>
+            {% endif %} {# monster.opinion is defined #}
             {% if monster.description is defined %}
             <p class="monster-card-description">{{ monster.description }}</p>
             {% endif %} {# monster.description is defined #}
         </div>
             {% if monster.precursor is defined or monster.successor is defined or monster.successors is defined %}
+            <nav class="monster-card-links">
                 <dl class="monster-card-links">
                     {% if monster.precursor is defined %}
                         <dt class="evolution-label evolution-label-left">From</dt>
@@ -54,6 +63,7 @@
                         </dd>
                     {% endif %} {# monster.successors is defined #}
                 </dl>
+            </nav>
             {% endif %} {# monster.precursor is defined or monster.successor is defined or monster.successors is defined #}
     </div>
 </article>

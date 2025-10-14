@@ -37,7 +37,9 @@ $homePresenter = new \App\Presenter\HomePresenter($contentRepository);
 
 // Configure cache TTL based on environment
 $pokeApiCacheTtl = $is_dev ? 30 : 300; // 30 seconds for dev, 5 minutes for production
-$dexPresenter = new \App\Presenter\DexPresenter(new \App\Service\PokeApiService(), $pokeApiCacheTtl);
+$pokeApiService = new \App\Service\PokeApiService();
+$opinionService = new \App\Service\PokemonOpinionService();
+$dexPresenter = new \App\Presenter\DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
 
 // Initialize Twig
 $loader = new \Twig\Loader\FilesystemLoader(TEMPLATES_DIR);

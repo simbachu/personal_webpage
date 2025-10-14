@@ -5,6 +5,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use App\Presenter\DexPresenter;
 use App\Service\PokeApiService;
+use App\Service\PokemonOpinionService;
 use App\Type\Result;
 use App\Type\MonsterData;
 use App\Type\MonsterIdentifier;
@@ -23,7 +24,10 @@ final class DexPresenterTest extends TestCase
             type1: MonsterType::WATER
         );
 
-        $presenter = new DexPresenter($this->createMock(PokeApiService::class), 300);
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getOpinion')->willReturn(Result::failure('No opinion'));
+
+        $presenter = new DexPresenter($this->createMock(PokeApiService::class), $opinionService, 300);
 
         //! @section Act
         $view = $presenter->present($monsterData);
@@ -51,7 +55,10 @@ final class DexPresenterTest extends TestCase
             type2: MonsterType::POISON
         );
 
-        $presenter = new DexPresenter($this->createMock(PokeApiService::class), 300);
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getOpinion')->willReturn(Result::failure('No opinion'));
+
+        $presenter = new DexPresenter($this->createMock(PokeApiService::class), $opinionService, 300);
 
         //! @section Act
         $view = $presenter->present($monsterData);
@@ -85,7 +92,10 @@ final class DexPresenterTest extends TestCase
             ->with('25', null, 60) // Verify custom TTL is passed
             ->willReturn(Result::success($monsterData));
 
-        $presenter = new DexPresenter($service, 60); // Custom 60-second TTL
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getOpinion')->willReturn(Result::failure('No opinion'));
+
+        $presenter = new DexPresenter($service, $opinionService, 60); // Custom 60-second TTL
 
         //! @section Act
         $fetchedData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('25'));
@@ -101,7 +111,10 @@ final class DexPresenterTest extends TestCase
         $service = $this->createMock(PokeApiService::class);
         $service->method('fetchMonster')->willReturn(Result::failure('Pokemon not found'));
 
-        $presenter = new DexPresenter($service, 300);
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getOpinion')->willReturn(Result::failure('No opinion'));
+
+        $presenter = new DexPresenter($service, $opinionService, 300);
 
         //! @section Arrange
         $this->expectException(\RuntimeException::class);
@@ -109,6 +122,59 @@ final class DexPresenterTest extends TestCase
 
         //! @section Act
         $presenter->fetchMonsterData(MonsterIdentifier::fromString('999'));
+    }
+
+    public function test_present_includes_opinion_when_available(): void
+    {
+        //! @section Arrange
+        $monsterData = new MonsterData(
+            id: 25,
+            name: 'Pikachu',
+            image: 'https://img.example/pikachu.png',
+            type1: MonsterType::ELECTRIC
+        );
+
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getOpinion')->willReturn(Result::success([
+            'opinion' => 'Test opinion for Pikachu',
+            'rating' => 'A'
+        ]));
+
+        $presenter = new DexPresenter($this->createMock(PokeApiService::class), $opinionService, 300);
+
+        //! @section Act
+        $view = $presenter->present($monsterData);
+
+        //! @section Assert
+        $this->assertArrayHasKey('monster', $view);
+        $this->assertArrayHasKey('opinion', $view['monster']);
+        $this->assertArrayHasKey('rating', $view['monster']);
+        $this->assertSame('Test opinion for Pikachu', $view['monster']['opinion']);
+        $this->assertSame('A', $view['monster']['rating']);
+    }
+
+    public function test_present_excludes_opinion_when_not_available(): void
+    {
+        //! @section Arrange
+        $monsterData = new MonsterData(
+            id: 999,
+            name: 'Unknown Pokemon',
+            image: 'https://img.example/unknown.png',
+            type1: MonsterType::NORMAL
+        );
+
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getOpinion')->willReturn(Result::failure('No opinion found'));
+
+        $presenter = new DexPresenter($this->createMock(PokeApiService::class), $opinionService, 300);
+
+        //! @section Act
+        $view = $presenter->present($monsterData);
+
+        //! @section Assert
+        $this->assertArrayHasKey('monster', $view);
+        $this->assertArrayNotHasKey('opinion', $view['monster']);
+        $this->assertArrayNotHasKey('rating', $view['monster']);
     }
 }
 

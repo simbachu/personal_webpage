@@ -6,6 +6,7 @@ namespace Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use App\Service\PokeApiService;
+use App\Service\PokemonOpinionService;
 use App\Presenter\DexPresenter;
 use App\Type\Result;
 use App\Type\MonsterIdentifier;
@@ -55,7 +56,8 @@ class DexIntegrationTest extends TestCase
         $service = new PokeApiService(function (string $url) use ($pokemonJson): string {
             return $pokemonJson;
         });
-        $presenter = new DexPresenter($service, 300);
+        $opinionService = new PokemonOpinionService();
+        $presenter = new DexPresenter($service, $opinionService, 300);
 
         try {
             //! @section Act
@@ -92,7 +94,8 @@ class DexIntegrationTest extends TestCase
         $service = new PokeApiService(function (string $url) use ($pokemonJson): string {
             return $pokemonJson;
         });
-        $presenter = new DexPresenter($service, 300);
+        $opinionService = new PokemonOpinionService();
+        $presenter = new DexPresenter($service, $opinionService, 300);
 
         try {
             //! @section Act
@@ -129,7 +132,8 @@ class DexIntegrationTest extends TestCase
         $service = new PokeApiService(function (string $url) use ($pokemonJson): string {
             return $pokemonJson;
         });
-        $presenter = new DexPresenter($service, 300);
+        $opinionService = new PokemonOpinionService();
+        $presenter = new DexPresenter($service, $opinionService, 300);
 
         //! @section Arrange
         $this->expectException(\RuntimeException::class);
@@ -170,7 +174,8 @@ class DexIntegrationTest extends TestCase
         $service = new PokeApiService(function (string $url) use ($pokemonJson): string {
             return $pokemonJson;
         });
-        $presenter = new DexPresenter($service, 300);
+        $opinionService = new PokemonOpinionService();
+        $presenter = new DexPresenter($service, $opinionService, 300);
 
         try {
             //! @section Act
