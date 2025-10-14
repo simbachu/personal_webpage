@@ -338,6 +338,8 @@ article {
     height: auto;
     display: block;
     background: var(--white);
+    max-width: 100%; /* Prevent image from overflowing */
+    object-fit: contain; /* Maintain aspect ratio */
 }
 
 .monster-card-info .monster-types {
@@ -355,6 +357,34 @@ article {
     text-transform: uppercase;
     letter-spacing: 0.04em;
     background: var(--white);
+}
+
+/* Monster Card Opinion Section */
+.monster-card-opinion {
+    margin: calc(var(--spacing-unit) * 1) 0;
+    padding: calc(var(--spacing-unit) * 1);
+    border: var(--line-weight) solid var(--process-black);
+    background: var(--white);
+}
+
+.monster-card-opinion-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 calc(var(--spacing-unit) * 0.5) 0;
+    font-style: italic;
+    color: var(--process-black);
+}
+
+.monster-card-rating {
+    font-size: 0.85rem;
+    margin: 0;
+    font-weight: 600;
+    color: var(--black);
+}
+
+.monster-card-rating-value {
+    color: var(--red);
+    font-weight: 700;
 }
 
 /* Type color helpers */
@@ -438,6 +468,11 @@ article {
     margin-top: calc(var(--spacing-unit) * 1.5);
     padding-top: calc(var(--spacing-unit) * 1);
     border-top: var(--line-weight) solid var(--process-black);
+}
+
+/* Ensure proper alignment of dt/dd pairs in evolution links */
+.monster-card-links dl {
+    display: contents; /* Remove the dl from the grid flow */
 }
 
 .evolution-label {
@@ -529,6 +564,18 @@ article {
     .monster-card-body {
         grid-template-columns: 1fr 1fr;
         align-items: start;
+        gap: calc(var(--spacing-unit) * 3); /* Increase gap to prevent crowding */
+    }
+
+    /* Ensure image doesn't shrink too much */
+    .monster-card-image {
+        min-width: 0; /* Allow image to shrink but not disappear */
+    }
+
+    /* Improve info section layout */
+    .monster-card-info {
+        min-width: 0; /* Prevent overflow */
+        overflow-wrap: break-word;
     }
 
     .evolution-label-left,
