@@ -73,6 +73,26 @@ class PokemonTestData
         ]);
     }
 
+    //! @brief Get raw JSON data for Pikachu (ID: 025) as returned by PokeAPI
+    //! @return string JSON encoded Pokemon data
+    public static function getPikachuJson(): string
+    {
+        return json_encode([
+            'id' => 25,
+            'name' => 'pikachu',
+            'types' => [
+                ['slot' => 1, 'type' => ['name' => 'electric']],
+            ],
+            'sprites' => [
+                'other' => [
+                    'official-artwork' => [
+                        'front_default' => 'https://img.example/pikachu.png'
+                    ]
+                ]
+            ]
+        ]);
+    }
+
     //! @brief Get test data for a Pokemon with no types (edge case)
     //! @return array{id:int,name:string,image:string,type1:string}
     public static function getTypelessPokemon(): array

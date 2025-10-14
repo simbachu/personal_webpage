@@ -68,10 +68,7 @@ class DexRouteHandler implements RouteHandler
                 $presented['template'],
                 [
                     'monster' => $presented['monster'],
-                    'meta' => [
-                        'title' => $presented['monster']['name'] . ' #' . $presented['monster']['id'],
-                        'description' => 'Pokédex entry for ' . $presented['monster']['name'],
-                    ]
+                    'meta' => $this->generateMetaData($presented['monster'])
                 ]
             );
         } catch (\RuntimeException $e) {
@@ -87,5 +84,40 @@ class DexRouteHandler implements RouteHandler
                 HttpStatusCode::NOT_FOUND
             );
         }
+    }
+
+    //! @brief Generate comprehensive meta data for Pokemon dex pages
+    //! @param monster Array containing monster data from presenter
+    //! @return array{title: string, description: string, og_title: string, og_description: string, og_image: string, og_image_alt: string} Meta data for template
+    private function generateMetaData(array $monster): array
+    {
+        $name = $monster['name'];
+        $id = $monster['id'];
+        $image = $monster['image'] ?? '';
+
+        // Generate OG title with rating if available
+        $ogTitle = $name . ' #' . $id;
+        if (isset($monster['rating'])) {
+            $ogTitle .= ' - Jennifer\'s Rating: ' . $monster['rating'];
+        }
+
+        // Generate OG description with opinion if available
+        $ogDescription = 'Pokédex entry for ' . $name;
+        if (isset($monster['opinion'])) {
+            $opinionSnippet = mb_substr($monster['opinion'], 0, 100);
+            if (mb_strlen($monster['opinion']) > 100) {
+                $opinionSnippet .= '...';
+            }
+            $ogDescription = $opinionSnippet;
+        }
+
+        return [
+            'title' => $name . ' #' . $id,
+            'description' => 'Pokédex entry for ' . $name,
+            'og_title' => $ogTitle,
+            'og_description' => $ogDescription,
+            'og_image' => $image,
+            'og_image_alt' => $name . ' - Pokemon #' . $id,
+        ];
     }
 }
