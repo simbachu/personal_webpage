@@ -98,7 +98,7 @@ header {
     }
 }
 
-/* Red bar dividing the header title and nav, aligned to the grid gutters */
+/* Expanding gradient animation replacing the red bar */
 header::after {
     content: '';
     display: block; /* make the pseudo-element a grid item */
@@ -106,11 +106,19 @@ header::after {
     grid-row: gutter; /* place in gutter */
     height: var(--header-bar-height);
     justify-self: stretch;
-    background: var(--gradient-red);
+    /* Dithered gradient with noise texture */
+    background:
+        /* Noise texture for dithering effect */
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 0.8px, transparent 0.8px),
+        radial-gradient(circle at 75% 75%, rgba(0,0,0,0.1) 0.6px, transparent 0.6px),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0.4px, transparent 0.4px),
+        /* Main gradient */
+        var(--gradient-red);
+    background-size: 3px 3px, 4px 4px, 2px 2px, 100% 100%;
     transform: scaleX(0);
     transform-origin: center;
-    /* Animate the bar scaling in from the center */
-    animation: slideInBar 0.6s var(--ease-bounce) forwards;
+    /* Animate the gradient expanding in from the center */
+    animation: expandGradient 0.8s var(--ease-bounce) forwards;
     animation-delay: 0.15s;
 }
 
@@ -137,12 +145,17 @@ header h1 {
     }
 }
 
-@keyframes slideInBar {
+@keyframes expandGradient {
     0% {
         transform: scaleX(0);
+        opacity: 0;
+    }
+    60% {
+        opacity: 1;
     }
     100% {
         transform: scaleX(1);
+        opacity: 1;
     }
 }
 
@@ -466,20 +479,24 @@ article {
 /* Header gradient logic: single vs dual types with wider transition and noise texture */
 .monster-card[data-type1][data-type2=""] .monster-card-header {
     background:
-        /* Subtle noise texture for single types */
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.04) 0.4px, transparent 0.4px),
-        radial-gradient(circle at 70% 70%, rgba(0,0,0,0.03) 0.6px, transparent 0.6px),
+        /* Enhanced dithered noise texture for single types */
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.06) 0.3px, transparent 0.3px),
+        radial-gradient(circle at 60% 70%, rgba(0,0,0,0.05) 0.5px, transparent 0.5px),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03) 0.4px, transparent 0.4px),
+        radial-gradient(circle at 40% 80%, rgba(0,0,0,0.04) 0.6px, transparent 0.6px),
         linear-gradient(90deg, var(--type-attr1, var(--type-normal)) 0%, var(--type-attr1, var(--type-normal)) 100%);
-    background-size: 5px 5px, 6px 6px, 100% 100%;
+    background-size: 4px 4px, 5px 5px, 3px 3px, 6px 6px, 100% 100%;
 }
 
 .monster-card[data-type1]:not([data-type2=""]) .monster-card-header {
     background:
-        /* Noise texture layers for grainy effect */
-        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0.5px, transparent 0.5px),
-        radial-gradient(circle at 40% 60%, rgba(0,0,0,0.06) 0.8px, transparent 0.8px),
-        radial-gradient(circle at 60% 30%, rgba(255,255,255,0.05) 0.3px, transparent 0.3px),
-        radial-gradient(circle at 80% 80%, rgba(0,0,0,0.08) 0.6px, transparent 0.6px),
+        /* Enhanced dithered noise texture layers */
+        radial-gradient(circle at 15% 25%, rgba(255,255,255,0.12) 0.4px, transparent 0.4px),
+        radial-gradient(circle at 35% 65%, rgba(0,0,0,0.08) 0.7px, transparent 0.7px),
+        radial-gradient(circle at 55% 15%, rgba(255,255,255,0.06) 0.3px, transparent 0.3px),
+        radial-gradient(circle at 75% 45%, rgba(0,0,0,0.10) 0.5px, transparent 0.5px),
+        radial-gradient(circle at 25% 85%, rgba(255,255,255,0.04) 0.6px, transparent 0.6px),
+        radial-gradient(circle at 85% 75%, rgba(0,0,0,0.07) 0.4px, transparent 0.4px),
         /* Main gradient with wider transition */
         linear-gradient(90deg,
             var(--type-attr1) 0%,
@@ -487,7 +504,7 @@ article {
             var(--type-attr2) calc(50% + 1.5rem),
             var(--type-attr2) 100%
         );
-    background-size: 6px 6px, 8px 8px, 4px 4px, 7px 7px, 100% 100%;
+    background-size: 3px 3px, 5px 5px, 2px 2px, 4px 4px, 6px 6px, 3px 3px, 100% 100%;
 }
 
 /* Monster Card Evolution Links */
