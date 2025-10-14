@@ -13,9 +13,9 @@ $is_dev = (basename(__DIR__) === 'dev');
 $base_path = $is_dev ? dirname(dirname(__DIR__)) : dirname(__DIR__);
 $env_prefix = $is_dev ? '/dev' : '';
 
-// All private files are in httpd.private[/dev]
-define('TEMPLATES_DIR', $base_path . '/httpd.private' . $env_prefix . '/templates');
-$vendor_autoload = $base_path . '/httpd.private' . $env_prefix . '/vendor/autoload.php';
+// All private files are in the project root[/dev]
+define('TEMPLATES_DIR', $base_path . $env_prefix . '/templates');
+$vendor_autoload = $base_path . $env_prefix . '/vendor/autoload.php';
 
 // Load Composer autoloader
 require_once $vendor_autoload;
@@ -31,15 +31,25 @@ use App\Router\Handler\HomeRouteHandler;
 use App\Router\Handler\DexRouteHandler;
 
 // Initialize content repository and presenters
-$content_path = $base_path . '/httpd.private' . $env_prefix . '/content';
+$content_path = $base_path . $env_prefix . '/content';
 $contentRepository = new \App\Model\ContentRepository(FilePath::fromString($content_path));
 $homePresenter = new \App\Presenter\HomePresenter($contentRepository);
 
 // Configure cache TTL based on environment
 $pokeApiCacheTtl = $is_dev ? 30 : 300; // 30 seconds for dev, 5 minutes for production
 $pokeApiService = new \App\Service\PokeApiService();
-$opinionService = new \App\Service\PokemonOpinionService();
+$opinionsFilePath = $content_path . '/pokemon_opinions.yaml';
+$opinionService = new \App\Service\PokemonOpinionService($opinionsFilePath);
 $dexPresenter = new \App\Presenter\DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
+
+// Debug: Add comment to force cache refresh
+// Updated: PokemonOpinionService integration - <?php echo date('Y-m-d H:i:s'); ?>
+
+// Add debug comment to HTML output
+function add_debug_comment(string $opinionsPath): string {
+    $exists = file_exists($opinionsPath) ? 'exists' : 'NOT FOUND';
+    return '<!-- PokemonOpinionService integrated: ' . date('Y-m-d H:i:s') . ' | File: ' . basename($opinionsPath) . ' (' . $exists . ') -->';
+}
 
 // Initialize Twig
 $loader = new \Twig\Loader\FilesystemLoader(TEMPLATES_DIR);
@@ -150,6 +160,7 @@ $commonData = [
     'canonical_url' => $current_url,
     'cache_bust' => time(),
     'current_year' => date('Y'),
+    'debug_comment' => add_debug_comment($opinionsFilePath),
 ];
 
 // Merge route result data with common data
