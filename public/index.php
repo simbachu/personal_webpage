@@ -7,15 +7,22 @@ define('PUBLIC_DIR', __DIR__);
 // Detect if we're in a dev subdirectory by checking if current directory is named 'dev'
 $is_dev = (basename(__DIR__) === 'dev');
 
-// Build base path to httpd.private
-// Dev: /httpd.www/dev/ -> go up 2 levels -> /
-// Main: /httpd.www/ -> go up 1 level -> /
-$base_path = $is_dev ? dirname(dirname(__DIR__)) : dirname(__DIR__);
-$env_prefix = $is_dev ? '/dev' : '';
+// Build paths for different deployment structures
+if ($is_dev) {
+    // Production dev environment: /httpd.www/dev/ -> /dev/
+    $base_path = dirname(dirname(__DIR__));
+    $env_prefix = '/dev';
+} else {
+    // Production main or local development
+    $base_path = dirname(__DIR__);
+    $env_prefix = '';
+}
 
-// All private files are in the project root[/dev]
-define('TEMPLATES_DIR', $base_path . $env_prefix . '/templates');
-$vendor_autoload = $base_path . $env_prefix . '/vendor/autoload.php';
+// Use the original working vendor autoload path
+$vendor_autoload = $base_path . '/httpd.private' . $env_prefix . '/vendor/autoload.php';
+
+// Use the original working templates path
+define('TEMPLATES_DIR', $base_path . '/httpd.private' . $env_prefix . '/templates');
 
 // Load Composer autoloader
 require_once $vendor_autoload;
@@ -30,8 +37,23 @@ use App\Router\Router;
 use App\Router\Handler\HomeRouteHandler;
 use App\Router\Handler\DexRouteHandler;
 
-// Initialize content repository and presenters
-$content_path = $base_path . $env_prefix . '/content';
+// Try different possible locations for content (this is where the issue was)
+$possible_content_paths = [
+    $base_path . $env_prefix . '/content',  // Local dev structure
+    $base_path . '/httpd.private' . $env_prefix . '/content',  // Production structure
+];
+
+$content_path = null;
+foreach ($possible_content_paths as $path) {
+    if (is_dir($path)) {
+        $content_path = $path;
+        break;
+    }
+}
+
+if ($content_path === null) {
+    die('Error: Could not find content directory in any expected location');
+}
 $contentRepository = new \App\Model\ContentRepository(FilePath::fromString($content_path));
 $homePresenter = new \App\Presenter\HomePresenter($contentRepository);
 
@@ -48,7 +70,7 @@ $dexPresenter = new \App\Presenter\DexPresenter($pokeApiService, $opinionService
 // Add debug comment to HTML output
 function add_debug_comment(string $opinionsPath): string {
     $exists = file_exists($opinionsPath) ? 'exists' : 'NOT FOUND';
-    return '<!-- PokemonOpinionService integrated: ' . date('Y-m-d H:i:s') . ' | File: ' . basename($opinionsPath) . ' (' . $exists . ') -->';
+    return '<!-- PokemonOpinionService integrated: ' . date('Y-m-d H:i:s') . ' | File: ' . $opinionsPath . ' (' . $exists . ') -->';
 }
 
 // Initialize Twig
