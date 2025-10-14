@@ -123,7 +123,7 @@ http_response_code($routeResult->getStatusCode());
 
 // Fetch GitHub info for footer
 $githubService = new \App\Service\GitHubService();
-$github_info = $githubService->getRepositoryInfoTyped(RepositoryIdentifier::fromString('simbachu'), BranchName::fromString('personal_webpage'));
+$github_info = $githubService->getRepositoryInfoTyped(RepositoryIdentifier::fromString('simbachu/personal_webpage'));
 
 // Format GitHub dates for Twig
 $github = [
