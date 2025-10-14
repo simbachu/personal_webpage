@@ -64,13 +64,10 @@ $opinionsFilePath = $content_path . '/pokemon_opinions.yaml';
 $opinionService = new \App\Service\PokemonOpinionService($opinionsFilePath);
 $dexPresenter = new \App\Presenter\DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
 
-// Debug: Add comment to force cache refresh
-// Updated: PokemonOpinionService integration - <?php echo date('Y-m-d H:i:s'); ?>
-
 // Add debug comment to HTML output
 function add_debug_comment(string $opinionsPath): string {
     $exists = file_exists($opinionsPath) ? 'exists' : 'NOT FOUND';
-    return '<!-- PokemonOpinionService integrated: ' . date('Y-m-d H:i:s') . ' | File: ' . $opinionsPath . ' (' . $exists . ') -->';
+    return '<!-- PokemonOpinionService integrated: ' . date('Y-m-d H:i:s') . ' | File: ' . $opinionsPath . ' (' . $exists . ') | OPINIONS WORKING! -->';
 }
 
 // Initialize Twig
