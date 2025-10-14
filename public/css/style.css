@@ -315,10 +315,17 @@ article {
 }
 
 .monster-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 2);
+    padding: calc(var(--spacing-unit) * 2);
+}
+
+.monster-card-main {
     display: grid;
     grid-template-columns: 1fr;
     gap: calc(var(--spacing-unit) * 2);
-    padding: calc(var(--spacing-unit) * 2);
+    align-items: start;
 }
 
 .monster-card-image {
@@ -338,9 +345,7 @@ article {
 }
 
 .monster-card-image img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
+    width: 100%;
     height: auto;
     display: block;
     object-fit: contain; /* Maintain aspect ratio */
@@ -390,6 +395,13 @@ article {
 .monster-card-rating-value {
     color: var(--red);
     font-weight: 700;
+}
+
+.monster-card-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: calc(var(--spacing-unit) * 1) 0 0 0;
+    color: var(--process-black);
 }
 
 /* Type color helpers */
@@ -470,7 +482,6 @@ article {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: calc(var(--spacing-unit) * 2);
-    margin-top: calc(var(--spacing-unit) * 1.5);
     padding-top: calc(var(--spacing-unit) * 1);
     border-top: var(--line-weight) solid var(--process-black);
 }
@@ -566,9 +577,8 @@ article {
 }
 
 @media (min-width: 769px) {
-    .monster-card-body {
+    .monster-card-main {
         grid-template-columns: 1fr 1fr;
-        align-items: start;
         gap: calc(var(--spacing-unit) * 3); /* Increase gap to prevent crowding */
     }
 
