@@ -64,11 +64,6 @@ $opinionsFilePath = $content_path . '/pokemon_opinions.yaml';
 $opinionService = new \App\Service\PokemonOpinionService($opinionsFilePath);
 $dexPresenter = new \App\Presenter\DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
 
-// Add debug comment to HTML output
-function add_debug_comment(string $opinionsPath): string {
-    $exists = file_exists($opinionsPath) ? 'exists' : 'NOT FOUND';
-    return '<!-- PokemonOpinionService integrated: ' . date('Y-m-d H:i:s') . ' | File: ' . $opinionsPath . ' (' . $exists . ') | OPINIONS WORKING! -->';
-}
 
 // Initialize Twig
 $loader = new \Twig\Loader\FilesystemLoader(TEMPLATES_DIR);
@@ -179,7 +174,6 @@ $commonData = [
     'canonical_url' => $current_url,
     'cache_bust' => time(),
     'current_year' => date('Y'),
-    'debug_comment' => add_debug_comment($opinionsFilePath),
 ];
 
 // Merge route result data with common data
