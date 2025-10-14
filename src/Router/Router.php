@@ -6,6 +6,7 @@ namespace App\Router;
 
 use App\Type\Route;
 use App\Type\TemplateName;
+use App\Type\HttpStatusCode;
 
 //! @brief Router class that handles HTTP request routing following MVP pattern
 //!
@@ -105,7 +106,7 @@ class Router
                     'description' => 'The page you are looking for does not exist.',
                 ]
             ],
-            404
+            HttpStatusCode::NOT_FOUND
         );
     }
 

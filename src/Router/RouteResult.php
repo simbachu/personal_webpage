@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Router;
 
 use App\Type\TemplateName;
+use App\Type\HttpStatusCode;
 
 //! @brief Value object representing the result of route handling
 //!
@@ -25,13 +26,13 @@ class RouteResult
 {
     private TemplateName $template; //!< Template to render
     private array $data; //!< Data to pass to template
-    private int $statusCode; //!< HTTP status code
+    private HttpStatusCode $statusCode; //!< HTTP status code
 
     //! @brief Construct a new RouteResult instance
     //! @param template The template to render
     //! @param data The data to pass to the template
-    //! @param statusCode The HTTP status code (defaults to 200)
-    public function __construct(TemplateName $template, array $data = [], int $statusCode = 200)
+    //! @param statusCode The HTTP status code (defaults to OK)
+    public function __construct(TemplateName $template, array $data = [], HttpStatusCode $statusCode = HttpStatusCode::OK)
     {
         $this->template = $template;
         $this->data = $data;
@@ -53,8 +54,8 @@ class RouteResult
     }
 
     //! @brief Get the HTTP status code
-    //! @return int The status code
-    public function getStatusCode(): int
+    //! @return HttpStatusCode The status code enum
+    public function getStatusCode(): HttpStatusCode
     {
         return $this->statusCode;
     }
@@ -74,7 +75,7 @@ class RouteResult
     //! @brief Create a new result with updated status code
     //! @param statusCode The new status code
     //! @return RouteResult New result with updated status code
-    public function withStatusCode(int $statusCode): self
+    public function withStatusCode(HttpStatusCode $statusCode): self
     {
         return new self($this->template, $this->data, $statusCode);
     }

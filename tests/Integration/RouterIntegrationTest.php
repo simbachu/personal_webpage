@@ -10,6 +10,7 @@ use App\Router\Handler\HomeRouteHandler;
 use App\Router\Handler\DexRouteHandler;
 use App\Type\Route;
 use App\Type\TemplateName;
+use App\Type\HttpStatusCode;
 use App\Type\FilePath;
 use App\Model\ContentRepository;
 use App\Presenter\HomePresenter;
@@ -116,7 +117,7 @@ YAML;
 
         //! @section Assert
         $this->assertEquals(TemplateName::HOME, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
 
         $data = $result->getData();
         $this->assertArrayHasKey('meta', $data);
@@ -143,7 +144,7 @@ YAML;
 
         //! @section Assert
         $this->assertEquals(TemplateName::DEX, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
 
         $data = $result->getData();
         // The dex route handler returns empty array for /dex route
@@ -158,7 +159,7 @@ YAML;
 
         //! @section Assert
         $this->assertEquals(TemplateName::DEX, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
 
         $data = $result->getData();
         $this->assertArrayHasKey('monster', $data);
@@ -186,7 +187,7 @@ YAML;
 
         //! @section Assert
         $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
-        $this->assertEquals(404, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::NOT_FOUND, $result->getStatusCode());
 
         $data = $result->getData();
         $this->assertArrayHasKey('meta', $data);
@@ -215,7 +216,7 @@ YAML;
 
         //! @section Assert
         $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
-        $this->assertEquals(404, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::NOT_FOUND, $result->getStatusCode());
 
         $data = $result->getData();
         $this->assertArrayHasKey('meta', $data);
@@ -231,7 +232,7 @@ YAML;
 
         //! @section Assert
         $this->assertEquals(TemplateName::DEX, $result->getTemplate());
-        $this->assertEquals(200, $result->getStatusCode());
+        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
 
         // Note: /dex/ gets normalized to /dex, so it should return the dex template
         // The empty parameter case would only occur if someone manually constructs

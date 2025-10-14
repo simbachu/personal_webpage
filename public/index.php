@@ -119,7 +119,7 @@ $current_url = $base_url . $_SERVER['REQUEST_URI'];
 $routeResult = $router->route($path);
 
 // Set HTTP status code
-http_response_code($routeResult->getStatusCode());
+http_response_code($routeResult->getStatusCode()->getValue());
 
 // Fetch GitHub info for footer
 $githubService = new \App\Service\GitHubService();

@@ -8,6 +8,7 @@ use App\Router\RouteHandler;
 use App\Router\RouteResult;
 use App\Type\Route;
 use App\Type\TemplateName;
+use App\Type\HttpStatusCode;
 use App\Type\MonsterIdentifier;
 use App\Presenter\DexPresenter;
 
@@ -51,7 +52,7 @@ class DexRouteHandler implements RouteHandler
                         'description' => 'No Pokémon specified.',
                     ]
                 ],
-                400
+                HttpStatusCode::BAD_REQUEST
             );
         }
 
@@ -83,7 +84,7 @@ class DexRouteHandler implements RouteHandler
                         'description' => $e->getMessage(),
                     ]
                 ],
-                404
+                HttpStatusCode::NOT_FOUND
             );
         }
     }
