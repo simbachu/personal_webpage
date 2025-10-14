@@ -321,7 +321,7 @@ article {
     padding: calc(var(--spacing-unit) * 2);
 }
 
-.monster-card-image .pinstripe {
+.monster-card-image {
     background-image: repeating-linear-gradient(
         45deg,
         rgba(0,0,0,0.08) 0,
@@ -331,15 +331,20 @@ article {
     );
     border: var(--line-weight) solid var(--process-black);
     padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px; /* Ensure minimum height for proper display */
 }
 
 .monster-card-image img {
-    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
     height: auto;
     display: block;
-    background: var(--white);
-    max-width: 100%; /* Prevent image from overflowing */
     object-fit: contain; /* Maintain aspect ratio */
+    flex-shrink: 0; /* Prevent image from shrinking */
 }
 
 .monster-card-info .monster-types {
@@ -567,9 +572,10 @@ article {
         gap: calc(var(--spacing-unit) * 3); /* Increase gap to prevent crowding */
     }
 
-    /* Ensure image doesn't shrink too much */
+    /* Ensure image container has proper sizing */
     .monster-card-image {
-        min-width: 0; /* Allow image to shrink but not disappear */
+        min-width: 0; /* Allow container to shrink but not disappear */
+        min-height: 250px; /* Larger minimum height on desktop */
     }
 
     /* Improve info section layout */
@@ -1093,6 +1099,11 @@ footer a:focus-visible {
     #about .profile-image img {
         width: 150px;
         height: 150px;
+    }
+
+    /* Mobile adjustments for monster card image */
+    .monster-card-image {
+        min-height: 180px; /* Smaller minimum height on mobile */
     }
 
     /* Footer: full width, disable subgrid on mobile */
