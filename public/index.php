@@ -20,16 +20,21 @@ $vendor_autoload = $base_path . '/httpd.private' . $env_prefix . '/vendor/autolo
 // Load Composer autoloader
 require_once $vendor_autoload;
 
-// Import TemplateName for type safety
+// Import classes for type safety
 use App\Type\RepositoryIdentifier;
 use App\Type\BranchName;
 use App\Type\TemplateName;
 use App\Type\FilePath;
+use App\Type\Route;
+use App\Router\Router;
+use App\Router\Handler\HomeRouteHandler;
+use App\Router\Handler\DexRouteHandler;
 
-// Initialize content repository and presenter
+// Initialize content repository and presenters
 $content_path = $base_path . '/httpd.private' . $env_prefix . '/content';
 $contentRepository = new \App\Model\ContentRepository(FilePath::fromString($content_path));
 $homePresenter = new \App\Presenter\HomePresenter($contentRepository);
+
 // Configure cache TTL based on environment
 $pokeApiCacheTtl = $is_dev ? 30 : 300; // 30 seconds for dev, 5 minutes for production
 $dexPresenter = new \App\Presenter\DexPresenter(new \App\Service\PokeApiService(), $pokeApiCacheTtl);
@@ -79,84 +84,42 @@ function get_base_url(): string {
     return $protocol . '://' . $_SERVER['HTTP_HOST'];
 }
 
-//! @brief Route definitions
-//! Each route maps a path to a template and metadata
-$routes = [
-    '/' => [
-        'template' => TemplateName::HOME,
-        'meta' => [
-            'title' => 'Jennifer Gott',
-            'description' => 'Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.',
-            'og_title' => 'Jennifer Gott - Software Designer & Information Engineer',
-        ]
+// Initialize router and configure routes
+$router = new Router();
+
+// Add routes to the router
+$router->addRoute(new Route(
+    '/',
+    TemplateName::HOME,
+    [
+        'title' => 'Jennifer Gott',
+        'description' => 'Software designer, information engineer, and illustrator based in Gothenburg, Sweden. Currently studying System Development at Chas Academy, specialized in C/C++, embedded development, and technical illustration.',
+        'og_title' => 'Jennifer Gott - Software Designer & Information Engineer',
     ],
-    // Add more routes here as needed
-    // '/about' => ['template' => TemplateName::ABOUT, 'meta' => [...]],
-    '/dex' => [
-        'template' => TemplateName::DEX,
-    ],
-];
+    ['handler' => 'home']
+));
+
+$router->addRoute(new Route(
+    '/dex',
+    TemplateName::DEX,
+    [],
+    ['handler' => 'dex']
+));
+
+// Register route handlers
+$router->registerHandler('home', new HomeRouteHandler($homePresenter));
+$router->registerHandler('dex', new DexRouteHandler($dexPresenter));
 
 // Get current request
 $path = get_request_path();
 $base_url = get_base_url();
 $current_url = $base_url . $_SERVER['REQUEST_URI'];
 
-// Find matching route
-if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
-    if (isset($routes[$path])) {
-        $route = $routes[$path];
-        $template = $route['template'];
-        $meta = $route['meta'] ?? [];
-        $content_data = ($template === TemplateName::HOME) ? $homePresenter->present() : [];
-    } else {
-        // Dynamic dex route: /dex/{id_or_name}
-        $segments = explode('/', trim($path, '/'));
-        $id_or_name = $segments[1] ?? '';
-        if ($id_or_name === '') {
-            http_response_code(400);
-            $template = TemplateName::NOT_FOUND;
-            $meta = [
-                'title' => 'Invalid Pokédex Request',
-                'description' => 'No Pokémon specified.',
-            ];
-            $content_data = [];
-        } else {
-            try {
-                // Create MonsterIdentifier and fetch monster data from service (handles Result internally)
-                $identifier = \App\Type\MonsterIdentifier::fromString($id_or_name);
-                $monsterData = $dexPresenter->fetchMonsterData($identifier);
+// Route the request
+$routeResult = $router->route($path);
 
-                // Present the clean data to view
-                $presented = $dexPresenter->present($monsterData);
-                $template = $presented['template'];
-                $content_data = ['monster' => $presented['monster']];
-                $meta = [
-                    'title' => $presented['monster']['name'] . ' #' . $presented['monster']['id'],
-                    'description' => 'Pokédex entry for ' . $presented['monster']['name'],
-                ];
-            } catch (\RuntimeException $e) {
-                // Handle Pokemon fetch failure
-                http_response_code(404);
-                $template = TemplateName::NOT_FOUND;
-                $meta = [
-                    'title' => 'Pokémon Not Found',
-                    'description' => $e->getMessage(),
-                ];
-                $content_data = [];
-            }
-        }
-    }
-} else {
-    // 404 Not Found
-    http_response_code(404);
-    $template = TemplateName::NOT_FOUND;
-    $meta = [
-        'title' => 'Page Not Found - Jennifer Gott',
-        'description' => 'The page you are looking for does not exist.',
-    ];
-    $content_data = [];
-}
+// Set HTTP status code
+http_response_code($routeResult->getStatusCode());
 
 // Fetch GitHub info for footer
 $githubService = new \App\Service\GitHubService();
@@ -177,13 +140,18 @@ $github = [
     'commits_ahead' => $github_info->commitsAhead ?? 0,
 ];
 
-// Render the template
-render($template, array_merge([
-    'meta' => $meta,
+// Prepare common template data
+$commonData = [
     'github' => $github,
     'base_url' => $base_url,
     'current_url' => $current_url,
     'canonical_url' => $current_url,
     'cache_bust' => time(),
     'current_year' => date('Y'),
-], $content_data));
+];
+
+// Merge route result data with common data
+$templateData = array_merge($commonData, $routeResult->getData());
+
+// Render the template
+render($routeResult->getTemplate(), $templateData);

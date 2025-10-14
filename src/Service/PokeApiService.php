@@ -269,6 +269,20 @@ class PokeApiService
             $chainData = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
             $chain = $chainData['chain'] ?? [];
 
+            // Seed species cache entries for all species in this chain so that
+            // subsequent navigations to related evolutions can reuse local cache
+            // without hitting the species endpoint again.
+            try {
+                $this->seedSpeciesCachesFromChain(
+                    $chain,
+                    (string)($chainData['id'] ?? '') !== '' ? $evolution_chain_url : $evolution_chain_url,
+                    $cache_dir,
+                    $cache_version
+                );
+            } catch (\Throwable $e) {
+                // Best-effort seeding; ignore failures
+            }
+
             return $this->parseEvolutionChainData($chain, $current_pokemon_name);
         } catch (\JsonException $e) {
             return Result::failure('Invalid evolution chain JSON: ' . $e->getMessage());
@@ -355,6 +369,33 @@ class PokeApiService
             return $name;
         }
         return mb_strtoupper(mb_substr($name, 0, 1)) . mb_strtolower(mb_substr($name, 1));
+    }
+
+    /**
+     * Seed species cache files for all species found in an evolution chain.
+     * Writes minimal JSON containing the evolution_chain url so later lookups
+     * of any species in the chain can avoid an immediate network call.
+     */
+    private function seedSpeciesCachesFromChain(array $chain, string $evolution_chain_url, FilePath $cache_dir, CacheVersion $cache_version): void
+    {
+        $queue = [$chain];
+        while (!empty($queue)) {
+            /** @var array<string,mixed> $node */
+            $node = array_shift($queue);
+            $speciesUrl = (string)($node['species']['url'] ?? '');
+            if ($speciesUrl !== '') {
+                $speciesCache = CacheKeys::species($cache_dir, $cache_version, $speciesUrl);
+                if (!$speciesCache->exists()) {
+                    $speciesCache->writeContents(json_encode([
+                        'evolution_chain' => ['url' => $evolution_chain_url]
+                    ]));
+                }
+            }
+            $children = isset($node['evolves_to']) && is_array($node['evolves_to']) ? $node['evolves_to'] : [];
+            foreach ($children as $child) {
+                $queue[] = $child;
+            }
+        }
     }
 }
 

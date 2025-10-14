@@ -202,7 +202,7 @@ class GitHubService
     //!     dev: array{sha: string, date: string, message: string, url: string}|null,
     //!     commits_ahead: int|null
     //! } Array with 'main' and 'dev' branch info
-    public function getRepositoryInfo(RepositoryIdentifier $repoId, BranchName $dev_branch = null): array
+    public function getRepositoryInfo(RepositoryIdentifier $repoId, ?BranchName $dev_branch = null): array
     {
         $dev_branch = $dev_branch ?? BranchName::fromString('developing');
         $main_info = $this->fetchBranchInfo($repoId, BranchName::fromString('main'));
@@ -221,7 +221,7 @@ class GitHubService
     //! @param repo Repository name
     //! @param dev_branch Development branch name (defaults to 'developing')
     //! @return RepositoryInfo Repository info with optional commit summaries
-    public function getRepositoryInfoTyped(RepositoryIdentifier $repoId, BranchName $dev_branch = null): RepositoryInfo
+    public function getRepositoryInfoTyped(RepositoryIdentifier $repoId, ?BranchName $dev_branch = null): RepositoryInfo
     {
         $dev_branch = $dev_branch ?? BranchName::fromString('developing');
         $main_raw = $this->fetchBranchInfo($repoId, BranchName::fromString('main'));

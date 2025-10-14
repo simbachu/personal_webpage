@@ -128,12 +128,47 @@ final class PokeApiServiceTest extends TestCase
     public function testFetchPokemonSortsTypesBySlot(): void
     {
         //! @section Arrange - types in wrong order
-        $pokemonJson = $this->createPokemonJson(25, 'pikachu', [
-            ['slot' => 2, 'type' => ['name' => 'flying']],
-            ['slot' => 1, 'type' => ['name' => 'electric']],
-        ], 'https://img.example/pikachu.png');
+        $pokemonJson = json_encode([
+            'id' => 25,
+            'name' => 'pikachu',
+            'types' => [
+                ['slot' => 2, 'type' => ['name' => 'flying']],
+                ['slot' => 1, 'type' => ['name' => 'electric']],
+            ],
+            'sprites' => [
+                'other' => [
+                    'official-artwork' => [
+                        'front_default' => 'https://img.example/pikachu.png'
+                    ]
+                ]
+            ],
+            'species' => [
+                'url' => 'https://pokeapi.co/api/v2/pokemon-species/25/'
+            ]
+        ]);
 
-        $service = $this->createServiceWithMockHttp([$pokemonJson]);
+        // Mock responses for evolution chain calls
+        $speciesJson = json_encode([
+            'evolution_chain' => [
+                'url' => 'https://pokeapi.co/api/v2/evolution-chain/10/'
+            ]
+        ]);
+
+        $evolutionChainJson = json_encode([
+            'chain' => [
+                'species' => ['name' => 'pichu'],
+                'evolves_to' => [
+                    [
+                        'species' => ['name' => 'pikachu'],
+                        'evolves_to' => [
+                            ['species' => ['name' => 'raichu']]
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+
+        $service = $this->createServiceWithMockHttp([$pokemonJson, $speciesJson, $evolutionChainJson]);
 
         //! @section Act
         $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'));
@@ -911,6 +946,93 @@ final class PokeApiServiceTest extends TestCase
             $this->assertArrayHasKey('weight', $arrayV2);
             $this->assertSame(4, $arrayV2['height']);
             $this->assertSame(60, $arrayV2['weight']);
+        } finally {
+            $this->cleanupTestCacheDir(FilePath::fromString($cacheDir));
+        }
+    }
+
+    public function test_seeds_species_cache_from_evolution_chain_and_reuses_it(): void
+    {
+        //! @section Arrange
+        $cacheDir = $this->createTestCacheDir();
+        $ttl = 3600;
+
+        // First round: fetch Eevee and allow species + evolution calls
+        $eeveeJson = json_encode([
+            'id' => 133,
+            'name' => 'eevee',
+            'types' => [ ['slot' => 1, 'type' => ['name' => 'normal']] ],
+            'sprites' => [
+                'other' => [
+                    'official-artwork' => [ 'front_default' => 'https://img.example/eevee.png' ]
+                ]
+            ],
+            'species' => [ 'url' => 'https://pokeapi.co/api/v2/pokemon-species/133/' ]
+        ]);
+
+        $speciesJson = json_encode([
+            'evolution_chain' => [ 'url' => 'https://pokeapi.co/api/v2/evolution-chain/67/' ]
+        ]);
+
+        // Evolution chain includes urls to species entries enabling us to seed their species caches
+        $evolutionChainJson = json_encode([
+            'chain' => [
+                'species' => [ 'name' => 'eevee', 'url' => 'https://pokeapi.co/api/v2/pokemon-species/133/' ],
+                'evolves_to' => [
+                    [ 'species' => [ 'name' => 'vaporeon', 'url' => 'https://pokeapi.co/api/v2/pokemon-species/134/' ], 'evolves_to' => []]
+                ]
+            ]
+        ]);
+
+        $round1Service = new PokeApiService(function (string $url) use ($eeveeJson, $speciesJson, $evolutionChainJson): string {
+            if (str_contains($url, '/pokemon/eevee')) {
+                return $eeveeJson;
+            }
+            if (str_contains($url, 'pokemon-species/133')) {
+                return $speciesJson;
+            }
+            if (str_contains($url, 'evolution-chain/67')) {
+                return $evolutionChainJson;
+            }
+            throw new \RuntimeException('Unexpected URL in round1: ' . $url);
+        });
+
+        try {
+            //! @section Act: First fetch populates caches and seeds species caches for chain members
+            $r1 = $round1Service->fetchMonster(MonsterIdentifier::fromString('eevee'), FilePath::fromString($cacheDir), $ttl);
+            $this->assertTrue($r1->isSuccess());
+
+            // Second round client: only provide pokemon for vaporeon; any species/evolution call should NOT occur
+            $vaporeonJson = json_encode([
+                'id' => 134,
+                'name' => 'vaporeon',
+                'types' => [ ['slot' => 1, 'type' => ['name' => 'water']] ],
+                'sprites' => [
+                    'other' => [
+                        'official-artwork' => [ 'front_default' => 'https://img.example/vaporeon.png' ]
+                    ]
+                ],
+                'species' => [ 'url' => 'https://pokeapi.co/api/v2/pokemon-species/134/' ]
+            ]);
+
+            $speciesOrEvolutionCalled = false;
+            $round2Service = new PokeApiService(function (string $url) use ($vaporeonJson, &$speciesOrEvolutionCalled): string {
+                if (str_contains($url, '/pokemon/vaporeon')) {
+                    return $vaporeonJson;
+                }
+                if (str_contains($url, 'pokemon-species') || str_contains($url, 'evolution-chain')) {
+                    $speciesOrEvolutionCalled = true;
+                    throw new \RuntimeException('Species or evolution HTTP should not be called in round2: ' . $url);
+                }
+                throw new \RuntimeException('Unexpected URL in round2: ' . $url);
+            });
+
+            //! @section Act: Fetch related species; should reuse seeded species cache to find evolution_chain and avoid network
+            $r2 = $round2Service->fetchMonster(MonsterIdentifier::fromString('vaporeon'), FilePath::fromString($cacheDir), $ttl);
+
+            //! @section Assert
+            $this->assertTrue($r2->isSuccess());
+            $this->assertFalse($speciesOrEvolutionCalled, 'Species/evolution endpoints should not be called thanks to seeded cache');
         } finally {
             $this->cleanupTestCacheDir(FilePath::fromString($cacheDir));
         }
