@@ -44,7 +44,7 @@ class TemplateNameTest extends TestCase
 
     public function test_from_string_with_invalid_template(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid template name: \'invalid\'. Valid templates are: home, dex, 404');
 
@@ -54,7 +54,7 @@ class TemplateNameTest extends TestCase
 
     public function test_from_string_with_empty_string(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid template name: \'\'. Valid templates are: home, dex, 404');
 

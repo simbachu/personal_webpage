@@ -9,6 +9,7 @@ use App\Type\MonsterData;
 use App\Type\EvolutionData;
 use App\Type\MonsterIdentifier;
 use App\Type\MonsterType;
+use App\Type\FilePath;
 
 //! @brief Service for fetching Pokemon data from the PokeAPI with caching and error handling
 //!
@@ -61,22 +62,20 @@ class PokeApiService
     //! @param cache_dir Optional directory for file-based caching (defaults to system temp directory)
     //! @param ttl_seconds Time-to-live for cache entries in seconds (defaults to 300)
     //! @return Result<MonsterData> Success containing MonsterData, or failure with error message
-    public function fetchMonster(MonsterIdentifier $identifier, ?string $cache_dir = null, int $ttl_seconds = 300): Result
+    public function fetchMonster(MonsterIdentifier $identifier, ?FilePath $cache_dir = null, int $ttl_seconds = 300, string $cache_version = 'v1'): Result
     {
         $id_or_name = $identifier->getValue();
         $url = 'https://pokeapi.co/api/v2/pokemon/' . rawurlencode($id_or_name);
 
         // Simple file-based cache
-        $cache_dir = $cache_dir ?? (sys_get_temp_dir() . '/pokeapi_cache');
-        if (!is_dir($cache_dir)) {
-            @mkdir($cache_dir, 0777, true);
-        }
-        $cache_file = $cache_dir . '/pokemon_' . md5($id_or_name) . '.json';
+        $cache_dir = $cache_dir ?? FilePath::fromString(sys_get_temp_dir() . '/pokeapi_cache');
+        $cache_dir->ensureDirectoryExists();
+        $cache_file = $cache_dir->join($cache_version . '_pokemon_' . md5($id_or_name) . '.json');
 
         $json = null;
         $is_fresh_cache = false;
-        if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $ttl_seconds) {
-            $json = file_get_contents($cache_file) ?: null;
+        if ($cache_file->exists() && $ttl_seconds > 0 && !$cache_file->isOlderThan($ttl_seconds)) {
+            $json = $cache_file->readContents();
             $is_fresh_cache = true;
         }
 
@@ -84,11 +83,15 @@ class PokeApiService
             try {
                 $json = ($this->http_client)($url);
                 // Write/refresh cache on success
-                @file_put_contents($cache_file, $json);
+                $cache_file->writeContents($json);
             } catch (\Throwable $e) {
                 // On network failure: fall back to stale cache if present
-                if (file_exists($cache_file)) {
-                    $json = file_get_contents($cache_file) ?: null;
+                if ($cache_file->exists()) {
+                    try {
+                        $json = $cache_file->readContents();
+                    } catch (\RuntimeException $readError) {
+                        $json = null;
+                    }
                 }
                 if ($json === null) {
                     return Result::failure('Failed to fetch Pokemon data: ' . $e->getMessage());
@@ -129,7 +132,7 @@ class PokeApiService
         // Fetch evolution chain data
         $currentPokemonName = (string)($data['name'] ?? '');
         $speciesUrl = $data['species']['url'] ?? '';
-        $evolutionResult = $this->fetchEvolutionChain($speciesUrl, $currentPokemonName, $cache_dir, $ttl_seconds);
+        $evolutionResult = $this->fetchEvolutionChain($speciesUrl, $currentPokemonName, $cache_dir, $ttl_seconds, $cache_version);
 
         $precursor = null;
         $successors = [];
@@ -149,6 +152,30 @@ class PokeApiService
             successors: $successors
         );
 
+        // After successful decode, alias cache entries by both numeric ID and canonical name
+        // so that fetching by name then by ID (or vice versa) reuses the same cached payload.
+        try {
+            $numericId = isset($data['id']) ? (string)$data['id'] : '';
+            $canonicalName = isset($data['name']) ? (string)$data['name'] : '';
+
+            if ($numericId !== '') {
+                $idCache = $cache_dir->join($cache_version . '_pokemon_' . md5($numericId) . '.json');
+                if (!$idCache->exists()) {
+                    $idCache->writeContents($json);
+                }
+            }
+
+            if ($canonicalName !== '') {
+                $nameKey = mb_strtolower(trim($canonicalName));
+                $nameCache = $cache_dir->join($cache_version . '_pokemon_' . md5($nameKey) . '.json');
+                if (!$nameCache->exists()) {
+                    $nameCache->writeContents($json);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Best-effort aliasing; ignore failures silently
+        }
+
         return Result::success($monsterData);
     }
 
@@ -158,24 +185,24 @@ class PokeApiService
     //! @param cache_dir Cache directory for storing evolution data
     //! @param ttl_seconds Time-to-live for evolution data cache entries
     //! @return Result<array{precursor?:EvolutionData,successors:EvolutionData[]}> Success with evolution data or failure
-    private function fetchEvolutionChain(string $species_url, string $current_pokemon_name, ?string $cache_dir, int $ttl_seconds): Result
+    private function fetchEvolutionChain(string $species_url, string $current_pokemon_name, ?FilePath $cache_dir, int $ttl_seconds, string $cache_version): Result
     {
         if (empty($species_url)) {
             return Result::failure('No species URL provided');
         }
 
-        $cache_dir = $cache_dir ?? (sys_get_temp_dir() . '/pokeapi_cache');
-        $cache_file = $cache_dir . '/evolution_' . md5($species_url) . '.json';
+        $cache_dir = $cache_dir ?? FilePath::fromString(sys_get_temp_dir() . '/pokeapi_cache');
+        $cache_file = $cache_dir->join($cache_version . '_evolution_' . md5($species_url) . '.json');
 
         $json = null;
-        if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $ttl_seconds) {
-            $json = file_get_contents($cache_file) ?: null;
+        if ($cache_file->exists() && $ttl_seconds > 0 && !$cache_file->isOlderThan($ttl_seconds)) {
+            $json = $cache_file->readContents();
         }
 
         if ($json === null) {
             try {
                 $json = ($this->http_client)($species_url);
-                @file_put_contents($cache_file, $json);
+                $cache_file->writeContents($json);
             } catch (\Throwable $e) {
                 if (file_exists($cache_file)) {
                     $json = file_get_contents($cache_file) ?: null;
@@ -195,7 +222,7 @@ class PokeApiService
                 return Result::failure('No evolution chain URL found');
             }
 
-            return $this->parseEvolutionChain($evolutionChainUrl, $current_pokemon_name, $cache_dir, $ttl_seconds);
+            return $this->parseEvolutionChain($evolutionChainUrl, $current_pokemon_name, $cache_dir, $ttl_seconds, $cache_version);
         } catch (\JsonException $e) {
             return Result::failure('Invalid species JSON: ' . $e->getMessage());
         } catch (\Throwable $e) {
@@ -209,20 +236,20 @@ class PokeApiService
     //! @param cache_dir Cache directory for storing parsed evolution chain data
     //! @param ttl_seconds Time-to-live for evolution chain cache entries
     //! @return Result<array{precursor?:EvolutionData,successors:EvolutionData[]}> Success with evolution data or failure
-    private function parseEvolutionChain(string $evolution_chain_url, string $current_pokemon_name, ?string $cache_dir, int $ttl_seconds): Result
+    private function parseEvolutionChain(string $evolution_chain_url, string $current_pokemon_name, ?FilePath $cache_dir, int $ttl_seconds, string $cache_version): Result
     {
-        $cache_dir = $cache_dir ?? (sys_get_temp_dir() . '/pokeapi_cache');
-        $cache_file = $cache_dir . '/evolution_chain_' . md5($evolution_chain_url) . '.json';
+        $cache_dir = $cache_dir ?? FilePath::fromString(sys_get_temp_dir() . '/pokeapi_cache');
+        $cache_file = $cache_dir->join($cache_version . '_evolution_chain_' . md5($evolution_chain_url) . '.json');
 
         $json = null;
-        if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $ttl_seconds) {
-            $json = file_get_contents($cache_file) ?: null;
+        if ($cache_file->exists() && $ttl_seconds > 0 && !$cache_file->isOlderThan($ttl_seconds)) {
+            $json = $cache_file->readContents();
         }
 
         if ($json === null) {
             try {
                 $json = ($this->http_client)($evolution_chain_url);
-                @file_put_contents($cache_file, $json);
+                $cache_file->writeContents($json);
             } catch (\Throwable $e) {
                 if (file_exists($cache_file)) {
                     $json = file_get_contents($cache_file) ?: null;

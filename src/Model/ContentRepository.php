@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use App\Type\FilePath;
+
 use Symfony\Component\Yaml\Yaml;
 use League\CommonMark\CommonMarkConverter;
 
@@ -13,13 +15,13 @@ use League\CommonMark\CommonMarkConverter;
 //! providing structured data to the presenter layer.
 class ContentRepository
 {
-    private string $contentPath; //!< Path to content directory
+    private FilePath $contentPath; //!< Path to content directory
 
     //! @brief Constructor
     //! @param contentPath Path to content directory
     public function __construct(string $contentPath)
     {
-        $this->contentPath = rtrim($contentPath, '/');
+        $this->contentPath = FilePath::fromString($contentPath);
     }
 
     //! @brief Load projects from projects.yaml
@@ -34,14 +36,15 @@ class ContentRepository
     //! }> Array of project data structures
     public function getProjects(): array
     {
-        $filePath = $this->contentPath . '/projects.yaml';
+        $filePath = $this->contentPath->join('projects.yaml');
 
-        if (!file_exists($filePath)) {
+        if (!$filePath->exists()) {
             return [];
         }
 
-        $content = file_get_contents($filePath);
-        if ($content === false) {
+        try {
+            $content = $filePath->readContents();
+        } catch (\RuntimeException $e) {
             return [];
         }
 
@@ -57,14 +60,15 @@ class ContentRepository
     //! @retval string[] Array of HTML paragraph strings
     public function getAboutParagraphs(): array
     {
-        $filePath = $this->contentPath . '/about.md';
+        $filePath = $this->contentPath->join('about.md');
 
-        if (!file_exists($filePath)) {
+        if (!$filePath->exists()) {
             return [];
         }
 
-        $content = file_get_contents($filePath);
-        if ($content === false) {
+        try {
+            $content = $filePath->readContents();
+        } catch (\RuntimeException $e) {
             return [];
         }
 
@@ -81,7 +85,7 @@ class ContentRepository
         //! Parse each paragraph from Markdown to HTML
         $converter = new CommonMarkConverter();
         $htmlParagraphs = [];
-        
+
         foreach ($paragraphs as $paragraph) {
             $html = $converter->convert($paragraph)->getContent();
             //! Remove trailing newline that CommonMark adds
@@ -100,7 +104,7 @@ class ContentRepository
     //! } Configuration array with skills, contact, and about metadata
     public function getConfig(): array
     {
-        $filePath = $this->contentPath . '/config.yaml';
+        $filePath = $this->contentPath->join('config.yaml');
 
         $defaults = [
             'skills' => [],
@@ -111,12 +115,13 @@ class ContentRepository
             ],
         ];
 
-        if (!file_exists($filePath)) {
+        if (!$filePath->exists()) {
             return $defaults;
         }
 
-        $content = file_get_contents($filePath);
-        if ($content === false) {
+        try {
+            $content = $filePath->readContents();
+        } catch (\RuntimeException $e) {
             return $defaults;
         }
 

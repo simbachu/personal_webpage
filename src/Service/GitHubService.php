@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Type\FilePath;
+use App\Type\CommitInfo;
+use App\Type\RepositoryInfo;
+
 //! @brief Service for fetching GitHub repository information with caching
 //!
 //! Handles API calls to GitHub with smart cache fallback for resilience.
@@ -14,15 +18,15 @@ class GitHubService
     //! @brief Handles API call failures with smart cache fallback
     //! @param cache_file Path to cache file
     //! @retval array|null Cached data if appropriate, null if branch doesn't exist
-    private function handleApiFailure(string $cache_file): ?array
+    private function handleApiFailure(FilePath $cache_file): ?array
     {
         // Check if this was a 404 (branch doesn't exist) vs network error
         if (isset($GLOBALS['http_response_header'])) {
             foreach ($GLOBALS['http_response_header'] as $header) {
                 if (strpos($header, '404') !== false) {
                     // Branch doesn't exist - delete stale cache and return null
-                    if (file_exists($cache_file)) {
-                        @unlink($cache_file);
+                    if ($cache_file->exists()) {
+                        $cache_file->delete();
                     }
                     return null;
                 }
@@ -30,9 +34,14 @@ class GitHubService
         }
 
         // Network error or other issue - fall back to cache
-        if (file_exists($cache_file)) {
-            $cached_data = file_get_contents($cache_file);
-            return json_decode($cached_data, true);
+        if ($cache_file->exists()) {
+            try {
+                $cached_data = $cache_file->readContents();
+                return json_decode($cached_data, true);
+            } catch (\RuntimeException $e) {
+                // Cache file exists but can't be read
+                return null;
+            }
         }
         return null;
     }
@@ -41,12 +50,16 @@ class GitHubService
     //! @param url GitHub API URL
     //! @param cache_file Path to cache file
     //! @retval array|null Decoded JSON response or null on failure
-    private function fetchCachedApi(string $url, string $cache_file): ?array
+    private function fetchCachedApi(string $url, FilePath $cache_file): ?array
     {
         // Check cache validity
-        if (file_exists($cache_file) && (time() - filemtime($cache_file)) < self::CACHE_DURATION) {
-            $cached_data = file_get_contents($cache_file);
-            return json_decode($cached_data, true);
+        if ($cache_file->exists() && !$cache_file->isOlderThan(self::CACHE_DURATION)) {
+            try {
+                $cached_data = $cache_file->readContents();
+                return json_decode($cached_data, true);
+            } catch (\RuntimeException $e) {
+                // Cache file exists but can't be read, continue to API call
+            }
         }
 
         // Create HTTP request options
@@ -78,7 +91,7 @@ class GitHubService
     //! @retval array|null Array with commit info or null on failure
     private function fetchBranchInfo(string $owner, string $repo, string $branch): ?array
     {
-        $cache_file = sys_get_temp_dir() . "/github_cache_{$owner}_{$repo}_{$branch}.json";
+        $cache_file = FilePath::fromString(sys_get_temp_dir() . "/github_cache_{$owner}_{$repo}_{$branch}.json");
         $url = "https://api.github.com/repos/{$owner}/{$repo}/branches/{$branch}";
 
         $data = $this->fetchCachedApi($url, $cache_file);
@@ -105,7 +118,7 @@ class GitHubService
             'url' => $data['commit']['html_url']
         ];
 
-        file_put_contents($cache_file, json_encode($commit_info));
+            $cache_file->writeContents(json_encode($commit_info));
 
         return $commit_info;
     }
@@ -118,7 +131,7 @@ class GitHubService
     //! @retval int|null Number of commits ahead, or null on failure
     private function fetchCommitsAhead(string $owner, string $repo, string $base, string $head): ?int
     {
-        $cache_file = sys_get_temp_dir() . "/github_compare_{$owner}_{$repo}_{$base}_{$head}.json";
+        $cache_file = FilePath::fromString(sys_get_temp_dir() . "/github_compare_{$owner}_{$repo}_{$base}_{$head}.json");
         $url = "https://api.github.com/repos/{$owner}/{$repo}/compare/{$base}...{$head}";
 
         $data = $this->fetchCachedApi($url, $cache_file);
@@ -142,7 +155,7 @@ class GitHubService
             'ahead_by' => $data['ahead_by']
         ];
 
-        file_put_contents($cache_file, json_encode($compare_info));
+        $cache_file->writeContents(json_encode($compare_info));
 
         return $compare_info['ahead_by'];
     }
@@ -192,6 +205,38 @@ class GitHubService
             'dev' => $dev_info,
             'commits_ahead' => $commits_ahead
         ];
+    }
+
+    //! @brief Typed variant returning RepositoryInfo value object for clarity and safety
+    //! @param owner Repository owner
+    //! @param repo Repository name
+    //! @param dev_branch Development branch name (defaults to 'developing')
+    //! @return RepositoryInfo Repository info with optional commit summaries
+    public function getRepositoryInfoTyped(string $owner, string $repo, string $dev_branch = 'developing'): RepositoryInfo
+    {
+        $main_raw = $this->fetchBranchInfo($owner, $repo, 'main');
+        $dev_raw = $this->fetchBranchInfo($owner, $repo, $dev_branch);
+        $ahead = $this->fetchCommitsAhead($owner, $repo, 'main', $dev_branch);
+
+        $main = $main_raw ? new CommitInfo(
+            sha: (string)($main_raw['sha'] ?? ''),
+            date: (string)($main_raw['date'] ?? ''),
+            message: (string)($main_raw['message'] ?? ''),
+            url: (string)($main_raw['url'] ?? '')
+        ) : null;
+
+        $dev = $dev_raw ? new CommitInfo(
+            sha: (string)($dev_raw['sha'] ?? ''),
+            date: (string)($dev_raw['date'] ?? ''),
+            message: (string)($dev_raw['message'] ?? ''),
+            url: (string)($dev_raw['url'] ?? '')
+        ) : null;
+
+        return new RepositoryInfo(
+            main: $main,
+            dev: $dev,
+            commitsAhead: $ahead
+        );
     }
 }
 

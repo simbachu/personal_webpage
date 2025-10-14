@@ -155,21 +155,21 @@ if (isset($routes[$path]) || str_starts_with($path, '/dex/')) {
 
 // Fetch GitHub info for footer
 $githubService = new \App\Service\GitHubService();
-$github_raw = $githubService->getRepositoryInfo('simbachu', 'personal_webpage');
+$github_info = $githubService->getRepositoryInfoTyped('simbachu', 'personal_webpage');
 
 // Format GitHub dates for Twig
 $github = [
-    'main' => $github_raw['main'] ? [
-        'url' => $github_raw['main']['url'],
-        'message' => $github_raw['main']['message'],
-        'date_formatted' => $githubService->formatDate($github_raw['main']['date']),
+    'main' => $github_info->main ? [
+        'url' => $github_info->main->url,
+        'message' => $github_info->main->message,
+        'date_formatted' => $githubService->formatDate($github_info->main->date),
     ] : null,
-    'dev' => $github_raw['dev'] ? [
-        'url' => $github_raw['dev']['url'],
-        'message' => $github_raw['dev']['message'],
-        'date_formatted' => $githubService->formatDate($github_raw['dev']['date']),
+    'dev' => $github_info->dev ? [
+        'url' => $github_info->dev->url,
+        'message' => $github_info->dev->message,
+        'date_formatted' => $githubService->formatDate($github_info->dev->date),
     ] : null,
-    'commits_ahead' => $github_raw['commits_ahead'] ?? 0,
+    'commits_ahead' => $github_info->commitsAhead ?? 0,
 ];
 
 // Render the template

@@ -43,7 +43,7 @@ class BranchNameTest extends TestCase
 
     public function test_branch_name_rejects_empty_string(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Branch name cannot be empty');
 
@@ -53,7 +53,7 @@ class BranchNameTest extends TestCase
 
     public function test_branch_name_rejects_whitespace_only(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Branch name cannot be empty');
 
@@ -63,7 +63,7 @@ class BranchNameTest extends TestCase
 
     public function test_branch_name_rejects_spaces(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Branch name cannot contain spaces, tilde, caret, colon, question mark, asterisk, or brackets');
 
@@ -76,21 +76,22 @@ class BranchNameTest extends TestCase
         //! @section Arrange
         $invalidChars = ['~', '^', ':', '?', '*', '[', ']'];
 
-        //! @section Act & Assert
+        //! @section Arrange
         foreach ($invalidChars as $char) {
             $this->expectException(\InvalidArgumentException::class);
             $this->expectExceptionMessage('Branch name cannot contain spaces, tilde, caret, colon, question mark, asterisk, or brackets');
 
+            //! @section Act
             BranchName::fromString('branch' . $char);
 
-            // Reset exception expectation for next iteration
+            //! Reset exception expectation for next iteration
             $this->expectException(\InvalidArgumentException::class);
         }
     }
 
     public function test_branch_name_rejects_starting_with_dot(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Branch name cannot start with a dot');
 
@@ -100,7 +101,7 @@ class BranchNameTest extends TestCase
 
     public function test_branch_name_rejects_ending_with_dot(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Branch name cannot end with a dot or slash');
 
@@ -110,7 +111,7 @@ class BranchNameTest extends TestCase
 
     public function test_branch_name_rejects_ending_with_slash(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Branch name cannot end with a dot or slash');
 
@@ -123,7 +124,7 @@ class BranchNameTest extends TestCase
         //! @section Arrange
         $longName = str_repeat('a', 101);
 
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Branch name cannot exceed 100 characters');
 
@@ -136,14 +137,15 @@ class BranchNameTest extends TestCase
         //! @section Arrange
         $reserved = ['HEAD', 'head', 'HEAD/', 'head/'];
 
-        //! @section Act & Assert
+        //! @section Arrange
         foreach ($reserved as $reservedName) {
             $this->expectException(\InvalidArgumentException::class);
             $this->expectExceptionMessage('Branch name cannot be a reserved Git name');
 
+            //! @section Act
             BranchName::fromString($reservedName);
 
-            // Reset exception expectation for next iteration
+            //! Reset exception expectation for next iteration
             $this->expectException(\InvalidArgumentException::class);
         }
     }

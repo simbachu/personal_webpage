@@ -103,9 +103,11 @@ final class DexPresenterTest extends TestCase
 
         $presenter = new DexPresenter($service, 300);
 
-        //! @section Act & Assert
+        //! @section Arrange
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Pokemon not found');
+
+        //! @section Act
         $presenter->fetchMonsterData(MonsterIdentifier::fromString('999'));
     }
 }

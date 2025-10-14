@@ -41,7 +41,7 @@ class ApplicationSmokeTest extends TestCase
     public function test_can_instantiate_content_repository(): void
     {
         //! @section Act
-        $repository = new ContentRepository(__DIR__ . '/../../content');
+        $repository = new ContentRepository(realpath(__DIR__ . '/../../content'));
 
         //! @section Assert
         $this->assertInstanceOf(ContentRepository::class, $repository);
@@ -51,7 +51,7 @@ class ApplicationSmokeTest extends TestCase
     public function test_can_instantiate_and_call_home_presenter(): void
     {
         //! @section Arrange
-        $repository = new ContentRepository(__DIR__ . '/../../content');
+        $repository = new ContentRepository(realpath(__DIR__ . '/../../content'));
         $presenter = new HomePresenter($repository);
 
         //! @section Act

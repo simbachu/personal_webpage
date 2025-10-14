@@ -48,7 +48,7 @@ class IdentifierTest extends TestCase
 
     public function test_monster_identifier_rejects_empty_string(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Identifier cannot be empty');
 
@@ -58,7 +58,7 @@ class IdentifierTest extends TestCase
 
     public function test_monster_identifier_rejects_invalid_characters(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Monster identifier must contain only alphanumeric characters, hyphens, and underscores');
 
@@ -71,7 +71,7 @@ class IdentifierTest extends TestCase
         //! @section Arrange
         $longName = str_repeat('a', 51);
 
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Monster identifier cannot exceed 50 characters');
 
@@ -94,7 +94,7 @@ class IdentifierTest extends TestCase
 
     public function test_monster_identifier_rejects_non_positive_numeric_id(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Monster ID must be positive');
 

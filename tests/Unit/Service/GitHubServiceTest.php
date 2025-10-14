@@ -6,6 +6,7 @@ namespace Tests\Unit\Service;
 
 use PHPUnit\Framework\TestCase;
 use App\Service\GitHubService;
+use App\Type\RepositoryInfo;
 
 //! @brief Test suite for GitHubService
 //!
@@ -154,6 +155,19 @@ class GitHubServiceTest extends TestCase
         $this->assertArrayHasKey('commits_ahead', $result);
     }
 
+    //! @brief Typed method returns RepositoryInfo with nullable fields
+    public function test_get_repository_info_typed_returns_value_object(): void
+    {
+        //! @section Act
+        $result = $this->service->getRepositoryInfoTyped('test', 'repo', 'dev');
+
+        //! @section Assert
+        $this->assertInstanceOf(RepositoryInfo::class, $result);
+        $this->assertTrue(is_null($result->main) || is_string($result->main->sha));
+        $this->assertTrue(is_null($result->dev) || is_string($result->dev->sha));
+        $this->assertTrue(is_null($result->commitsAhead) || is_int($result->commitsAhead));
+    }
+
     //! @brief Test getRepositoryInfo handles missing branches gracefully
     public function test_get_repository_info_handles_missing_branches(): void
     {
@@ -174,7 +188,7 @@ class GitHubServiceTest extends TestCase
         $owner = 'testowner';
         $repo = 'testrepo';
         $branch = 'main';
-        
+
         //! Create a cache file with valid data
         $cacheFile = $this->cacheDir . "/github_cache_{$owner}_{$repo}_{$branch}.json";
         $cachedData = [
@@ -184,7 +198,7 @@ class GitHubServiceTest extends TestCase
             'url' => 'https://github.com/test/repo/commit/abc1234'
         ];
         file_put_contents($cacheFile, json_encode($cachedData));
-        
+
         //! Touch the cache file to ensure it's fresh (within 5 minutes)
         touch($cacheFile);
 
@@ -196,7 +210,7 @@ class GitHubServiceTest extends TestCase
         $this->assertNotNull($result['main']);
         $this->assertEquals('abc1234', $result['main']['sha']);
         $this->assertEquals($cachedData['message'], $result['main']['message']);
-        
+
         //! Clean up
         @unlink($cacheFile);
     }
@@ -208,7 +222,7 @@ class GitHubServiceTest extends TestCase
         $owner = 'testowner';
         $repo = 'testrepo';
         $branch = 'main';
-        
+
         //! Create an expired cache file
         $cacheFile = $this->cacheDir . "/github_cache_{$owner}_{$repo}_{$branch}.json";
         $oldData = [
@@ -218,7 +232,7 @@ class GitHubServiceTest extends TestCase
             'url' => 'https://github.com/test/repo/commit/old1234'
         ];
         file_put_contents($cacheFile, json_encode($oldData));
-        
+
         //! Set modification time to 10 minutes ago (beyond 5 minute cache duration)
         touch($cacheFile, time() - 600);
 
@@ -230,7 +244,7 @@ class GitHubServiceTest extends TestCase
         //! The important part is it attempted to refresh
         $this->assertIsArray($result);
         $this->assertArrayHasKey('main', $result);
-        
+
         //! Clean up
         @unlink($cacheFile);
     }
@@ -242,9 +256,9 @@ class GitHubServiceTest extends TestCase
         $owner = 'php';
         $repo = 'php-src';
         $branch = 'master';
-        
+
         $cacheFile = $this->cacheDir . "/github_cache_{$owner}_{$repo}_{$branch}.json";
-        
+
         //! Ensure no cache exists
         if (file_exists($cacheFile)) {
             unlink($cacheFile);
@@ -255,14 +269,14 @@ class GitHubServiceTest extends TestCase
 
         //! @section Assert
         $this->assertIsArray($result);
-        
+
         //! Cache file should be created if API call succeeded
         if ($result['main'] !== null) {
             $this->assertFileExists($cacheFile);
-            
+
             $cachedContent = file_get_contents($cacheFile);
             $cachedData = json_decode($cachedContent, true);
-            
+
             $this->assertIsArray($cachedData);
             $this->assertArrayHasKey('sha', $cachedData);
             $this->assertArrayHasKey('date', $cachedData);
@@ -270,7 +284,7 @@ class GitHubServiceTest extends TestCase
             //! If API call failed, ensure we still have a valid structure
             $this->assertArrayHasKey('main', $result);
         }
-        
+
         //! Clean up
         @unlink($cacheFile);
     }

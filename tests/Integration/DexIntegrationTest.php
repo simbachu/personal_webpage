@@ -131,10 +131,11 @@ class DexIntegrationTest extends TestCase
         });
         $presenter = new DexPresenter($service, 300);
 
-        //! @section Act & Assert
+        //! @section Arrange
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('No primary type found for Pokemon');
 
+        //! @section Act
         $presenter->fetchMonsterData(MonsterIdentifier::fromString('unknown_no_types'));
 
         if (is_dir($cacheDir)) {

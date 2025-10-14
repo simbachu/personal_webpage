@@ -78,7 +78,7 @@ class MonsterTypeTest extends TestCase
 
     public function test_from_string_with_invalid_type(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid monster type: \'invalid\'. Valid types are: normal, fire, water, electric, grass, ice, fighting, poison, ground, flying, psychic, bug, rock, ghost, dragon, dark, steel, fairy');
 
@@ -88,7 +88,7 @@ class MonsterTypeTest extends TestCase
 
     public function test_from_string_with_empty_string(): void
     {
-        //! @section Assert
+        //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid monster type: \'\'. Valid types are:');
 
