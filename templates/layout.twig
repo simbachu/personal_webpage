@@ -9,8 +9,8 @@
     <meta name="description" content="{{ meta.description|default('Software designer, information engineer, and illustrator based in Gothenburg, Sweden.') }}">
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="{{ meta.og_title|default(meta.title)|default('Jennifer Gott - Software Designer & Information Engineer') }}">
-    <meta property="og:description" content="{{ meta.og_description|default(meta.description)|default('Software designer, information engineer, and illustrator based in Gothenburg, Sweden.') }}">
+    <meta property="og:title" content="{{ meta.og_title is defined ? meta.og_title : (meta.title is defined ? meta.title : 'Jennifer Gott - Software Designer & Information Engineer') }}">
+    <meta property="og:description" content="{{ meta.og_description is defined ? meta.og_description : (meta.description is defined ? meta.description : 'Software designer, information engineer, and illustrator based in Gothenburg, Sweden.') }}">
     <meta property="og:image" content="{{ meta.og_image|default(base_url ~ '/images/og-image.png') }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -41,47 +41,47 @@
         <defs>
             <filter id="fractalNoise" x="0%" y="0%" width="100%" height="100%">
                 <!-- Base fractal noise with multiple octaves -->
-                <feTurbulence 
-                    baseFrequency="0.8 0.6" 
-                    numOctaves="4" 
-                    seed="42" 
+                <feTurbulence
+                    baseFrequency="0.8 0.6"
+                    numOctaves="4"
+                    seed="42"
                     type="fractalNoise"
                     result="noise1"/>
-                <feTurbulence 
-                    baseFrequency="0.3 0.4" 
-                    numOctaves="3" 
-                    seed="123" 
+                <feTurbulence
+                    baseFrequency="0.3 0.4"
+                    numOctaves="3"
+                    seed="123"
                     type="fractalNoise"
                     result="noise2"/>
-                <feTurbulence 
-                    baseFrequency="0.1 0.2" 
-                    numOctaves="2" 
-                    seed="456" 
+                <feTurbulence
+                    baseFrequency="0.1 0.2"
+                    numOctaves="2"
+                    seed="456"
                     type="fractalNoise"
                     result="noise3"/>
-                
+
                 <!-- Combine noise layers with different opacities -->
-                <feComposite 
-                    in="noise1" 
-                    in2="noise2" 
-                    operator="multiply" 
+                <feComposite
+                    in="noise1"
+                    in2="noise2"
+                    operator="multiply"
                     result="combined1"/>
-                <feComposite 
-                    in="combined1" 
-                    in2="noise3" 
-                    operator="screen" 
+                <feComposite
+                    in="combined1"
+                    in2="noise3"
+                    operator="screen"
                     result="combined2"/>
-                
+
                 <!-- Create grain effect by scaling and offsetting -->
                 <feComponentTransfer in="combined2" result="grain">
                     <feFuncA type="discrete" tableValues="0 0.08 0.12 0.05 0.15 0.03 0.09 0.06"/>
                 </feComponentTransfer>
-                
+
                 <!-- Apply grain to source graphic -->
-                <feComposite 
-                    in="SourceGraphic" 
-                    in2="grain" 
-                    operator="overlay" 
+                <feComposite
+                    in="SourceGraphic"
+                    in2="grain"
+                    operator="overlay"
                     result="final"/>
             </filter>
         </defs>

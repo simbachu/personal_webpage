@@ -7,7 +7,7 @@
 
 {% for monster in tier.monsters %}
     <div class="monster">
-        <a href="./{{ monster.name }}"><img src="{{ monster.sprite_image }}" alt="{{ monster.name }}"></a>
+        <a href="{{ monster.url|default('./' ~ monster.name) }}"><img src="{{ monster.sprite_image }}" alt="{{ monster.name }}"></a>
     </div>
 {% endfor %} {# end for monster in tier #}
 </section>
