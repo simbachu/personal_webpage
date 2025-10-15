@@ -1,0 +1,58 @@
+name: Daily unrated Pokémon email
+
+on:
+  schedule:
+    # 12:00 UTC ≈ 14:00 CEST
+    - cron: '0 12 * * *'
+    # 13:00 UTC ≈ 14:00 CET
+    - cron: '0 13 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Generate email body
+        id: gen
+        env:
+          BASE_URL: ${{ secrets.SITE_BASE_URL }}
+        run: |
+          php bin/email_unrated_pokemon.php > email_body.html
+          echo "subject=Three random unrated Pokémon" >> $GITHUB_OUTPUT
+
+      - name: Read email body
+        id: read
+        run: |
+          BODY="$(cat email_body.html)"
+          BODY="${BODY//'%'/'%25'}"
+          BODY="${BODY//$'\n'/'%0A'}"
+          BODY="${BODY//$'\r'/'%0D'}"
+          echo "body=$BODY" >> $GITHUB_OUTPUT
+
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: ${{ steps.gen.outputs.subject }}
+          to: ${{ secrets.MAIL_TO }}
+          from: ${{ secrets.MAIL_FROM }}
+          secure: true
+          convert_markdown: false
+          body: ${{ steps.read.outputs.body }}
+
+
