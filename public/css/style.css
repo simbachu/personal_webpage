@@ -316,6 +316,14 @@ article {
     margin-top: calc(var(--spacing-unit) * 4);
 }
 
+/* Put the items in a tier in a flex row, wrap and expand the box with the header */
+.tierlist .tier {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing-unit) * 1);
+}
+
 /* Tierlist thumbnails */
 .tierlist .monster img {
     max-width: 100px;
