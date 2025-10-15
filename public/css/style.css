@@ -1,3 +1,15 @@
+/* SVG Fractal Noise Filter */
+.monster-noise-filter {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.monster-noise-filter defs {
+    filter: url(#fractalNoise);
+}
+
 /* Reset and base styles */
 * {
     margin: 0;
@@ -33,6 +45,25 @@
 
     --gradient-red: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
     --gradient-process-black: linear-gradient(135deg, var(--process-black) 0%, var(--process-black-light) 100%);
+    /* Monster type colors (WCAG-aware approximations) */
+    --type-normal: #A8A77A;
+    --type-fire: #EE8130;
+    --type-water: #6390F0;
+    --type-electric: #F7D02C;
+    --type-grass: #7AC74C;
+    --type-ice: #96D9D6;
+    --type-fighting: #C22E28;
+    --type-poison: #A33EA1;
+    --type-ground: #E2BF65;
+    --type-flying: #A98FF3;
+    --type-psychic: #F95587;
+    --type-bug: #A6B91A;
+    --type-rock: #B6A136;
+    --type-ghost: #735797;
+    --type-dragon: #6F35FC;
+    --type-dark: #705746;
+    --type-steel: #B7B7CE;
+    --type-fairy: #D685AD;
 }
 
 body {
@@ -79,7 +110,7 @@ header {
     }
 }
 
-/* Red bar dividing the header title and nav, aligned to the grid gutters */
+/* Expanding gradient animation replacing the red bar */
 header::after {
     content: '';
     display: block; /* make the pseudo-element a grid item */
@@ -87,11 +118,12 @@ header::after {
     grid-row: gutter; /* place in gutter */
     height: var(--header-bar-height);
     justify-self: stretch;
+    /* Clean gradient without dithering */
     background: var(--gradient-red);
     transform: scaleX(0);
     transform-origin: center;
-    /* Animate the bar scaling in from the center */
-    animation: slideInBar 0.6s var(--ease-bounce) forwards;
+    /* Animate the gradient expanding in from the center */
+    animation: expandGradient 0.8s var(--ease-bounce) forwards;
     animation-delay: 0.15s;
 }
 
@@ -118,12 +150,17 @@ header h1 {
     }
 }
 
-@keyframes slideInBar {
+@keyframes expandGradient {
     0% {
         transform: scaleX(0);
+        opacity: 0;
+    }
+    60% {
+        opacity: 1;
     }
     100% {
         transform: scaleX(1);
+        opacity: 1;
     }
 }
 
@@ -269,6 +306,361 @@ article {
     display: flex;
     flex-direction: column;
     gap: 0; /* sections handle their own margins */
+}
+
+/* Monster Card */
+.monster-card {
+    background: var(--white);
+    border: var(--line-weight-thick) solid transparent;
+    border-image: var(--gradient-process-black) 1;
+    margin-top: calc(var(--spacing-unit) * 4);
+}
+
+/* Put the items in a tier in a flex row, wrap and expand the box with the header */
+.tierlist .tier {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing-unit) * 1);
+}
+
+/* Tierlist thumbnails */
+.tierlist .monster img {
+    max-width: 100px;
+    max-height: 100px;
+    width: auto;
+    height: auto;
+}
+
+.monster-card-header {
+    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
+    background: linear-gradient(90deg, transparent, transparent);
+}
+
+.monster-card-title {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.monster-card-id {
+    color: var(--process-black);
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.monster-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 2);
+    padding: calc(var(--spacing-unit) * 2);
+}
+
+.monster-card-main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--spacing-unit) * 2);
+    align-items: start;
+}
+
+.monster-card-image {
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(0,0,0,0.08) 0,
+        rgba(0,0,0,0.08) 2px,
+        transparent 2px,
+        transparent 6px
+    );
+    border: var(--line-weight) solid var(--process-black);
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px; /* Ensure minimum height for proper display */
+}
+
+.monster-card-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain; /* Maintain aspect ratio */
+    flex-shrink: 0; /* Prevent image from shrinking */
+}
+
+.monster-card-info .monster-types {
+    list-style: none;
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 0 1rem 0;
+    padding: 0;
+}
+
+.monster-card-info .type {
+    padding: 0.2rem 0.5rem;
+    border: var(--line-weight) solid var(--process-black);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--white);
+}
+
+/* Monster Card Opinion Section */
+.monster-card-opinion {
+    margin: calc(var(--spacing-unit) * 1) 0;
+    padding: calc(var(--spacing-unit) * 1);
+    border: var(--line-weight) solid var(--process-black);
+    background: var(--white);
+}
+
+.monster-card-opinion-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 calc(var(--spacing-unit) * 0.5) 0;
+    font-style: italic;
+    color: var(--process-black);
+}
+
+.monster-card-rating {
+    font-size: 0.85rem;
+    margin: 0;
+    font-weight: 600;
+    color: var(--black);
+}
+
+.monster-card-rating-value {
+    color: var(--red);
+    font-weight: 700;
+}
+
+.monster-card-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: calc(var(--spacing-unit) * 1) 0 0 0;
+    color: var(--process-black);
+}
+
+/* Type color helpers */
+.type-normal { background-color: var(--type-normal); }
+.type-fire { background-color: var(--type-fire); }
+.type-water { background-color: var(--type-water); }
+.type-electric { background-color: var(--type-electric); }
+.type-grass { background-color: var(--type-grass); }
+.type-ice { background-color: var(--type-ice); }
+.type-fighting { background-color: var(--type-fighting); }
+.type-poison { background-color: var(--type-poison); }
+.type-ground { background-color: var(--type-ground); }
+.type-flying { background-color: var(--type-flying); }
+.type-psychic { background-color: var(--type-psychic); }
+.type-bug { background-color: var(--type-bug); }
+.type-rock { background-color: var(--type-rock); }
+.type-ghost { background-color: var(--type-ghost); }
+.type-dragon { background-color: var(--type-dragon); }
+.type-dark { background-color: var(--type-dark); }
+.type-steel { background-color: var(--type-steel); }
+.type-fairy { background-color: var(--type-fairy); }
+
+/* Build CSS vars for type1/type2 using attribute selectors */
+[data-type1="normal"] { --type-attr1: var(--type-normal); }
+[data-type1="fire"] { --type-attr1: var(--type-fire); }
+[data-type1="water"] { --type-attr1: var(--type-water); }
+[data-type1="electric"] { --type-attr1: var(--type-electric); }
+[data-type1="grass"] { --type-attr1: var(--type-grass); }
+[data-type1="ice"] { --type-attr1: var(--type-ice); }
+[data-type1="fighting"] { --type-attr1: var(--type-fighting); }
+[data-type1="poison"] { --type-attr1: var(--type-poison); }
+[data-type1="ground"] { --type-attr1: var(--type-ground); }
+[data-type1="flying"] { --type-attr1: var(--type-flying); }
+[data-type1="psychic"] { --type-attr1: var(--type-psychic); }
+[data-type1="bug"] { --type-attr1: var(--type-bug); }
+[data-type1="rock"] { --type-attr1: var(--type-rock); }
+[data-type1="ghost"] { --type-attr1: var(--type-ghost); }
+[data-type1="dragon"] { --type-attr1: var(--type-dragon); }
+[data-type1="dark"] { --type-attr1: var(--type-dark); }
+[data-type1="steel"] { --type-attr1: var(--type-steel); }
+[data-type1="fairy"] { --type-attr1: var(--type-fairy); }
+
+[data-type2="normal"] { --type-attr2: var(--type-normal); }
+[data-type2="fire"] { --type-attr2: var(--type-fire); }
+[data-type2="water"] { --type-attr2: var(--type-water); }
+[data-type2="electric"] { --type-attr2: var(--type-electric); }
+[data-type2="grass"] { --type-attr2: var(--type-grass); }
+[data-type2="ice"] { --type-attr2: var(--type-ice); }
+[data-type2="fighting"] { --type-attr2: var(--type-fighting); }
+[data-type2="poison"] { --type-attr2: var(--type-poison); }
+[data-type2="ground"] { --type-attr2: var(--type-ground); }
+[data-type2="flying"] { --type-attr2: var(--type-flying); }
+[data-type2="psychic"] { --type-attr2: var(--type-psychic); }
+[data-type2="bug"] { --type-attr2: var(--type-bug); }
+[data-type2="rock"] { --type-attr2: var(--type-rock); }
+[data-type2="ghost"] { --type-attr2: var(--type-ghost); }
+[data-type2="dragon"] { --type-attr2: var(--type-dragon); }
+[data-type2="dark"] { --type-attr2: var(--type-dark); }
+[data-type2="steel"] { --type-attr2: var(--type-steel); }
+[data-type2="fairy"] { --type-attr2: var(--type-fairy); }
+
+/* Header gradient logic: single vs dual types with fractal noise texture */
+.monster-card[data-type1][data-type2=""] .monster-card-header {
+    background: linear-gradient(90deg, var(--type-attr1, var(--type-normal)) 0%, var(--type-attr1, var(--type-normal)) 100%);
+    filter: url(#fractalNoise);
+}
+
+.monster-card[data-type1]:not([data-type2=""]) .monster-card-header {
+    background: linear-gradient(90deg,
+        var(--type-attr1) 0%,
+        var(--type-attr1) calc(50% - 1.5rem),
+        var(--type-attr2) calc(50% + 1.5rem),
+        var(--type-attr2) 100%
+    );
+    filter: url(#fractalNoise);
+}
+
+/* Monster Card Evolution Links */
+.monster-card-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto; /* Explicit rows for labels and links */
+    gap: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
+    padding-top: calc(var(--spacing-unit) * 1);
+    border-top: var(--line-weight) solid var(--process-black);
+}
+
+/* Ensure proper alignment of dt/dd pairs in evolution links */
+.monster-card-links dl {
+    display: contents; /* Remove the dl from the grid flow */
+}
+
+.evolution-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--black);
+    margin: 0;
+}
+
+.evolution-label-left {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.evolution-label-right {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.evolution-link {
+    margin: 0;
+}
+
+.evolution-link-left {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.evolution-link-right {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.evolution-link a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 0.125rem solid var(--red);
+    transition: background-color var(--transition-base), color var(--transition-base);
+    display: inline-block;
+}
+
+.evolution-link a:hover,
+.evolution-link a:focus {
+    background-color: var(--red);
+    color: var(--white);
+    outline: none;
+}
+
+.evolution-link a:focus-visible {
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
+}
+
+.evolution-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 0.25);
+}
+
+.evolution-list li {
+    margin: 0;
+}
+
+.evolution-list a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 0.125rem solid var(--red);
+    transition: background-color var(--transition-base), color var(--transition-base);
+    display: inline-block;
+}
+
+.evolution-list a:hover,
+.evolution-list a:focus {
+    background-color: var(--red);
+    color: var(--white);
+    outline: none;
+}
+
+.evolution-list a:focus-visible {
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .monster-card-links {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto; /* Stack all elements vertically */
+        gap: calc(var(--spacing-unit) * 0.5) 0;
+    }
+
+    .evolution-label-left {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .evolution-link-left {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .evolution-label-right {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    .evolution-link-right {
+        grid-column: 1;
+        grid-row: 4;
+    }
+}
+
+@media (min-width: 769px) {
+    .monster-card-main {
+        grid-template-columns: 1fr 1fr;
+        gap: calc(var(--spacing-unit) * 3); /* Increase gap to prevent crowding */
+    }
+
+    /* Ensure image container has proper sizing */
+    .monster-card-image {
+        min-width: 0; /* Allow container to shrink but not disappear */
+        min-height: 250px; /* Larger minimum height on desktop */
+    }
+
+    /* Improve info section layout */
+    .monster-card-info {
+        min-width: 0; /* Prevent overflow */
+        overflow-wrap: break-word;
+    }
 }
 
 @supports (grid-template-columns: subgrid) {
@@ -775,6 +1167,11 @@ footer a:focus-visible {
     #about .profile-image img {
         width: 150px;
         height: 150px;
+    }
+
+    /* Mobile adjustments for monster card image */
+    .monster-card-image {
+        min-height: 180px; /* Smaller minimum height on mobile */
     }
 
     /* Footer: full width, disable subgrid on mobile */

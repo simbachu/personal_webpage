@@ -1,0 +1,50 @@
+- title: "Aftermarket Wiring Diagram Handbook"
+  year: "2017-present"
+  tags:
+    - Illustration
+    - CAD
+    - InDesign
+  description: |
+    Fully illustrated automotive wiring diagram handbooks for service technicians. Over 20 vehicle variants across internal combustion, hybrid-electric, and electric vehicles.
+
+    Process design from initial proof of concept to final production, with training of staff on different sites. Roadmap ownership and management.
+
+- title: "Sunrise alarm clock"
+  year: "2025"
+  tags:
+    - Chas Academy
+    - Arduino
+    - C++
+    - electronics
+  description: "Breadboard alarm clock with sunrise simulation using daylight LED. Set alarm time and sunrise duration."
+
+- title: "Conference room occupancy tracker"
+  year: "2025"
+  tags:
+    - Chas Academy
+    - Arduino
+    - C++
+    - REST API
+    - electronics
+  github: "https://github.com/Kusten-ar-klar-Chas-Challenge-2025/"
+  award: "Nominated for Best Embedded Project"
+  description: |
+    Room booking system with real-time occupancy information (clearing bookings on vacant rooms). Infrared and temperature sensors for occupancy detection.
+
+    Part of the Chas Challenge contest. Nominated for Best Embedded Project.
+
+- title: "Package tracking system"
+  year: "2025"
+  tags:
+    - Chas Academy
+    - Arduino
+    - C++
+    - BLE
+    - REST API
+    - electronics
+  github: "https://github.com/G1-H25"
+  description: |
+    Package tracking system with sensor packages communicating with vehicle based broker, relaying package information to backend Azure service for display in-app or on website. Temperature sensor and alarm for package temperature tracking.
+
+    Wrote hardware abstraction library to facilitate development on both espidf and Arduino platforms.
+

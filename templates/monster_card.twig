@@ -1,0 +1,70 @@
+{# @brief Renders a monster card
+@param monster The monster to render
+  monster.name: The name of the monster
+  monster.image: The image of the monster
+  monster.description: The description of the monster
+  monster.type1: The type of the monster
+  monster.type2: The optional second type of the monster
+  monster.precursor: The precursor of the monster
+  monster.successor: The successor of the monster
+@return string The rendered monster card
+#}
+{% macro monster_card(monster) %}
+<article class="monster-card" data-type1="{{ monster.type1 }}" data-type2="{{ monster.type2|default('') }}">
+    <header class="monster-card-header">
+        <h1 class="monster-card-title">{{ monster.name }} <span class="monster-card-id">#{{ monster.id }}</span></h1>
+    </header>
+    <div class="monster-card-body">
+        <div class="monster-card-main">
+            <figure class="monster-card-image">
+                <img src="{{ monster.image }}" alt="{{ monster.name }}">
+            </figure>
+            <div class="monster-card-info">
+                <ul class="monster-types">
+                    {% if monster.type1 %}
+                        <li class="type type-{{ monster.type1 }}">{{ monster.type1 }}</li>
+                    {% endif %} {# monster.type1 #}
+                    {% if monster.type2 is defined and monster.type2 %}
+                        <li class="type type-{{ monster.type2 }}">{{ monster.type2 }}</li>
+                    {% endif %} {# monster.type2 is defined and monster.type2 #}
+                </ul>
+                {% if monster.opinion is defined %}
+                <section class="monster-card-opinion">
+                    <p class="monster-card-opinion-text">{{ monster.opinion }}</p>
+                    {% if monster.rating is defined %}
+                    <p class="monster-card-rating">Rating: <span class="monster-card-rating-value">{{ monster.rating }}</span></p>
+                    {% endif %} {# monster.rating is defined #}
+                </section>
+                {% endif %} {# monster.opinion is defined #}
+                {% if monster.description is defined %}
+                <p class="monster-card-description">{{ monster.description }}</p>
+                {% endif %} {# monster.description is defined #}
+            </div>
+        </div>
+        {% if monster.precursor is defined or monster.successor is defined or monster.successors is defined %}
+        <nav class="monster-card-links">
+            <dl class="monster-card-links">
+                {% if monster.precursor is defined %}
+                    <dt class="evolution-label evolution-label-left">From</dt>
+                    <dd class="evolution-link evolution-link-left"><a href="{{ monster.precursor.url }}">{{ monster.precursor.name }}</a></dd>
+                {% endif %} {# monster.precursor is defined #}
+                {% if monster.successor is defined %}
+                    <dt class="evolution-label evolution-label-right">To</dt>
+                    <dd class="evolution-link evolution-link-right"><a href="{{ monster.successor.url }}">{{ monster.successor.name }}</a></dd>
+                {% endif %} {# monster.successor is defined #}
+                {% if monster.successors is defined %}
+                    <dt class="evolution-label evolution-label-right">To</dt>
+                    <dd class="evolution-link evolution-link-right">
+                        <ul class="evolution-list">
+                            {% for successor in monster.successors %}
+                                <li><a href="{{ successor.url }}">{{ successor.name }}</a></li>
+                            {% endfor %} {# for successor in monster.successors #}
+                        </ul>
+                    </dd>
+                {% endif %} {# monster.successors is defined #}
+            </dl>
+        </nav>
+        {% endif %} {# monster.precursor is defined or monster.successor is defined or monster.successors is defined #}
+    </div>
+</article>
+{% endmacro %} {# monster_card #}

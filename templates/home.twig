@@ -1,0 +1,58 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<article>
+<section id="about">
+    <h2>About Me</h2>
+    <figure class="profile-image">
+        <img src="{{ about.profile_image }}" alt="{{ about.profile_alt }}">
+    </figure>
+    {% for paragraph in about.paragraphs %}
+    <p>{{ paragraph|raw }}</p>
+    {% endfor %}
+
+    <h3>Skills</h3>
+    <ul>
+        {% for skill in skills %}
+        <li>{{ skill|raw }}</li>
+        {% endfor %}
+    </ul>
+
+</section>
+
+<section id="projects">
+    <h2>Projects</h2>
+    <div class="project-grid">
+        {% for project in projects %}
+        <div class="project-card">
+            <h3>{{ project.title }}</h3>
+            <p class="years">{{ project.year }}</p>
+            <ul class="tags">
+                {% for tag in project.tags %}
+                <li>{{ tag }}</li>
+                {% endfor %}
+            </ul>
+            {% for line in project.description|split('\n') %}
+                {% if line|trim %}
+            <p>{{ line|trim|raw }}</p>
+                {% endif %}
+            {% endfor %}
+            {% if project.github is defined %}
+            <p><a href="{{ project.github }}">GitHub</a></p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+</article>
+
+<aside id="contact">
+    <h2>Contact</h2>
+    <ul>
+        {% for link in contact.links %}
+        <li><a href="{{ link.url }}">{{ link.text }}</a></li>
+        {% endfor %}
+    </ul>
+</aside>
+{% endblock %}
+

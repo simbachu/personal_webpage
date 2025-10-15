@@ -1,0 +1,20 @@
+about:
+  profile_image: "/images/jg_devops_halftone.png"
+  profile_alt: "Jennifer Gott portrait"
+
+skills:
+  - "<strong>C/C++</strong>, embedded and native development"
+  - "Test design and program correctness"
+  - "Team leader, agile product owner, coach"
+  - "Technical illustration"
+  - "Layout and typesetting"
+  - "Native Swedish speaker and certified native English speaker (CEFR C2)"
+
+contact:
+  - url: "https://github.com/simbachu"
+    text: "github.com/simbachu"
+  - url: "mailto:simbachu@gmail.com"
+    text: "simbachu@gmail.com"
+  - url: "https://www.linkedin.com/in/jennifer-jonathan-gott-2233aa294/"
+    text: "linkedin.com/in/jennifer-jonathan-gott"
+

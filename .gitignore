@@ -24,8 +24,8 @@ tmp/
 temp/
 *.tmp
 
-# PHP
-vendor/
+# PHP & Composer
+/vendor/
+.phpunit.cache/
+.phpunit.result.cache
 composer.phar
-
-

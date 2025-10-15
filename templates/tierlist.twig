@@ -1,0 +1,15 @@
+{% macro tierlist(tierlist) %}
+<article class="tierlist">
+<h1>{{ tierlist.name }}</h1>
+{% for tier in tierlist.tiers %}
+<section class="tier"> {# Inline flex, on overflow, wrap and expand the box with the header #}
+    <h2>{{ tier.name }}</h2> {#inline with images, in a colored box with the tier.color #}
+
+{% for monster in tier.monsters %}
+    <div class="monster">
+        <a href="{{ monster.url|default('./' ~ monster.name) }}"><img src="{{ monster.sprite_image }}" alt="{{ monster.name }}"></a>
+    </div>
+{% endfor %} {# end for monster in tier #}
+</section>
+{% endfor %} {# end for tier in tierlist #}
+{% endmacro %} {# end macro tierlist #}

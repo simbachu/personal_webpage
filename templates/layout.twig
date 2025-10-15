@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ meta.title|default('Jennifer Gott') }}</title>
+
+    <!-- Meta Description -->
+    <meta name="description" content="{{ meta.description|default('Software designer, information engineer, and illustrator based in Gothenburg, Sweden.') }}">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{ meta.og_title is defined ? meta.og_title : (meta.title is defined ? meta.title : 'Jennifer Gott - Software Designer & Information Engineer') }}">
+    <meta property="og:description" content="{{ meta.og_description is defined ? meta.og_description : (meta.description is defined ? meta.description : 'Software designer, information engineer, and illustrator based in Gothenburg, Sweden.') }}">
+    <meta property="og:image" content="{{ meta.og_image|default(base_url ~ '/images/og-image.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ meta.og_image_alt|default('Jennifer Gott - Software Designer, Information Engineer, and Illustrator') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ current_url }}">
+    <meta property="og:site_name" content="Jennifer Gott">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ meta.twitter_title is defined ? meta.twitter_title : (meta.og_title is defined ? meta.og_title : (meta.title is defined ? meta.title : 'Jennifer Gott - Software Designer & Information Engineer')) }}">
+    <meta name="twitter:description" content="{{ meta.twitter_description is defined ? meta.twitter_description : (meta.description is defined ? meta.description : 'Software designer, information engineer, and illustrator based in Gothenburg, Sweden.') }}">
+    <meta name="twitter:image" content="{{ meta.twitter_image is defined ? meta.twitter_image : (meta.og_image is defined ? meta.og_image : base_url ~ '/images/og-image.png') }}">
+    <meta name="twitter:image:alt" content="{{ meta.twitter_image_alt is defined ? meta.twitter_image_alt : (meta.og_image_alt is defined ? meta.og_image_alt : 'Jennifer Gott - Software Designer, Information Engineer, and Illustrator') }}">
+
+    <!-- Additional Meta Tags -->
+    <meta name="author" content="Jennifer Gott">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ canonical_url|default(current_url) }}">
+
+    <link rel="stylesheet" href="/fonts/inter.css">
+    <link rel="stylesheet" href="/css/style.css?v={{ cache_bust }}">
+</head>
+<body>
+    <!-- SVG Fractal Noise Filter -->
+    <svg class="monster-noise-filter" aria-hidden="true">
+        <defs>
+            <filter id="fractalNoise" x="0%" y="0%" width="100%" height="100%">
+                <!-- Base fractal noise with multiple octaves -->
+                <feTurbulence
+                    baseFrequency="0.8 0.6"
+                    numOctaves="4"
+                    seed="42"
+                    type="fractalNoise"
+                    result="noise1"/>
+                <feTurbulence
+                    baseFrequency="0.3 0.4"
+                    numOctaves="3"
+                    seed="123"
+                    type="fractalNoise"
+                    result="noise2"/>
+                <feTurbulence
+                    baseFrequency="0.1 0.2"
+                    numOctaves="2"
+                    seed="456"
+                    type="fractalNoise"
+                    result="noise3"/>
+
+                <!-- Combine noise layers with different opacities -->
+                <feComposite
+                    in="noise1"
+                    in2="noise2"
+                    operator="multiply"
+                    result="combined1"/>
+                <feComposite
+                    in="combined1"
+                    in2="noise3"
+                    operator="screen"
+                    result="combined2"/>
+
+                <!-- Create grain effect by scaling and offsetting -->
+                <feComponentTransfer in="combined2" result="grain">
+                    <feFuncA type="discrete" tableValues="0 0.08 0.12 0.05 0.15 0.03 0.09 0.06"/>
+                </feComponentTransfer>
+
+                <!-- Apply grain to source graphic -->
+                <feComposite
+                    in="SourceGraphic"
+                    in2="grain"
+                    operator="overlay"
+                    result="final"/>
+            </filter>
+        </defs>
+    </svg>
+
+    <header>
+        <h1>Jennifer Gott</h1>
+        <nav>
+            <ul>
+                <li><a href="/#about">About Me</a></li>
+                <li><a href="/#projects">Projects</a></li>
+                <li><a href="/#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>This website was automatically uploaded from <a href="https://github.com/simbachu/personal_webpage">GitHub</a> using a <abbr title="Continuous Deployment">CD</abbr> pipeline.</p>
+
+        <div class="github-info">
+            {% if github.main %}
+            <div class="branch-status">
+                <span class="branch-name">
+                    <a href="{{ github.main.url }}"
+                       title="{{ github.main.message }}">Production</a>
+                </span>
+                <span class="branch-meta"></span>
+                <span class="branch-time">Updated {{ github.main.date_formatted }}</span>
+            </div>
+            {% endif %}
+
+            {% if github.dev %}
+            <div class="branch-status">
+                <span class="branch-name">
+                    <a href="{{ github.dev.url }}"
+                       title="{{ github.dev.message }}">Dev Preview</a>
+                </span>
+                <span class="branch-meta">
+                    {% if github.commits_ahead > 0 %}
+                    {{ github.commits_ahead }} commit{{ github.commits_ahead != 1 ? 's' : '' }} ahead
+                    {% endif %}
+                </span>
+                <span class="branch-time">Active {{ github.dev.date_formatted }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <p>&copy; {{ current_year }} Jennifer Gott. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+

@@ -1,0 +1,11 @@
+{% extends "layout.twig" %}
+{% import "monster_card.twig" as mc %}
+{% import "tierlist.twig" as tl %}
+
+{% block content %}
+    {% if monster is defined %}
+    {{ mc.monster_card(monster) }}
+    {% elseif tierlist is defined %}
+    {{ tl.tierlist(tierlist) }}
+    {% endif %}
+{% endblock %}
