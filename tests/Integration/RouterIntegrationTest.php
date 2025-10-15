@@ -148,8 +148,12 @@ YAML;
         $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
 
         $data = $result->getData();
-        // The dex route handler returns empty array for /dex route
         $this->assertIsArray($data);
+        // Expect a tierlist structure for /dex (no id)
+        $this->assertArrayHasKey('tierlist', $data);
+        $this->assertArrayHasKey('meta', $data);
+        $this->assertArrayHasKey('name', $data['tierlist']);
+        $this->assertArrayHasKey('tiers', $data['tierlist']);
     }
 
     //! @brief Test routing to dex page with specific Pokemon

@@ -14,6 +14,56 @@ use App\Type\MonsterType;
 
 final class DexPresenterTest extends TestCase
 {
+    public function test_present_tierlist_groups_by_rating_and_includes_sprite_and_link(): void
+    {
+        //! @section Arrange
+        $pokeApiService = $this->createMock(PokeApiService::class);
+
+        // For three pokemon, return MonsterData with image used as sprite placeholder
+        $pokeApiService->method('fetchMonster')->willReturnOnConsecutiveCalls(
+            Result::success(new MonsterData(id: 133, name: 'Eevee', image: 'https://img.example/eevee-sprite.png', type1: MonsterType::NORMAL)),
+            Result::success(new MonsterData(id: 172, name: 'Pichu', image: 'https://img.example/pichu-sprite.png', type1: MonsterType::ELECTRIC)),
+            Result::success(new MonsterData(id: 25, name: 'Pikachu', image: 'https://img.example/pikachu-sprite.png', type1: MonsterType::ELECTRIC))
+        );
+
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getAllOpinionNames')->willReturn(['eevee', 'pichu', 'pikachu']);
+        $opinionService->method('getOpinion')->willReturnOnConsecutiveCalls(
+            Result::success(['opinion' => 'cute', 'rating' => 'A']),
+            Result::success(['opinion' => 'ok', 'rating' => 'B']),
+            Result::success(['opinion' => 'iconic', 'rating' => 'A'])
+        );
+
+        $presenter = new DexPresenter($pokeApiService, $opinionService, 300);
+
+        //! @section Act
+        $tierlist = $presenter->presentTierList();
+
+        //! @section Assert
+        $this->assertArrayHasKey('name', $tierlist);
+        $this->assertArrayHasKey('tiers', $tierlist);
+        $tiersByName = [];
+        foreach ($tierlist['tiers'] as $tier) {
+            $tiersByName[$tier['name']] = $tier;
+        }
+        $this->assertArrayHasKey('A', $tiersByName);
+        $this->assertArrayHasKey('B', $tiersByName);
+
+        // A tier should contain Eevee and Pikachu
+        $aMonsters = array_column($tiersByName['A']['monsters'], 'name');
+        $this->assertContains('Eevee', $aMonsters);
+        $this->assertContains('Pikachu', $aMonsters);
+
+        // Each monster should have sprite_image and url
+        foreach ($tierlist['tiers'] as $tier) {
+            foreach ($tier['monsters'] as $monster) {
+                $this->assertArrayHasKey('sprite_image', $monster);
+                $this->assertArrayHasKey('url', $monster);
+                $this->assertStringStartsWith('/dex/', $monster['url']);
+            }
+        }
+    }
+
     public function test_present_builds_view_model_for_single_type_pokemon(): void
     {
         //! @section Arrange

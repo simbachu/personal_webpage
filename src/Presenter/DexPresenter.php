@@ -82,6 +82,68 @@ class DexPresenter
 
         return $result->getValue();
     }
+
+    //! @brief Build a tier list grouped by rating with sprite image and URL
+    //! @return array{name:string,tiers:array<int,array{name:string,color?:string,monsters:array<int,array{name:string,sprite_image:string,url:string}>>>}
+    public function presentTierList(): array
+    {
+        $names = $this->opinionService->getAllOpinionNames();
+
+        // Prepare grouping buckets in desired order
+        $order = ['S', 'A', 'B', 'C', 'D'];
+        $grouped = [];
+
+        foreach ($names as $name) {
+            $identifier = MonsterIdentifier::fromString($name);
+            $opinionResult = $this->opinionService->getOpinion($identifier);
+            if (!$opinionResult->isSuccess()) {
+                continue;
+            }
+            $opinion = $opinionResult->getValue();
+            $rating = strtoupper((string)($opinion['rating'] ?? ''));
+            if ($rating === '') {
+                continue;
+            }
+
+            // Fetch minimal monster data to get sprite image
+            $monsterResult = $this->pokeapi->fetchMonster($identifier, null, $this->cacheTtl);
+            if ($monsterResult->isFailure()) {
+                continue;
+            }
+            $monster = $monsterResult->getValue();
+
+            $grouped[$rating][] = [
+                'name' => $monster->name,
+                'sprite_image' => $monster->image,
+                'url' => '/dex/' . mb_strtolower($name),
+            ];
+        }
+
+        // Sort monsters within each tier alphabetically by name for stable output
+        foreach ($grouped as &$monsters) {
+            usort($monsters, function (array $a, array $b): int {
+                return strcmp($a['name'], $b['name']);
+            });
+        }
+        unset($monsters);
+
+        // Build tiers array in order, skipping empty tiers
+        $tiers = [];
+        foreach ($order as $letter) {
+            if (!isset($grouped[$letter]) || empty($grouped[$letter])) {
+                continue;
+            }
+            $tiers[] = [
+                'name' => $letter,
+                'monsters' => $grouped[$letter],
+            ];
+        }
+
+        return [
+            'name' => "Jennifer's Pokémon Tierlist",
+            'tiers' => $tiers,
+        ];
+    }
 }
 
 

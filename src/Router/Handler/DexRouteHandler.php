@@ -35,9 +35,16 @@ class DexRouteHandler implements RouteHandler
     {
         // Handle /dex route (no specific Pokemon)
         if (empty($parameters) || !isset($parameters['id_or_name'])) {
+            $tierlist = $this->presenter->presentTierList();
             return new RouteResult(
                 $route->getTemplate(),
-                []
+                [
+                    'tierlist' => $tierlist,
+                    'meta' => [
+                        'title' => "Jennifer's Pokémon Tierlist",
+                        'description' => 'My ratings of various Pokémon grouped by letter tiers.',
+                    ]
+                ]
             );
         }
 

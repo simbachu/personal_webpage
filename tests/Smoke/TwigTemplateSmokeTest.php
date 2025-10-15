@@ -45,11 +45,11 @@ class TwigTemplateSmokeTest extends TestCase
         $this->assertStringContainsString('poison', $rendered);
         $this->assertStringContainsString('data-type1="grass"', $rendered);
         $this->assertStringContainsString('data-type2="poison"', $rendered);
-        
+
         //! Ensure both types are rendered as list items
         $this->assertEquals(1, substr_count($rendered, 'class="type type-grass"'));
         $this->assertEquals(1, substr_count($rendered, 'class="type type-poison"'));
-        
+
         //! Ensure template structure is correct
         $this->assertStringContainsString('<article class="monster-card"', $rendered);
         $this->assertStringContainsString('<ul class="monster-types">', $rendered);
@@ -74,12 +74,12 @@ class TwigTemplateSmokeTest extends TestCase
         $this->assertStringContainsString('fire', $rendered);
         $this->assertStringContainsString('data-type1="fire"', $rendered);
         $this->assertStringContainsString('data-type2=""', $rendered);
-        
+
         //! Ensure only one type is rendered
         $this->assertEquals(1, substr_count($rendered, 'class="type type-fire"'));
         $this->assertStringNotContainsString('type-grass', $rendered);
         $this->assertStringNotContainsString('type-poison', $rendered);
-        
+
         //! Ensure template structure is correct
         $this->assertStringContainsString('<article class="monster-card"', $rendered);
         $this->assertStringContainsString('<ul class="monster-types">', $rendered);
@@ -92,7 +92,7 @@ class TwigTemplateSmokeTest extends TestCase
         $monster = PokemonTestData::getCharmander();
         //! Remove type2 key to simulate service not adding it
         unset($monster['type2']);
-        
+
         $viewData = [
             'template' => 'dex',
             'monster' => $monster,
@@ -105,10 +105,10 @@ class TwigTemplateSmokeTest extends TestCase
         $this->assertStringContainsString('Charmander', $rendered);
         $this->assertStringContainsString('data-type1="fire"', $rendered);
         $this->assertStringContainsString('data-type2=""', $rendered);
-        
+
         //! Ensure only one type is rendered
         $this->assertEquals(1, substr_count($rendered, 'class="type type-fire"'));
-        
+
         //! Template should not crash when type2 is missing
         $this->assertStringNotContainsString('type-grass', $rendered);
     }
@@ -130,10 +130,10 @@ class TwigTemplateSmokeTest extends TestCase
         $this->assertStringContainsString('#999', $rendered);
         $this->assertStringContainsString('data-type1=""', $rendered);
         $this->assertStringContainsString('data-type2=""', $rendered);
-        
+
         //! Should not render any type classes when types are empty
         $this->assertStringNotContainsString('class="type type-', $rendered);
-        
+
         //! Template should not crash with empty types
         $this->assertStringContainsString('<ul class="monster-types">', $rendered);
         $this->assertStringContainsString('</ul>', $rendered);
@@ -159,7 +159,7 @@ class TwigTemplateSmokeTest extends TestCase
         $this->assertStringContainsString('<body>', $rendered);
         $this->assertStringContainsString('<main>', $rendered);
         $this->assertStringContainsString('<footer>', $rendered);
-        
+
         //! Check for proper monster card structure
         $this->assertStringContainsString('<article class="monster-card"', $rendered);
         $this->assertStringContainsString('<header class="monster-card-header">', $rendered);
@@ -167,9 +167,36 @@ class TwigTemplateSmokeTest extends TestCase
         $this->assertStringContainsString('<div class="monster-card-body">', $rendered);
         $this->assertStringContainsString('<figure class="monster-card-image">', $rendered);
         $this->assertStringContainsString('<div class="monster-card-info">', $rendered);
-        
+
         //! Check for proper image structure
         $this->assertStringContainsString('<img src="https://img.example/bulbasaur.png"', $rendered);
         $this->assertStringContainsString('alt="Bulbasaur"', $rendered);
+    }
+
+    public function testDexTemplateRendersWithTierlist(): void
+    {
+        //! @section Arrange
+        $tierlist = [
+            'name' => 'Test Tierlist',
+            'tiers' => [
+                [
+                    'name' => 'A',
+                    'monsters' => [
+                        ['name' => 'Eevee', 'sprite_image' => 'https://img.example/eevee.png', 'url' => '/dex/eevee']
+                    ]
+                ]
+            ]
+        ];
+
+        //! @section Act
+        $rendered = $this->twig->render('dex.twig', [
+            'tierlist' => $tierlist,
+            'meta' => ['title' => 'Tierlist']
+        ]);
+
+        //! @section Assert
+        $this->assertStringContainsString('Test Tierlist', $rendered);
+        $this->assertStringContainsString('/dex/eevee', $rendered);
+        $this->assertStringContainsString('<img src="https://img.example/eevee.png"', $rendered);
     }
 }
