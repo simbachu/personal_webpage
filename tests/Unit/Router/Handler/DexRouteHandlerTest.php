@@ -21,6 +21,19 @@ class DexRouteHandlerTest extends TestCase
     {
         //! @section Arrange
         $presenter = $this->createMock(DexPresenter::class);
+        $presenter->expects($this->once())
+            ->method('presentTierList')
+            ->willReturn([
+                'name' => "Jennifer's Pokémon Tierlist",
+                'tiers' => [
+                    [
+                        'name' => 'A',
+                        'monsters' => [
+                            ['name' => 'Eevee', 'sprite_image' => 'https://img/eevee.png', 'url' => '/dex/eevee']
+                        ]
+                    ]
+                ]
+            ]);
         $handler = new DexRouteHandler($presenter);
         $route = new Route('/dex', TemplateName::DEX);
 
@@ -30,7 +43,10 @@ class DexRouteHandlerTest extends TestCase
         //! @section Assert
         $this->assertEquals(TemplateName::DEX, $result->getTemplate());
         $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
-        $this->assertEmpty($result->getData());
+        $data = $result->getData();
+        $this->assertArrayHasKey('tierlist', $data);
+        $this->assertArrayHasKey('meta', $data);
+        $this->assertEquals("Jennifer's Pokémon Tierlist", $data['tierlist']['name']);
     }
 
     //! @brief Test dex route handler processes /dex/{id} route correctly
