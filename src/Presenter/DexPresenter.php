@@ -112,9 +112,10 @@ class DexPresenter
             }
             $monster = $monsterResult->getValue();
 
+            $spriteUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' . $monster->id . '.png';
             $grouped[$rating][] = [
                 'name' => $monster->name,
-                'sprite_image' => $monster->image,
+                'sprite_image' => $spriteUrl,
                 'url' => '/dex/' . mb_strtolower($name),
             ];
         }

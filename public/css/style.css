@@ -316,6 +316,14 @@ article {
     margin-top: calc(var(--spacing-unit) * 4);
 }
 
+/* Tierlist thumbnails */
+.tierlist .monster img {
+    max-width: 100px;
+    max-height: 100px;
+    width: auto;
+    height: auto;
+}
+
 .monster-card-header {
     padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
     background: linear-gradient(90deg, transparent, transparent);
