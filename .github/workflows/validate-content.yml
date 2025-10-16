@@ -34,6 +34,7 @@ jobs:
           if [ -f "content/pokemon_opinions.yaml" ]; then
             echo "Validating pokemon_opinions.yaml..."
             php -r "
+              require_once 'vendor/autoload.php';
               try {
                 \$content = file_get_contents('content/pokemon_opinions.yaml');
                 \$data = \Symfony\Component\Yaml\Yaml::parse(\$content);
@@ -58,6 +59,7 @@ jobs:
           echo "Validating Pokemon opinions structure..."
 
           php -r "
+            require_once 'vendor/autoload.php';
             try {
               \$content = file_get_contents('content/pokemon_opinions.yaml');
               \$data = \Symfony\Component\Yaml\Yaml::parse(\$content);
