@@ -76,7 +76,7 @@ jolteon:
 umbreon:
   opinion: "The true original goth pokemon. Perfect if you're in the mood for dark and brooding and Shadow the Hedgehog."
   rating: S
-espeon: 
+espeon:
   opinion: "Espeon's nerd counterpart is just not as good. The shiny color is so good though it gets a bump just from that."
   rating: B
 leafeon:
@@ -91,6 +91,57 @@ noctowl:
 manaphy:
   opinion: "Wow. I sure hope there's not like three of these."
   rating: D
+cacnea:
+  opinion: "Yeah it's a cactus. Turn cactus into beast. Fine."
+  rating: C
 cacturne:
   opinion: "Mr spiky pyjamas man is not my thing. Sorry to all the banana peel hat lovers."
   rating: D
+trapinch:
+  opinion: "Oh this baby is so cute. Love the mouth and demeanor."
+  rating: S
+vibrava:
+  opinion: "Very cute bug. Nice wing shapes and the elytra are a great touch. Great color scheme and shape!"
+  rating: A
+flygon:
+  opinion: "Is this cute? Not sure frankly. Got the sunglasses on and uh... olive pants? What happened to the bug?"
+  rating: C
+joltik:
+  opinion: "Very cute spider. Love the colors and the design. Very cute."
+  rating: A
+galvantula:
+  opinion: "Should be hard to miss with a spider but this is not quite on the same level as Joltik."
+  rating: B
+virizon:
+  opinion: "This trio is soooo weird. I think this is the better of them. Why are they musketeers? They're not even from le france."
+  rating: B
+iron-leaves:
+  opinion: "The paradoceses all kind of follow along with how good the base design is. This one is a bit boring though."
+  rating: B
+cobalion:
+  opinion: "Whyyyy do your legs bend like that??? Why are you wearing grippies??? What's with the mustache???"
+  rating: C
+iron-crown:
+  opinion: "Looks better as a robot. I like the spinny."
+  rating: B
+terrakion:
+  opinion: "This one is the worst of the trio. I think this space is kind of crowded in the franchise, and this does little to stand out."
+  rating: D
+iron-boulder:
+  opinion: "Of course, the dumb rock beast becomes a lot more interesting when it's a robot. There's simply more fun stuff with it."
+  rating: B
+jigglypuff:
+  opinion: "Iconic. Fun smash bro. Good mascot. Bowling ball."
+  rating: S
+scream-tail:
+  opinion: "This is so funny looking with the little fangs. The yellow eyes and extra color works very well for me."
+  rating: A
+foongus:
+  opinion: "He's just a lil guy. Lil fungus guy."
+  rating: B
+amoonguss:
+  opinion: "Ok so the meta here is like... whatever. Even Michelangelo had to phone it in sometimes."
+  rating: D
+brute-bonnet:
+  opinion: "Ok so... like... I don't know. Yeah. Ok."
+  rating: C
