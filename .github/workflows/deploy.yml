@@ -52,8 +52,12 @@ jobs:
             ENV_PREFIX=""
           fi
 
-          PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '../httpd.www' }}/${ENV_PREFIX}"
+          PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '../httpd.www' }}${ENV_PREFIX}"
           PRIVATE_PATH="${ENV_PREFIX}"
+
+          echo "Environment prefix: '${ENV_PREFIX}'"
+          echo "Public path: '${PUBLIC_PATH}'"
+          echo "Private path: '${PRIVATE_PATH}'"
 
           echo "public=$PUBLIC_PATH" >> $GITHUB_OUTPUT
           echo "private=$PRIVATE_PATH" >> $GITHUB_OUTPUT
@@ -73,6 +77,7 @@ jobs:
 
       - name: Deploy application files to private directory
         run: |
+          echo "Deploying to private path: ${{ steps.deploy_path.outputs.private }}"
           rsync -avz --delete \
             --include='src/***' \
             --include='templates/***' \
@@ -81,13 +86,14 @@ jobs:
             --include='composer.lock' \
             --exclude='*' \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
-            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}/
+            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}
 
       - name: Deploy public files
         run: |
+          echo "Deploying to public path: ${{ steps.deploy_path.outputs.public }}"
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
-            ./public/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.public }}/
+            ./public/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.public }}
 
       - name: Install Composer dependencies on server
         run: |
