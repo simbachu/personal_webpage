@@ -66,24 +66,31 @@ class FilePathTest extends TestCase
         FilePath::fromString('   ');
     }
 
-    public function test_rejects_path_traversal_sequences(): void
+    public function test_allows_legitimate_parent_directory_sequences(): void
     {
-        //! @section Arrange
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('File path contains invalid traversal sequences.');
+        //! @section Arrange & Act
+        $path = FilePath::fromString('/var/www/../etc/passwd');
 
-        //! @section Act
-        FilePath::fromString('/var/www/../etc/passwd');
+        //! @section Assert
+        $this->assertSame('/var/etc/passwd', $path->getValue());
     }
 
-    public function test_rejects_path_traversal_with_dot_slash(): void
+    public function test_allows_legitimate_dot_slash_sequences(): void
     {
-        //! @section Arrange
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('File path contains invalid traversal sequences.');
+        //! @section Arrange & Act
+        $path = FilePath::fromString('/var/www/./etc/passwd');
 
-        //! @section Act
-        FilePath::fromString('/var/www/./etc/passwd');
+        //! @section Assert
+        $this->assertSame('/var/www/etc/passwd', $path->getValue());
+    }
+
+    public function test_normalizes_dot_slash_sequences(): void
+    {
+        //! @section Arrange & Act
+        $path = FilePath::fromString('./cache/pokemon.json');
+
+        //! @section Assert
+        $this->assertSame('./cache/pokemon.json', $path->getValue());
     }
 
     public function test_rejects_null_bytes(): void
