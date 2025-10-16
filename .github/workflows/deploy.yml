@@ -52,7 +52,11 @@ jobs:
             ENV_PREFIX=""
           fi
 
-          PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '../httpd.www' }}${ENV_PREFIX}"
+          if [ -n "${ENV_PREFIX}" ]; then
+            PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '../httpd.www' }}/${ENV_PREFIX}"
+          else
+            PUBLIC_PATH="${{ secrets.SSH_PUBLIC_PATH || '../httpd.www' }}"
+          fi
           PRIVATE_PATH="${ENV_PREFIX}"
 
           echo "Environment prefix: '${ENV_PREFIX}'"
