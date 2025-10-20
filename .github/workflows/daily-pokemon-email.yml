@@ -2,10 +2,8 @@ name: Daily unrated Pokémon email
 
 on:
   schedule:
-    # 12:00 UTC ≈ 14:00 CEST
+    # 12:00 UTC ≈ 14:00 CEST (summer time) / 13:00 CET (winter time)
     - cron: '0 12 * * *'
-    # 13:00 UTC ≈ 14:00 CET
-    - cron: '0 13 * * *'
   workflow_dispatch: {}
 
 jobs:
@@ -53,6 +51,7 @@ jobs:
           from: ${{ secrets.MAIL_FROM }}
           secure: true
           convert_markdown: false
+          content_type: text/html
           body: ${{ steps.read.outputs.body }}
 
 
