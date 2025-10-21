@@ -284,11 +284,16 @@ class ArticleRouteHandler implements RouteHandler
         // Post-process the HTML to adjust heading levels and add superscript support
         $processedContent = $this->postProcessHtml($htmlContent->getContent());
 
+        // Extract footnotes from the processed content
+        $footnotes = $this->extractFootnotes($processedContent);
+        $contentWithoutFootnotes = $this->removeFootnotesSection($processedContent);
+
         return [
             'title' => $title,
             'author' => $author,
             'date' => $date,
-            'content' => $processedContent
+            'content' => $contentWithoutFootnotes,
+            'footnotes' => $footnotes
         ];
     }
 
@@ -332,12 +337,15 @@ class ArticleRouteHandler implements RouteHandler
 
         // Extract all footnote definitions from paragraphs
         $html = preg_replace_callback('/<p>\[(\^[^\]]+)\]:\s*(.+?)<\/p>/s', function($matches) use (&$footnotes) {
+            $firstId = $matches[1];
             $fullText = $matches[2];
 
-            // Split the text by newlines and process each line
-            $lines = explode("\n", $fullText);
-            $currentFootnote = null;
+            // The first footnote starts immediately after the colon
+            $currentFootnote = $firstId;
             $currentText = '';
+
+            // Split by lines and process each footnote definition
+            $lines = explode("\n", $fullText);
 
             foreach ($lines as $line) {
                 $line = trim($line);
@@ -352,7 +360,7 @@ class ArticleRouteHandler implements RouteHandler
                     $currentText = $lineMatches[2];
                 } else {
                     // Continue current footnote text
-                    if ($currentFootnote !== null) {
+                    if ($currentFootnote !== null && $line !== '') {
                         $currentText .= ($currentText ? "\n" : '') . $line;
                     }
                 }
@@ -393,6 +401,43 @@ class ArticleRouteHandler implements RouteHandler
         }
 
         return $html;
+    }
+
+    //! @brief Extract footnotes from processed HTML content
+    //! @param html The HTML content with footnotes
+    //! @return array Array of footnotes with id => content pairs
+    private function extractFootnotes(string $html): array
+    {
+        $footnotes = [];
+
+        // Find the footnotes section
+        if (preg_match('/<hr><section class="footnotes">(.*?)<\/section>/s', $html, $matches)) {
+            $footnotesSection = $matches[1];
+
+            // Extract individual footnotes
+            preg_match_all('/<div class="footnote" id="fn:(\d+)"><p>(.*?)<\/p><\/div>/s', $footnotesSection, $footnoteMatches, PREG_SET_ORDER);
+
+            foreach ($footnoteMatches as $match) {
+                $id = (int)$match[1];
+                $content = $match[2];
+
+                // Remove the back-reference link from the content
+                $content = preg_replace('/ <a href="#fnref:\d+" class="footnote-backref">↩<\/a>$/', '', $content);
+
+                $footnotes[$id] = trim($content);
+            }
+        }
+
+        return $footnotes;
+    }
+
+    //! @brief Remove the footnotes section from HTML content
+    //! @param html The HTML content with footnotes section
+    //! @return string HTML content without footnotes section
+    private function removeFootnotesSection(string $html): string
+    {
+        // Remove the entire footnotes section
+        return preg_replace('/<hr><section class="footnotes">.*?<\/section>/s', '', $html);
     }
 
     //! @brief Generate comprehensive meta data for article pages

@@ -24,12 +24,16 @@
     <div class="article-content">
         {{ article.content|raw }}
     </div>
+
     {% if article.footnotes %}
-        <ul class="article-footnotes">
-            {% for footnote in article.footnotes %}
-                <li class="footnote">{{ footnote }}</li>
+        <hr>
+        <section class="footnotes">
+            {% for id, footnote in article.footnotes %}
+                <div class="footnote" id="fn:{{ id }}">
+                    <p>{{ footnote|raw }} <a href="#fnref:{{ id }}" class="footnote-backref">↩</a></p>
+                </div>
             {% endfor %}
-        </ul>
+        </section>
     {% endif %}
 </article>
 {% endblock %}
