@@ -90,7 +90,7 @@ body {
     }
 }
 
-header {
+#main-header {
     color: var(--black);
     position: relative;
     justify-content: center;
@@ -105,13 +105,13 @@ header {
 
 /* Modern browsers: use subgrid to inherit parent column definitions */
 @supports (grid-template-columns: subgrid) {
-    header {
+    #main-header {
         grid-template-columns: subgrid;
     }
 }
 
 /* Expanding gradient animation replacing the red bar */
-header::after {
+#main-header::after {
     content: '';
     display: block; /* make the pseudo-element a grid item */
     grid-column: left-column-start / right-column-end; /* span axis gutter through content area */
@@ -128,7 +128,7 @@ header::after {
 }
 
 /* The page title in the top-left quadrant of the header */
-header h1 {
+#main-header h1 {
     /* Fallback: center in single column */
     text-align: center;
     font-size: 4rem;
@@ -143,7 +143,7 @@ header h1 {
 
 /* Subgrid support: place in left column with right alignment */
 @supports (grid-template-columns: subgrid) {
-    header h1 {
+    #main-header h1 {
         grid-column: left-column-start / left-column-end;
         grid-row: upper;
         text-align: right;
@@ -164,7 +164,7 @@ header h1 {
     }
 }
 
-nav {
+#main-header nav {
     /* Nav section of the header contains the ul */
     display: block;
     grid-row: lower; /* place in bottom row of header grid */
@@ -173,7 +173,7 @@ nav {
 
 /* Subgrid support: place in right column with left alignment */
 @supports (grid-template-columns: subgrid) {
-    nav {
+    #main-header nav {
         grid-column: right-column-start;
         text-align: left;
     }
@@ -181,7 +181,7 @@ nav {
 
 
 
-nav ul {
+#main-header nav ul {
     width: fit-content;
     min-width: 15rem; /* Fixed minimum width to prevent border shifting */
     list-style: none;
@@ -197,16 +197,16 @@ nav ul {
 
 /* Subgrid support: left alignment */
 @supports (grid-template-columns: subgrid) {
-    nav ul {
+    #main-header nav ul {
         align-items: flex-start;
     }
 }
 
-nav li {
+#main-header nav li {
     width: 100%; /* Full width of ul container */
 }
 
-nav a {
+#main-header nav a {
     color: var(--black);
     text-decoration: none;
     font-weight: 700;
@@ -216,8 +216,8 @@ nav a {
     position: relative; /* For absolute positioning of transform */
 }
 
-nav a:hover,
-nav a:focus {
+#main-header nav a:hover,
+#main-header nav a:focus {
     color: var(--red);
     outline: none;
     transform: translateX(0.25rem);
@@ -225,14 +225,14 @@ nav a:focus {
 }
 
 /* Add # symbol for anchor links on hover */
-nav a[href^="#"]:hover::after,
-nav a[href^="#"]:focus::after {
+#main-header nav a[href^="#"]:hover::after,
+#main-header nav a[href^="#"]:focus::after {
     content: ' #';
     font-weight: 700;
     opacity: 0.7;
 }
 
-nav a:focus-visible {
+#main-header nav a:focus-visible {
     outline: 0.125rem solid var(--red);
     outline-offset: 0.25rem;
 }
@@ -1320,18 +1320,18 @@ footer a:focus-visible {
     }
 
     /* Header: single column, no subgrid */
-    header {
+    #main-header {
         grid-column: 1 / -1;
         grid-template-columns: 1fr;
         grid-template-rows: auto auto;
         gap: calc(var(--spacing-unit) * 1.5);
     }
 
-    header::after {
+    #main-header::after {
         display: none;
     }
 
-    header h1 {
+    #main-header h1 {
         grid-column: 1;
         grid-row: 1;
         text-align: left;
@@ -1342,13 +1342,13 @@ footer a:focus-visible {
         border-image: var(--gradient-red) 1;
     }
 
-    nav {
+    #main-header nav {
         grid-column: 1;
         grid-row: 2;
         text-align: left;
     }
 
-    nav ul {
+    #main-header nav ul {
         flex-direction: row;
         gap: calc(var(--spacing-unit) * 1);
         align-items: center;
@@ -1356,7 +1356,7 @@ footer a:focus-visible {
         border: none;
     }
 
-    nav a {
+    #main-header nav a {
         font-size: 1rem;
     }
 
