@@ -37,6 +37,9 @@ use App\Router\Router;
 use App\Router\Handler\HomeRouteHandler;
 use App\Router\Handler\DexRouteHandler;
 use App\Router\Handler\ArticleRouteHandler;
+use App\Repository\ArticleRepository;
+use App\Repository\FileArticleRepository;
+use App\Service\MarkdownProcessor;
 
 // Try different possible locations for content (this is where the issue was)
 $possible_content_paths = [
@@ -155,10 +158,14 @@ $router->addRoute(new Route(
     ['handler' => 'article']
 ));
 
+// Create article repository and handler
+$markdownProcessor = new MarkdownProcessor();
+$articleRepository = new FileArticleRepository($content_path, $markdownProcessor);
+
 // Register route handlers
 $router->registerHandler('home', new HomeRouteHandler($homePresenter));
 $router->registerHandler('dex', new DexRouteHandler($dexPresenter));
-$router->registerHandler('article', new ArticleRouteHandler($content_path));
+$router->registerHandler('article', new ArticleRouteHandler($articleRepository));
 
 // Get current request
 $path = get_request_path();

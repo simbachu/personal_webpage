@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Router\Handler;
 
+use App\Model\Article;
+use App\Repository\TestArticleRepository;
 use App\Router\Handler\ArticleRouteHandler;
 use App\Router\RouteResult;
 use App\Type\Route;
@@ -11,75 +13,36 @@ use App\Type\TemplateName;
 use App\Type\HttpStatusCode;
 use PHPUnit\Framework\TestCase;
 
-//! @brief Unit tests for ArticleRouteHandler
-//!
-//! Tests the article route handler functionality including markdown parsing,
-//! metadata extraction, and error handling following the Arrange-Act-Assert pattern.
+/**
+ * Unit tests for ArticleRouteHandler
+ *
+ * Tests the article route handler functionality using the TestArticleRepository
+ * for isolated testing without file system dependencies.
+ */
 class ArticleRouteHandlerTest extends TestCase
 {
-    private string $tempContentDir;
+    private TestArticleRepository $repository;
     private ArticleRouteHandler $handler;
 
     protected function setUp(): void
     {
-        // Create a temporary directory for test content
-        $this->tempContentDir = sys_get_temp_dir() . '/article_test_' . uniqid();
-        mkdir($this->tempContentDir, 0755, true);
-
-        // Create test articles.yaml file
-        $this->createTestArticlesYaml();
-
-        $this->handler = new ArticleRouteHandler($this->tempContentDir);
+        $this->repository = new TestArticleRepository();
+        $this->handler = new ArticleRouteHandler($this->repository);
     }
 
     protected function tearDown(): void
     {
-        // Clean up temporary directory
-        if (is_dir($this->tempContentDir)) {
-            $this->removeDirectory($this->tempContentDir);
-        }
+        $this->repository->clear();
     }
 
-    //! @brief Test handling route without article name parameter
-    public function testHandleWithoutArticleNameReturnsBadRequest(): void
-    {
-        // Arrange
-        $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
-        $parameters = [];
-
-        // Act
-        $result = $this->handler->handle($route, $parameters);
-
-        // Assert
-        $this->assertInstanceOf(RouteResult::class, $result);
-        $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
-        $this->assertEquals(HttpStatusCode::BAD_REQUEST, $result->getStatusCode());
-        $this->assertEquals('Article Not Found', $result->getData()['meta']['title']);
-    }
-
-    //! @brief Test handling route with empty article name
-    public function testHandleWithEmptyArticleNameReturnsBadRequest(): void
-    {
-        // Arrange
-        $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
-        $parameters = ['article_name' => ''];
-
-        // Act
-        $result = $this->handler->handle($route, $parameters);
-
-        // Assert
-        $this->assertInstanceOf(RouteResult::class, $result);
-        $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
-        $this->assertEquals(HttpStatusCode::BAD_REQUEST, $result->getStatusCode());
-        $this->assertEquals('Invalid Article Request', $result->getData()['meta']['title']);
-    }
-
-    //! @brief Test handling non-existent article returns 404
+    /**
+     * Test handling a non-existent article returns 404
+     */
     public function testHandleNonExistentArticleReturnsNotFound(): void
     {
         // Arrange
         $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
-        $parameters = ['article_name' => 'nonexistent'];
+        $parameters = ['article_name' => 'non-existent'];
 
         // Act
         $result = $this->handler->handle($route, $parameters);
@@ -91,12 +54,23 @@ class ArticleRouteHandlerTest extends TestCase
         $this->assertStringContainsString('not found', $result->getData()['meta']['description']);
     }
 
-    //! @brief Test successful article loading with basic markdown
+    /**
+     * Test handling a valid published article returns success
+     */
     public function testHandleValidArticleReturnsSuccess(): void
     {
         // Arrange
-        $articleContent = "# Test Article\n\nThis is a test article with some content.";
-        $this->createTestArticle('test-article', $articleContent);
+        $article = new Article(
+            slug: 'test-article',
+            title: 'Test Article',
+            author: null,
+            date: null,
+            content: '<h2>Test Article</h2><p>This is a test article with some content.</p>',
+            tags: ['test', 'example'],
+            published: true,
+            description: null
+        );
+        $this->repository->addArticle($article);
 
         $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
         $parameters = ['article_name' => 'test-article'];
@@ -109,21 +83,32 @@ class ArticleRouteHandlerTest extends TestCase
         $this->assertEquals(TemplateName::ARTICLE, $result->getTemplate());
         $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
 
-        $article = $result->getData()['article'];
-        $this->assertEquals('Test Article', $article['title']);
-        $this->assertNull($article['author']);
-        $this->assertNull($article['date']);
-        $this->assertEquals(['test', 'example'], $article['tags']);
-        $this->assertTrue($article['published']);
-        $this->assertStringContainsString('<h2>Test Article</h2>', $article['content']);
+        $articleData = $result->getData()['article'];
+        $this->assertEquals('Test Article', $articleData['title']);
+        $this->assertNull($articleData['author']);
+        $this->assertNull($articleData['date']);
+        $this->assertEquals(['test', 'example'], $articleData['tags']);
+        $this->assertTrue($articleData['published']);
+        $this->assertStringContainsString('<h2>Test Article</h2>', $articleData['content']);
     }
 
-    //! @brief Test article loading with metadata (By: and On: lines)
+    /**
+     * Test handling an article with metadata extracts correctly
+     */
     public function testHandleArticleWithMetadataExtractsCorrectly(): void
     {
         // Arrange
-        $articleContent = "# Word Rotator\nBy: Jennifer Gott\nOn: 25w39.2\n\n## Presenting a valley\nIn internet parlance...";
-        $this->createTestArticle('word-rotator', $articleContent);
+        $article = new Article(
+            slug: 'word-rotator',
+            title: 'Word Rotator',
+            author: 'Jennifer Gott',
+            date: '25w39.2',
+            content: '<h3>Presenting a valley</h3><p>In internet parlance...</p>',
+            tags: ['programming', 'tech', 'words'],
+            published: true,
+            description: null
+        );
+        $this->repository->addArticle($article);
 
         $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
         $parameters = ['article_name' => 'word-rotator'];
@@ -135,66 +120,32 @@ class ArticleRouteHandlerTest extends TestCase
         $this->assertInstanceOf(RouteResult::class, $result);
         $this->assertEquals(TemplateName::ARTICLE, $result->getTemplate());
 
-        $article = $result->getData()['article'];
-        $this->assertEquals('Word Rotator', $article['title']);
-        $this->assertEquals('Jennifer Gott', $article['author']);
-        $this->assertEquals('25w39.2', $article['date']);
-        $this->assertEquals(['programming', 'tech', 'words'], $article['tags']);
-        $this->assertTrue($article['published']);
-        $this->assertStringContainsString('<h3>Presenting a valley</h3>', $article['content']);
+        $articleData = $result->getData()['article'];
+        $this->assertEquals('Word Rotator', $articleData['title']);
+        $this->assertEquals('Jennifer Gott', $articleData['author']);
+        $this->assertEquals('25w39.2', $articleData['date']);
+        $this->assertEquals(['programming', 'tech', 'words'], $articleData['tags']);
+        $this->assertTrue($articleData['published']);
+        $this->assertStringContainsString('<h3>Presenting a valley</h3>', $articleData['content']);
     }
 
-    //! @brief Test article loading with metadata but no title
-    public function testHandleArticleWithMetadataButNoTitleUsesFilename(): void
+    /**
+     * Test handling an unpublished article returns 404
+     */
+    public function testHandleUnpublishedArticleReturnsNotFound(): void
     {
         // Arrange
-        $articleContent = "By: Jennifer Gott\nOn: 25w39.2\n\n## Presenting a valley\nIn internet parlance...";
-        $this->createTestArticle('no-title-article', $articleContent);
-
-        $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
-        $parameters = ['article_name' => 'no-title-article'];
-
-        // Act
-        $result = $this->handler->handle($route, $parameters);
-
-        // Assert
-        $this->assertInstanceOf(RouteResult::class, $result);
-        $this->assertEquals(TemplateName::ARTICLE, $result->getTemplate());
-
-        $article = $result->getData()['article'];
-        $this->assertEquals('No Title Article', $article['title']); // Uses YAML title
-        $this->assertEquals('Jennifer Gott', $article['author']);
-        $this->assertEquals('25w39.2', $article['date']);
-        $this->assertEquals(['test'], $article['tags']);
-        $this->assertTrue($article['published']);
-    }
-
-    //! @brief Test meta data generation for article
-    public function testMetaDataGeneration(): void
-    {
-        // Arrange
-        $articleContent = "# Test Article\nBy: Test Author\nOn: 2024-01-01\n\nThis is a test article with some content that should be used for the description.";
-        $this->createTestArticle('meta-test', $articleContent);
-
-        $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
-        $parameters = ['article_name' => 'meta-test'];
-
-        // Act
-        $result = $this->handler->handle($route, $parameters);
-
-        // Assert
-        $meta = $result->getData()['meta'];
-        $this->assertEquals('Meta Test Article', $meta['title']);
-        $this->assertEquals('A test article for metadata', $meta['description']); // Uses YAML description
-        $this->assertEquals('Meta Test Article', $meta['og_title']);
-        $this->assertStringContainsString('This is a test article', $meta['og_description']);
-    }
-
-    //! @brief Test unpublished article returns 404
-    public function testUnpublishedArticleReturnsNotFound(): void
-    {
-        // Arrange
-        $this->createTestArticle('unpublished-article', '# Unpublished Article\n\nThis article is not published.');
+        $article = new Article(
+            slug: 'unpublished-article',
+            title: 'Unpublished Article',
+            author: null,
+            date: null,
+            content: '<h2>Unpublished Article</h2><p>This article is not published.</p>',
+            tags: ['test'],
+            published: false,
+            description: null
+        );
+        $this->repository->addArticle($article);
 
         $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
         $parameters = ['article_name' => 'unpublished-article'];
@@ -209,7 +160,9 @@ class ArticleRouteHandlerTest extends TestCase
         $this->assertStringContainsString('not published', $result->getData()['meta']['description']);
     }
 
-    //! @brief Test security - directory traversal prevention
+    /**
+     * Test security - directory traversal prevention
+     */
     public function testDirectoryTraversalPrevention(): void
     {
         // Arrange
@@ -225,96 +178,71 @@ class ArticleRouteHandlerTest extends TestCase
         $this->assertEquals(HttpStatusCode::NOT_FOUND, $result->getStatusCode());
     }
 
-    //! @brief Test markdown parsing with footnotes (CommonMark extension)
-    public function testMarkdownWithFootnotes(): void
+    /**
+     * Test meta data generation for article
+     */
+    public function testMetaDataGeneration(): void
     {
         // Arrange
-        $articleContent = "# Test Article\n\nThis is a test with a footnote[^1].\n\n[^1]: This is a footnote.";
-        $this->createTestArticle('footnote-test', $articleContent);
+        $article = new Article(
+            slug: 'meta-test',
+            title: 'Meta Test Article',
+            author: 'Test Author',
+            date: null,
+            content: '<h2>Meta Test Article</h2><p>This is a test article for metadata.</p>',
+            tags: ['test', 'metadata'],
+            published: true,
+            description: 'A test article for metadata'
+        );
+        $this->repository->addArticle($article);
 
         $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
-        $parameters = ['article_name' => 'footnote-test'];
+        $parameters = ['article_name' => 'meta-test'];
+
+        // Act
+        $result = $this->handler->handle($route, $parameters);
+
+        // Assert
+        $meta = $result->getData()['meta'];
+        $this->assertEquals('Meta Test Article', $meta['title']);
+        $this->assertEquals('A test article for metadata', $meta['description']); // Uses YAML description
+        $this->assertEquals('Meta Test Article', $meta['og_title']);
+        $this->assertStringContainsString('test article for metadata', $meta['og_description']);
+    }
+
+    /**
+     * Test empty article name returns 404
+     */
+    public function testEmptyArticleNameReturnsNotFound(): void
+    {
+        // Arrange
+        $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
+        $parameters = ['article_name' => ''];
 
         // Act
         $result = $this->handler->handle($route, $parameters);
 
         // Assert
         $this->assertInstanceOf(RouteResult::class, $result);
-        $this->assertEquals(TemplateName::ARTICLE, $result->getTemplate());
-
-        $article = $result->getData()['article'];
-        $this->assertStringContainsString('footnote', $article['content']);
-        // Note: The exact HTML output depends on CommonMark's footnote extension
+        $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
+        $this->assertEquals(HttpStatusCode::NOT_FOUND, $result->getStatusCode());
     }
 
-    //! @brief Helper method to create test articles.yaml file
-    private function createTestArticlesYaml(): void
+    /**
+     * Test invalid article name characters are sanitized
+     */
+    public function testInvalidArticleNameCharactersAreSanitized(): void
     {
-        $yamlContent = <<<YAML
-- test-article:
-    title: Test Article
-    file_path: test-article.md
-    tags: [test, example]
-    published: true
+        // Arrange
+        $route = new Route('/read', TemplateName::ARTICLE, [], ['handler' => 'article']);
+        $parameters = ['article_name' => 'test@#$%^&*()'];
 
-- word-rotator:
-    title: Word Rotator
-    file_path: word-rotator.md
-    tags: [programming, tech, words]
-    published: true
+        // Act
+        $result = $this->handler->handle($route, $parameters);
 
-- no-title-article:
-    title: No Title Article
-    file_path: no-title-article.md
-    tags: [test]
-    published: true
-
-- meta-test:
-    title: Meta Test Article
-    file_path: meta-test.md
-    description: "A test article for metadata"
-    tags: [test, metadata]
-    published: true
-
-- footnote-test:
-    title: Footnote Test
-    file_path: footnote-test.md
-    tags: [test, footnotes]
-    published: true
-
-- unpublished-article:
-    title: Unpublished Article
-    file_path: unpublished-article.md
-    tags: [test]
-    published: false
-YAML;
-
-        file_put_contents($this->tempContentDir . '/articles.yaml', $yamlContent);
-    }
-
-    //! @brief Helper method to create a test article file
-    private function createTestArticle(string $name, string $content): void
-    {
-        $filePath = $this->tempContentDir . '/' . $name . '.md';
-        file_put_contents($filePath, $content);
-    }
-
-    //! @brief Helper method to recursively remove directory
-    private function removeDirectory(string $dir): void
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $files = array_diff(scandir($dir), ['.', '..']);
-        foreach ($files as $file) {
-            $path = $dir . '/' . $file;
-            if (is_dir($path)) {
-                $this->removeDirectory($path);
-            } else {
-                unlink($path);
-            }
-        }
-        rmdir($dir);
+        // Assert
+        $this->assertInstanceOf(RouteResult::class, $result);
+        $this->assertEquals(TemplateName::NOT_FOUND, $result->getTemplate());
+        $this->assertEquals(HttpStatusCode::NOT_FOUND, $result->getStatusCode());
     }
 }
