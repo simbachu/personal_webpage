@@ -65,7 +65,7 @@ final class MarkdownProcessor
             'footnote' => [
                 'backref_class' => 'footnote-backref',
                 'backref_symbol' => '↩',
-                'container_add_hr' => true,
+                'container_add_hr' => false,
                 'container_class' => 'footnotes',
                 'ref_class' => 'footnote-ref',
                 'ref_id_prefix' => 'fnref:',
@@ -191,7 +191,7 @@ final class MarkdownProcessor
 
         // Add footnotes section if we have any
         if (!empty($processedFootnotes)) {
-            $footnotesHtml = '<hr><section class="footnotes">';
+            $footnotesHtml = '<section class="footnotes">';
             foreach ($processedFootnotes as $num => $text) {
                 $footnotesHtml .= '<div class="footnote" id="fn:' . $num . '">';
                 $footnotesHtml .= '<p>' . $text . ' <a href="#fnref:' . $num . '" class="footnote-backref">↩</a></p>';
@@ -212,7 +212,7 @@ final class MarkdownProcessor
         $footnotes = [];
 
         // Find the footnotes section
-        if (preg_match('/<hr><section class="footnotes">(.*?)<\/section>/s', $html, $matches)) {
+        if (preg_match('/<section class="footnotes">(.*?)<\/section>/s', $html, $matches)) {
             $footnotesSection = $matches[1];
 
             // Extract individual footnotes
@@ -238,6 +238,6 @@ final class MarkdownProcessor
     private function removeFootnotesSection(string $html): string
     {
         // Remove the entire footnotes section
-        return preg_replace('/<hr><section class="footnotes">.*?<\/section>/s', '', $html);
+        return preg_replace('/<section class="footnotes">.*?<\/section>/s', '', $html);
     }
 }
