@@ -260,20 +260,139 @@ class ArticleRouteHandler implements RouteHandler
         $markdownContent = implode("\n", $contentLines);
 
         // Configure CommonMark with extensions
-        $environment = new Environment();
+        $config = [
+            'footnote' => [
+                'backref_class' => 'footnote-backref',
+                'backref_symbol' => '↩',
+                'container_add_hr' => true,
+                'container_class' => 'footnotes',
+                'ref_class' => 'footnote-ref',
+                'ref_id_prefix' => 'fnref:',
+                'footnote_class' => 'footnote',
+                'footnote_id_prefix' => 'fn:',
+            ]
+        ];
+
+        $environment = new Environment($config);
         $environment->addExtension(new CommonMarkCoreExtension());
         $environment->addExtension(new GithubFlavoredMarkdownExtension());
         $environment->addExtension(new FootnoteExtension());
 
-        $converter = new CommonMarkConverter([], $environment);
+        $converter = new CommonMarkConverter($config, $environment);
         $htmlContent = $converter->convert($markdownContent);
+
+        // Post-process the HTML to adjust heading levels and add superscript support
+        $processedContent = $this->postProcessHtml($htmlContent->getContent());
 
         return [
             'title' => $title,
             'author' => $author,
             'date' => $date,
-            'content' => $htmlContent->getContent()
+            'content' => $processedContent
         ];
+    }
+
+    //! @brief Post-process HTML to adjust heading levels, add superscript support, and handle footnotes
+    //! @param html The HTML content to process
+    //! @return string Processed HTML content
+    private function postProcessHtml(string $html): string
+    {
+        // Adjust heading levels (h1 -> h2, h2 -> h3, etc.)
+        $html = preg_replace_callback('/<h([1-6])>/', function($matches) {
+            $level = (int)$matches[1];
+            $newLevel = min($level + 1, 6); // Don't go beyond h6
+            return "<h{$newLevel}>";
+        }, $html);
+
+        $html = preg_replace_callback('/<\/h([1-6])>/', function($matches) {
+            $level = (int)$matches[1];
+            $newLevel = min($level + 1, 6); // Don't go beyond h6
+            return "</h{$newLevel}>";
+        }, $html);
+
+        // Handle footnotes manually since the extension isn't working (do this before superscript)
+        $html = $this->processFootnotes($html);
+
+        // Convert ^<a href="url">text</a>^ to <sup><a href="url">text</a></sup> (superscripted hyperlinks)
+        $html = preg_replace('/\^<a href="([^"]+)">([^<]+)<\/a>\^/', '<sup><a href="$1">$2</a></sup>', $html);
+
+        // Convert ^text^ to <sup>text</sup> (but not if it's already processed as a footnote or hyperlink)
+        $html = preg_replace('/\^([^<>\n\[\]]+?)\^/', '<sup>$1</sup>', $html);
+
+        return $html;
+    }
+
+    //! @brief Process footnotes manually since the CommonMark extension isn't working
+    //! @param html The HTML content to process
+    //! @return string HTML with processed footnotes
+    private function processFootnotes(string $html): string
+    {
+        // Find all footnote definitions [^id]: text
+        $footnotes = [];
+
+        // Extract all footnote definitions from paragraphs
+        $html = preg_replace_callback('/<p>\[(\^[^\]]+)\]:\s*(.+?)<\/p>/s', function($matches) use (&$footnotes) {
+            $fullText = $matches[2];
+
+            // Split the text by newlines and process each line
+            $lines = explode("\n", $fullText);
+            $currentFootnote = null;
+            $currentText = '';
+
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (preg_match('/^\[(\^[^\]]+)\]:\s*(.*)$/', $line, $lineMatches)) {
+                    // Save previous footnote if exists
+                    if ($currentFootnote !== null) {
+                        $footnotes[$currentFootnote] = trim($currentText);
+                    }
+
+                    // Start new footnote
+                    $currentFootnote = $lineMatches[1];
+                    $currentText = $lineMatches[2];
+                } else {
+                    // Continue current footnote text
+                    if ($currentFootnote !== null) {
+                        $currentText .= ($currentText ? "\n" : '') . $line;
+                    }
+                }
+            }
+
+            // Save last footnote
+            if ($currentFootnote !== null) {
+                $footnotes[$currentFootnote] = trim($currentText);
+            }
+
+            return ''; // Remove the paragraph
+        }, $html);
+
+        // Replace footnote references [^id] with links
+        $footnoteCounter = 1;
+        $processedFootnotes = [];
+
+        $html = preg_replace_callback('/\[(\^[^\]]+)\]/', function($matches) use (&$footnotes, &$footnoteCounter, &$processedFootnotes) {
+            $id = $matches[1];
+            if (isset($footnotes[$id])) {
+                $counter = $footnoteCounter++;
+                $processedFootnotes[$counter] = $footnotes[$id];
+                return '<sup><a href="#fn:' . $counter . '" id="fnref:' . $counter . '" class="footnote-ref">' . $counter . '</a></sup>';
+            }
+            return $matches[0]; // Return original if not found
+        }, $html);
+
+        // Add footnotes section if we have any
+        if (!empty($processedFootnotes)) {
+            $footnotesHtml = '<hr><section class="footnotes">';
+            foreach ($processedFootnotes as $num => $text) {
+                $footnotesHtml .= '<div class="footnote" id="fn:' . $num . '">';
+                $footnotesHtml .= '<p>' . $text . ' <a href="#fnref:' . $num . '" class="footnote-backref">↩</a></p>';
+                $footnotesHtml .= '</div>';
+            }
+            $footnotesHtml .= '</section>';
+            $html .= $footnotesHtml;
+        }
+
+        return $html;
     }
 
     //! @brief Generate comprehensive meta data for article pages

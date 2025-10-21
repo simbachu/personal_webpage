@@ -3,7 +3,7 @@
 {% block content %}
 <article class="article">
     <header class="article-header">
-        <h1 class="article-title">{{ article.title }}</h1>
+        <h2 class="article-title">{{ article.title }}</h2>
         <div class="article-meta">
             {% if article.author %}
                 <span class="article-author">By: {{ article.author }}</span>
@@ -13,16 +13,23 @@
             {% endif %}
         </div>
         {% if article.tags %}
-            <div class="article-tags">
+            <ul class="article-tags">
                 {% for tag in article.tags %}
-                    <span class="tag">{{ tag }}</span>
+                    <li class="tag">{{ tag }}</li>
                 {% endfor %}
-            </div>
+            </ul>
         {% endif %}
     </header>
 
     <div class="article-content">
         {{ article.content|raw }}
     </div>
+    {% if article.footnotes %}
+        <ul class="article-footnotes">
+            {% for footnote in article.footnotes %}
+                <li class="footnote">{{ footnote }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </article>
 {% endblock %}

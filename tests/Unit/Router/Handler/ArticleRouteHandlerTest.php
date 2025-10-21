@@ -115,7 +115,7 @@ class ArticleRouteHandlerTest extends TestCase
         $this->assertNull($article['date']);
         $this->assertEquals(['test', 'example'], $article['tags']);
         $this->assertTrue($article['published']);
-        $this->assertStringContainsString('<h1>Test Article</h1>', $article['content']);
+        $this->assertStringContainsString('<h2>Test Article</h2>', $article['content']);
     }
 
     //! @brief Test article loading with metadata (By: and On: lines)
@@ -141,7 +141,7 @@ class ArticleRouteHandlerTest extends TestCase
         $this->assertEquals('25w39.2', $article['date']);
         $this->assertEquals(['programming', 'tech', 'words'], $article['tags']);
         $this->assertTrue($article['published']);
-        $this->assertStringContainsString('<h2>Presenting a valley</h2>', $article['content']);
+        $this->assertStringContainsString('<h3>Presenting a valley</h3>', $article['content']);
     }
 
     //! @brief Test article loading with metadata but no title
