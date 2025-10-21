@@ -93,6 +93,10 @@ class DexPresenter
         $order = ['S', 'A', 'B', 'C', 'D'];
         $grouped = [];
 
+        // Collect all valid Pokemon identifiers for batch fetching
+        $validIdentifiers = [];
+        $nameToRating = [];
+
         foreach ($names as $name) {
             $identifier = MonsterIdentifier::fromString($name);
             $opinionResult = $this->opinionService->getOpinion($identifier);
@@ -105,13 +109,24 @@ class DexPresenter
                 continue;
             }
 
-            // Fetch minimal monster data to get sprite image
-            $monsterResult = $this->pokeapi->fetchMonster($identifier, null, $this->cacheTtl);
-            if ($monsterResult->isFailure()) {
+            $validIdentifiers[] = $identifier;
+            $nameToRating[$name] = $rating;
+        }
+
+        // Batch fetch all Pokemon data at once for optimal performance
+        $monsterResults = $this->pokeapi->fetchMonstersBatch($validIdentifiers, null, $this->cacheTtl);
+
+        // Process results and group by rating
+        foreach ($validIdentifiers as $identifier) {
+            $name = $identifier->getValue();
+            $rating = $nameToRating[$name];
+
+            $monsterResult = $monsterResults[$name] ?? null;
+            if (!$monsterResult || $monsterResult->isFailure()) {
                 continue;
             }
-            $monster = $monsterResult->getValue();
 
+            $monster = $monsterResult->getValue();
             $spriteUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' . $monster->id . '.png';
             $grouped[$rating][] = [
                 'name' => $monster->name,
