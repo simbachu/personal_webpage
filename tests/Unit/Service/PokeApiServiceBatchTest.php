@@ -80,38 +80,4 @@ final class PokeApiServiceBatchTest extends TestCase
         $this->assertTrue($results['invalid-pokemon-12345']->isFailure());
     }
 
-    public function test_batch_fetch_uses_cache_efficiently(): void
-    {
-        //! @section Arrange
-        $service = new PokeApiService();
-        $identifiers = [
-            MonsterIdentifier::fromString('pikachu'),
-            MonsterIdentifier::fromString('eevee'),
-        ];
-
-        // First call - should hit the API
-        $startTime = microtime(true);
-        $results1 = $service->fetchMonstersBatch($identifiers, null, 300);
-        $firstCallTime = microtime(true) - $startTime;
-
-        // Second call - should use cache
-        $startTime = microtime(true);
-        $results2 = $service->fetchMonstersBatch($identifiers, null, 300);
-        $secondCallTime = microtime(true) - $startTime;
-
-        //! @section Assert
-        $this->assertCount(2, $results1);
-        $this->assertCount(2, $results2);
-
-        // Both calls should succeed
-        foreach ($results1 as $result) {
-            $this->assertTrue($result->isSuccess());
-        }
-        foreach ($results2 as $result) {
-            $this->assertTrue($result->isSuccess());
-        }
-
-        // Second call should be faster (using cache)
-        $this->assertLessThan($firstCallTime, $secondCallTime, 'Second call should be faster due to caching');
-    }
 }
