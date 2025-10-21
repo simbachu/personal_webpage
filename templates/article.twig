@@ -4,20 +4,22 @@
 <article class="article">
     <header class="article-header">
         <h2 class="article-title">{{ article.title }}</h2>
-        <div class="article-meta">
+        <dl class="article-meta">
             {% if article.author %}
-                <span class="article-author">By: {{ article.author }}</span>
+            <dt class="article-author">By:</dt>
+            <dd class="article-author-value">{{ article.author }}</dd>
             {% endif %}
             {% if article.date %}
-                <span class="article-date">On: {{ article.date }}</span>
+            <dt class="article-date">On:</dt>
+            <dd class="article-date-value">{{ article.date }}</dd>
             {% endif %}
-        </div>
+        </dl>
         {% if article.tags %}
-            <ul class="article-tags">
-                {% for tag in article.tags %}
-                    <li class="tag">{{ tag }}</li>
-                {% endfor %}
-            </ul>
+        <ul class="article-tags">
+            {% for tag in article.tags %}
+            <li class="tag">{{ tag }}</li>
+            {% endfor %}
+        </ul>
         {% endif %}
     </header>
 
@@ -26,14 +28,13 @@
     </div>
 
     {% if article.footnotes %}
-        <hr>
-        <section class="footnotes">
-            {% for id, footnote in article.footnotes %}
-                <div class="footnote" id="fn:{{ id }}">
-                    <p>{{ footnote|raw }} <a href="#fnref:{{ id }}" class="footnote-backref">↩</a></p>
-                </div>
-            {% endfor %}
-        </section>
+    <section class="footnotes">
+        {% for id, footnote in article.footnotes %}
+        <div class="footnote" id="fn:{{ id }}">
+            <p>{{ footnote|raw }} <a href="#fnref:{{ id }}" class="footnote-backref">↩</a></p>
+        </div>
+        {% endfor %}
+    </section>
     {% endif %}
 </article>
 {% endblock %}
