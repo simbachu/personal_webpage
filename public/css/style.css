@@ -318,18 +318,27 @@ article {
 /* Article header with proper vertical rhythm */
 .article-header {
     margin-top: calc(var(--spacing-unit) * 4); /* Generous top spacing */
-    margin-bottom: calc(var(--spacing-unit) * 3); /* Clear separation from content */
-    border-bottom: var(--line-weight) solid var(--process-black);
-    padding-bottom: calc(var(--spacing-unit) * 1.5);
+    margin-bottom: 0; /* No bottom margin, spacing handled by decorator */
+    position: relative;
 }
 
 .article-title {
     font-size: 2.5rem;
     font-weight: 700;
     line-height: 1.2;
-    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    margin-bottom: 0; /* No bottom margin, spacing handled by decorator */
     color: var(--black);
     letter-spacing: -0.01em;
+}
+
+/* Red decorator line after article header (only for article pages) */
+.article .article-header::after {
+    content: '';
+    display: block;
+    height: var(--line-weight-thick);
+    background: var(--gradient-red);
+    margin-top: calc(var(--spacing-unit) * 1.5);
+    margin-bottom: calc(var(--spacing-unit) * 2);
 }
 
 .article-meta {
@@ -337,7 +346,7 @@ article {
     flex-direction: row;
     flex-wrap: wrap;
     gap: calc(var(--spacing-unit) * 1);
-    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    margin-bottom: calc(var(--spacing-unit) * 2);
     font-size: 0.85rem;
     color: var(--process-black);
     font-weight: 400;
@@ -1444,18 +1453,23 @@ footer a:focus-visible {
 
     .article-header {
         margin-top: calc(var(--spacing-unit) * 2);
-        margin-bottom: calc(var(--spacing-unit) * 2);
+        margin-bottom: 0;
     }
 
     .article-title {
         font-size: 2rem;
-        margin-bottom: calc(var(--spacing-unit) * 1);
+        margin-bottom: 0;
+    }
+
+    .article .article-header::after {
+        margin-top: calc(var(--spacing-unit) * 1);
+        margin-bottom: calc(var(--spacing-unit) * 1.5);
     }
 
     .article-meta {
         flex-direction: column;
         gap: calc(var(--spacing-unit) * 0.25);
-        margin-bottom: calc(var(--spacing-unit) * 1.25);
+        margin-bottom: calc(var(--spacing-unit) * 1.5);
         font-size: 0.8rem;
     }
 
