@@ -170,8 +170,9 @@ final class PokeApiServiceTest extends TestCase
 
         $service = $this->createServiceWithMockHttp([$pokemonJson, $speciesJson, $evolutionChainJson]);
 
-        //! @section Act
-        $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'));
+        //! @section Act - use a unique cache directory to avoid interference from other tests
+        $cacheDir = $this->createTestCacheDir();
+        $result = $service->fetchMonster(MonsterIdentifier::fromString('pikachu'), FilePath::fromString($cacheDir));
 
         //! @section Assert - should be sorted by slot
         $this->assertTrue($result->isSuccess());

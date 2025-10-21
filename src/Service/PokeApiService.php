@@ -49,6 +49,10 @@ class PokeApiService
                         'Accept: application/json'
                     ],
                     'timeout' => 5,
+                ],
+                'ssl' => [
+                    'verify_peer' => false,      // Disable for development - should be true in production
+                    'verify_peer_name' => false, // Disable for development - should be true in production
                 ]
             ]);
             $result = @file_get_contents($url, false, $context);
@@ -57,6 +61,47 @@ class PokeApiService
             }
             return $result;
         };
+    }
+
+    //! @brief Fetch multiple Pokemon monsters by identifiers in batch for better performance
+    //! @param identifiers Array of MonsterIdentifier objects to fetch
+    //! @param cache_dir Optional directory for file-based caching (defaults to system temp directory)
+    //! @param ttl_seconds Time-to-live for cache entries in seconds (defaults to 300)
+    //! @return array<string,Result<MonsterData>> Associative array mapping identifier values to Results
+    public function fetchMonstersBatch(array $identifiers, ?FilePath $cache_dir = null, int $ttl_seconds = 300, CacheVersion $cache_version = CacheVersion::V1): array
+    {
+        $results = [];
+        $cache_dir = $cache_dir ?? FilePath::fromString(sys_get_temp_dir() . '/pokeapi_cache');
+        $cache_dir->ensureDirectoryExists();
+
+        // First, check which Pokemon are already cached and fresh
+        $uncached_identifiers = [];
+        foreach ($identifiers as $identifier) {
+            $id_or_name = $identifier->getValue();
+            $cache_file = CacheKeys::pokemonForIdentifier($cache_dir, $cache_version, $identifier);
+
+            if ($cache_file->exists() && $ttl_seconds > 0 && !$cache_file->isOlderThan($ttl_seconds)) {
+                // Use cached data
+                try {
+                    $json = $cache_file->readContents();
+                    $monsterData = $this->parseMonsterJson($json, $cache_dir, $ttl_seconds, $cache_version);
+                    $results[$id_or_name] = Result::success($monsterData);
+                } catch (\Throwable $e) {
+                    // Cache file corrupted, fetch fresh
+                    $uncached_identifiers[] = $identifier;
+                }
+            } else {
+                $uncached_identifiers[] = $identifier;
+            }
+        }
+
+        // Fetch uncached Pokemon in parallel using concurrent HTTP requests
+        if (!empty($uncached_identifiers)) {
+            $batch_results = $this->fetchUncachedMonstersBatch($uncached_identifiers, $cache_dir, $ttl_seconds, $cache_version);
+            $results = array_merge($results, $batch_results);
+        }
+
+        return $results;
     }
 
     //! @brief Fetch a Pokemon monster by identifier and return as MonsterData
@@ -102,11 +147,190 @@ class PokeApiService
         }
 
         try {
-            /** @var array<string,mixed> $data */
-            $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+            $monsterData = $this->parseMonsterJson($json, $cache_dir, $ttl_seconds, $cache_version);
+            return Result::success($monsterData);
         } catch (\JsonException $e) {
             return Result::failure('Invalid JSON response: ' . $e->getMessage());
+        } catch (\InvalidArgumentException $e) {
+            return Result::failure('Invalid Pokemon data: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            return Result::failure('Failed to parse Pokemon data: ' . $e->getMessage());
         }
+    }
+
+    //! @brief Fetch uncached Pokemon monsters in batch using concurrent HTTP requests
+    //! @param identifiers Array of MonsterIdentifier objects that need to be fetched
+    //! @param cache_dir Cache directory for storing fetched data
+    //! @param ttl_seconds Time-to-live for cache entries
+    //! @return array<string,Result<MonsterData>> Associative array mapping identifier values to Results
+    private function fetchUncachedMonstersBatch(array $identifiers, FilePath $cache_dir, int $ttl_seconds, CacheVersion $cache_version): array
+    {
+        $results = [];
+        $urls = [];
+        $identifier_map = [];
+
+        // Prepare URLs and mapping
+        foreach ($identifiers as $identifier) {
+            $id_or_name = $identifier->getValue();
+            $url = 'https://pokeapi.co/api/v2/pokemon/' . rawurlencode($id_or_name);
+            $urls[] = $url;
+            $identifier_map[$url] = $identifier;
+        }
+
+        // Fetch all URLs concurrently
+        $responses = $this->fetchUrlsConcurrently($urls);
+
+        // Process responses and cache results
+        foreach ($responses as $url => $response) {
+            $identifier = $identifier_map[$url];
+            $id_or_name = $identifier->getValue();
+            $cache_file = CacheKeys::pokemonForIdentifier($cache_dir, $cache_version, $identifier);
+
+            if ($response['success']) {
+                try {
+                    // Write to cache
+                    $cache_file->writeContents($response['data']);
+
+                    // Parse and return MonsterData
+                    $monsterData = $this->parseMonsterJson($response['data'], $cache_dir, $ttl_seconds, $cache_version);
+                    $results[$id_or_name] = Result::success($monsterData);
+                } catch (\Throwable $e) {
+                    $results[$id_or_name] = Result::failure('Failed to parse Pokemon data: ' . $e->getMessage());
+                }
+            } else {
+                // Try to use stale cache if available
+                if ($cache_file->exists()) {
+                    try {
+                        $json = $cache_file->readContents();
+                        $monsterData = $this->parseMonsterJson($json, $cache_dir, $ttl_seconds, $cache_version);
+                        $results[$id_or_name] = Result::success($monsterData);
+                    } catch (\Throwable $e) {
+                        $results[$id_or_name] = Result::failure('Failed to fetch Pokemon data: ' . $response['error']);
+                    }
+                } else {
+                    $results[$id_or_name] = Result::failure('Failed to fetch Pokemon data: ' . $response['error']);
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    //! @brief Fetch multiple URLs concurrently using multi-handle cURL
+    //! @param urls Array of URLs to fetch
+    //! @return array<string,array{success:bool,data?:string,error?:string}> Associative array mapping URLs to response data
+    private function fetchUrlsConcurrently(array $urls): array
+    {
+        $results = [];
+
+        // Initialize cURL multi-handle
+        $multi_handle = curl_multi_init();
+        $curl_handles = [];
+
+        // Create individual cURL handles
+        foreach ($urls as $url) {
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 15,
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_USERAGENT => 'PHP',
+                CURLOPT_HTTPHEADER => ['Accept: application/json'],
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_SSL_VERIFYPEER => false, // Disable for development - should be true in production
+                CURLOPT_SSL_VERIFYHOST => 0,     // Disable for development - should be 2 in production
+                CURLOPT_MAXREDIRS => 3,
+            ]);
+
+            curl_multi_add_handle($multi_handle, $ch);
+            $curl_handles[$url] = $ch;
+        }
+
+        // Execute all requests with better error handling
+        $running = null;
+        $max_attempts = 3;
+        $attempt = 0;
+
+        do {
+            $status = curl_multi_exec($multi_handle, $running);
+            if ($status === CURLM_CALL_MULTI_PERFORM) {
+                continue;
+            }
+
+            if ($status !== CURLM_OK) {
+                $attempt++;
+                if ($attempt >= $max_attempts) {
+                    break;
+                }
+                usleep(100000); // Wait 100ms before retry
+                continue;
+            }
+
+            // Check for completed requests
+            while ($info = curl_multi_info_read($multi_handle)) {
+                if ($info['msg'] === CURLMSG_DONE) {
+                    $ch = $info['handle'];
+                    $url = array_search($ch, $curl_handles, true);
+
+                    if ($url !== false) {
+                        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        $data = curl_multi_getcontent($ch);
+                        $error = curl_error($ch);
+
+                        if ($error !== '') {
+                            $results[$url] = ['success' => false, 'error' => $error];
+                        } elseif ($http_code >= 200 && $http_code < 300 && $data !== false && $data !== '') {
+                            $results[$url] = ['success' => true, 'data' => $data];
+                        } else {
+                            $results[$url] = ['success' => false, 'error' => "HTTP $http_code" . ($data === '' ? ' (empty response)' : '')];
+                        }
+                    }
+                }
+            }
+
+            if ($running > 0) {
+                curl_multi_select($multi_handle, 1.0);
+            }
+        } while ($running > 0);
+
+        // Clean up any remaining handles
+        foreach ($curl_handles as $url => $ch) {
+            if (!isset($results[$url])) {
+                $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $data = curl_multi_getcontent($ch);
+                $error = curl_error($ch);
+
+                if ($error !== '') {
+                    $results[$url] = ['success' => false, 'error' => $error];
+                } elseif ($http_code >= 200 && $http_code < 300 && $data !== false && $data !== '') {
+                    $results[$url] = ['success' => true, 'data' => $data];
+                } else {
+                    $results[$url] = ['success' => false, 'error' => "HTTP $http_code" . ($data === '' ? ' (empty response)' : '')];
+                }
+            }
+
+            curl_multi_remove_handle($multi_handle, $ch);
+            curl_close($ch);
+        }
+
+        curl_multi_close($multi_handle);
+
+        return $results;
+    }
+
+    //! @brief Parse Pokemon JSON data into MonsterData object
+    //! @param json Raw JSON string from PokeAPI
+    //! @param cache_dir Cache directory for evolution chain caching
+    //! @param ttl_seconds Time-to-live for cache entries
+    //! @return MonsterData Parsed MonsterData object
+    //! @throws \JsonException If JSON parsing fails
+    //! @throws \InvalidArgumentException If required data is missing
+    private function parseMonsterJson(string $json, FilePath $cache_dir, int $ttl_seconds, CacheVersion $cache_version): MonsterData
+    {
+        /** @var array<string,mixed> $data */
+        $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+
 
         $types = $data['types'] ?? [];
         usort($types, function ($a, $b) {
@@ -117,15 +341,11 @@ class PokeApiService
         $type2String = isset($types[1]) ? ($types[1]['type']['name'] ?? null) : null;
 
         if (empty($type1String)) {
-            return Result::failure('No primary type found for Pokemon');
+            throw new \InvalidArgumentException('No primary type found for Pokemon');
         }
 
-        try {
-            $type1 = MonsterType::fromString($type1String);
-            $type2 = $type2String ? MonsterType::fromString($type2String) : null;
-        } catch (\InvalidArgumentException $e) {
-            return Result::failure('Invalid Pokemon type: ' . $e->getMessage());
-        }
+        $type1 = MonsterType::fromString($type1String);
+        $type2 = $type2String ? MonsterType::fromString($type2String) : null;
 
         $image = $data['sprites']['other']['official-artwork']['front_default']
             ?? $data['sprites']['front_default']
@@ -144,6 +364,7 @@ class PokeApiService
             $successors = $evolutionData['successors'] ?? [];
         }
 
+
         $monsterData = new MonsterData(
             id: (int)($data['id'] ?? 0),
             name: self::titleCase((string)($data['name'] ?? '')),
@@ -156,8 +377,7 @@ class PokeApiService
             weight: $cache_version === CacheVersion::V2 ? (isset($data['weight']) ? (int)$data['weight'] : null) : null
         );
 
-        // After successful decode, alias cache entries by both numeric ID and canonical name
-        // so that fetching by name then by ID (or vice versa) reuses the same cached payload.
+        // Cache aliasing for both numeric ID and canonical name
         try {
             $numericId = isset($data['id']) ? (string)$data['id'] : '';
             $canonicalName = isset($data['name']) ? (string)$data['name'] : '';
@@ -180,7 +400,7 @@ class PokeApiService
             // Best-effort aliasing; ignore failures silently
         }
 
-        return Result::success($monsterData);
+        return $monsterData;
     }
 
     //! @brief Fetch evolution chain data for a Pokemon from its species URL

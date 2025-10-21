@@ -19,12 +19,12 @@ final class DexPresenterTest extends TestCase
         //! @section Arrange
         $pokeApiService = $this->createMock(PokeApiService::class);
 
-        // For three pokemon, return MonsterData with image used as sprite placeholder
-        $pokeApiService->method('fetchMonster')->willReturnOnConsecutiveCalls(
-            Result::success(new MonsterData(id: 133, name: 'Eevee', image: 'https://img.example/eevee-sprite.png', type1: MonsterType::NORMAL)),
-            Result::success(new MonsterData(id: 172, name: 'Pichu', image: 'https://img.example/pichu-sprite.png', type1: MonsterType::ELECTRIC)),
-            Result::success(new MonsterData(id: 25, name: 'Pikachu', image: 'https://img.example/pikachu-sprite.png', type1: MonsterType::ELECTRIC))
-        );
+        // Mock batch fetch to return MonsterData for all three pokemon
+        $pokeApiService->method('fetchMonstersBatch')->willReturn([
+            'eevee' => Result::success(new MonsterData(id: 133, name: 'Eevee', image: 'https://img.example/eevee-sprite.png', type1: MonsterType::NORMAL)),
+            'pichu' => Result::success(new MonsterData(id: 172, name: 'Pichu', image: 'https://img.example/pichu-sprite.png', type1: MonsterType::ELECTRIC)),
+            'pikachu' => Result::success(new MonsterData(id: 25, name: 'Pikachu', image: 'https://img.example/pikachu-sprite.png', type1: MonsterType::ELECTRIC))
+        ]);
 
         $opinionService = $this->createMock(PokemonOpinionService::class);
         $opinionService->method('getAllOpinionNames')->willReturn(['eevee', 'pichu', 'pikachu']);
