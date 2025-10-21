@@ -308,6 +308,215 @@ article {
     gap: 0; /* sections handle their own margins */
 }
 
+/* Article-specific typography following Tschichold principles */
+.article {
+    max-width: 65ch; /* Optimal reading line length */
+    margin: 0 auto; /* Center the article content */
+    padding: 0 calc(var(--spacing-unit) * 1);
+}
+
+/* Article header with proper vertical rhythm */
+.article-header {
+    margin-top: calc(var(--spacing-unit) * 4); /* Generous top spacing */
+    margin-bottom: calc(var(--spacing-unit) * 3); /* Clear separation from content */
+    border-bottom: var(--line-weight) solid var(--process-black);
+    padding-bottom: calc(var(--spacing-unit) * 1.5);
+}
+
+.article-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    color: var(--black);
+    letter-spacing: -0.01em;
+}
+
+.article-meta {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing-unit) * 1);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    font-size: 0.85rem;
+    color: var(--process-black);
+    font-weight: 400;
+    font-style: italic;
+    align-items: baseline;
+}
+
+.article-author,
+.article-date {
+    display: inline;
+    position: relative;
+}
+
+.article-author::after {
+    content: '•';
+    margin: 0 calc(var(--spacing-unit) * 0.5);
+    color: var(--process-black);
+    font-weight: 400;
+    font-style: normal;
+}
+
+.article-date::after {
+    display: none; /* No separator after the last item */
+}
+
+/* Inline tags list */
+.article-tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing-unit) * 0.5);
+    margin: 0;
+    padding: 0;
+}
+
+.article-tags .tag {
+    display: inline-block;
+    padding: calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5);
+    background-color: var(--white);
+    border: var(--line-weight) solid var(--process-black);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--black);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.article-tags .tag:hover {
+    background-color: var(--red);
+    color: var(--white);
+    cursor: default;
+}
+
+/* Article content with improved paragraph spacing */
+.article-content {
+    margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.article-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: calc(var(--spacing-unit) * 1.5); /* Generous paragraph spacing */
+    color: var(--black);
+    text-align: justify; /* Following Tschichold's preference for justified text */
+    hyphens: auto;
+}
+
+.article-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Subheadings with proper hierarchy and spacing */
+.article-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: calc(var(--spacing-unit) * 3);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    color: var(--black);
+    border-bottom: var(--line-weight) solid var(--process-black);
+    padding-bottom: calc(var(--spacing-unit) * 0.5);
+    display: inline-block;
+}
+
+.article-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: calc(var(--spacing-unit) * 2.5);
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    color: var(--black);
+}
+
+.article-content h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: calc(var(--spacing-unit) * 2);
+    margin-bottom: calc(var(--spacing-unit) * 0.75);
+    color: var(--black);
+}
+
+/* Article links */
+.article-content a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 0.125rem solid var(--red);
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+.article-content a:hover,
+.article-content a:focus {
+    background-color: var(--red);
+    color: var(--white);
+    outline: none;
+}
+
+.article-content a:focus-visible {
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
+}
+
+/* Footnotes with Neue Typographie numbering */
+.footnotes {
+    margin-top: calc(var(--spacing-unit) * 4);
+    padding-top: calc(var(--spacing-unit) * 2);
+    border-top: var(--line-weight) solid var(--process-black);
+}
+
+.footnotes hr {
+    display: none; /* Hide the template hr, we have our own border */
+}
+
+.footnote {
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    padding-left: calc(var(--spacing-unit) * 2);
+    position: relative;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--process-black);
+}
+
+/* Neue Typographie footnote numbering */
+.footnote::before {
+    content: counter(footnote-counter);
+    counter-increment: footnote-counter;
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--black);
+    width: calc(var(--spacing-unit) * 1.5);
+    text-align: right;
+}
+
+.footnotes {
+    counter-reset: footnote-counter;
+}
+
+.footnote p {
+    margin: 0;
+    text-align: justify;
+    hyphens: auto;
+}
+
+.footnote-backref {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: calc(var(--spacing-unit) * 0.25);
+    transition: color var(--transition-fast);
+}
+
+.footnote-backref:hover,
+.footnote-backref:focus {
+    color: var(--red-dark);
+    outline: none;
+}
+
 /* Monster Card */
 .monster-card {
     background: var(--white);
@@ -1212,5 +1421,68 @@ footer a:focus-visible {
     .branch-time {
         display: inline;
         text-align: left;
+    }
+
+    /* Mobile adjustments for article typography */
+    .article {
+        padding: 0 calc(var(--spacing-unit) * 0.5);
+    }
+
+    .article-header {
+        margin-top: calc(var(--spacing-unit) * 2);
+        margin-bottom: calc(var(--spacing-unit) * 2);
+    }
+
+    .article-title {
+        font-size: 2rem;
+        margin-bottom: calc(var(--spacing-unit) * 1);
+    }
+
+    .article-meta {
+        flex-direction: column;
+        gap: calc(var(--spacing-unit) * 0.25);
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+        font-size: 0.8rem;
+    }
+
+    .article-author::after {
+        display: none; /* Remove bullet separator on mobile */
+    }
+
+    .article-content p {
+        text-align: left; /* Left-align on mobile for better readability */
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+    }
+
+    .article-content h3 {
+        font-size: 1.3rem;
+        margin-top: calc(var(--spacing-unit) * 2.5);
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+    }
+
+    .article-content h4 {
+        font-size: 1.15rem;
+        margin-top: calc(var(--spacing-unit) * 2);
+        margin-bottom: calc(var(--spacing-unit) * 0.75);
+    }
+
+    .article-content h5 {
+        font-size: 1.05rem;
+        margin-top: calc(var(--spacing-unit) * 1.5);
+        margin-bottom: calc(var(--spacing-unit) * 0.5);
+    }
+
+    .footnotes {
+        margin-top: calc(var(--spacing-unit) * 3);
+        padding-top: calc(var(--spacing-unit) * 1.5);
+    }
+
+    .footnote {
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+        padding-left: calc(var(--spacing-unit) * 1.5);
+    }
+
+    .footnote::before {
+        width: calc(var(--spacing-unit) * 1.25);
     }
 }
