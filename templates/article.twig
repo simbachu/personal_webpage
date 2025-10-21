@@ -1,0 +1,28 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<article class="article">
+    <header class="article-header">
+        <h1 class="article-title">{{ article.title }}</h1>
+        <div class="article-meta">
+            {% if article.author %}
+                <span class="article-author">By: {{ article.author }}</span>
+            {% endif %}
+            {% if article.date %}
+                <span class="article-date">On: {{ article.date }}</span>
+            {% endif %}
+        </div>
+        {% if article.tags %}
+            <div class="article-tags">
+                {% for tag in article.tags %}
+                    <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </header>
+
+    <div class="article-content">
+        {{ article.content|raw }}
+    </div>
+</article>
+{% endblock %}

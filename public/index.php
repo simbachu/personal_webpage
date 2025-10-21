@@ -36,6 +36,7 @@ use App\Type\Route;
 use App\Router\Router;
 use App\Router\Handler\HomeRouteHandler;
 use App\Router\Handler\DexRouteHandler;
+use App\Router\Handler\ArticleRouteHandler;
 
 // Try different possible locations for content (this is where the issue was)
 $possible_content_paths = [
@@ -132,9 +133,32 @@ $router->addRoute(new Route(
     ['handler' => 'dex']
 ));
 
+// Add article routes
+$router->addRoute(new Route(
+    '/read',
+    TemplateName::ARTICLE,
+    [],
+    ['handler' => 'article']
+));
+
+$router->addRoute(new Route(
+    '/article',
+    TemplateName::ARTICLE,
+    [],
+    ['handler' => 'article']
+));
+
+$router->addRoute(new Route(
+    '/blog',
+    TemplateName::ARTICLE,
+    [],
+    ['handler' => 'article']
+));
+
 // Register route handlers
 $router->registerHandler('home', new HomeRouteHandler($homePresenter));
 $router->registerHandler('dex', new DexRouteHandler($dexPresenter));
+$router->registerHandler('article', new ArticleRouteHandler($content_path));
 
 // Get current request
 $path = get_request_path();
