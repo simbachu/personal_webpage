@@ -363,33 +363,47 @@ article {
     display: none; /* No separator after the last item */
 }
 
-/* Inline tags list */
+/* Inline tags list - using same styling as project tags for continuity */
 .article-tags {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--red);
+    font-weight: 600;
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    line-height: 1.4;
     list-style: none;
     display: flex;
     flex-wrap: wrap;
-    gap: calc(var(--spacing-unit) * 0.5);
-    margin: 0;
+    gap: 0;
     padding: 0;
 }
 
 .article-tags .tag {
-    display: inline-block;
-    padding: calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5);
-    background-color: var(--white);
-    border: var(--line-weight) solid var(--process-black);
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--black);
+    display: inline;
     transition: background-color var(--transition-fast), color var(--transition-fast);
+    padding: 0.05em 0.15em;
+    margin: -0.05em -0.15em;
+}
+
+.article-tags .tag::after {
+    content: ', ';
+    color: var(--red);
+    padding-left: 0.15em;
+}
+
+.article-tags .tag:last-child::after {
+    content: '';
 }
 
 .article-tags .tag:hover {
     background-color: var(--red);
     color: var(--white);
     cursor: default;
+}
+
+.article-tags .tag:hover::after {
+    color: var(--white);
 }
 
 /* Article content with improved paragraph spacing */
