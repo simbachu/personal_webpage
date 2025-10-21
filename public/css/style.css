@@ -312,7 +312,7 @@ article {
 .article {
     max-width: 65ch; /* Optimal reading line length */
     margin: 0 auto; /* Center the article content */
-    padding: 0 calc(var(--spacing-unit) * 1);
+    padding: 0; /* No padding - align with grid line */
 }
 
 /* Article header with proper vertical rhythm */
@@ -405,6 +405,7 @@ article {
 /* Article content with improved paragraph spacing */
 .article-content {
     margin-bottom: calc(var(--spacing-unit) * 3);
+    padding: 0 calc(var(--spacing-unit) * 1); /* Add padding back for content readability */
 }
 
 .article-content p {
@@ -1435,7 +1436,11 @@ footer a:focus-visible {
 
     /* Mobile adjustments for article typography */
     .article {
-        padding: 0 calc(var(--spacing-unit) * 0.5);
+        padding: 0; /* No padding - align with grid line */
+    }
+
+    .article-content {
+        padding: 0 calc(var(--spacing-unit) * 0.5); /* Add padding back for content readability on mobile */
     }
 
     .article-header {
