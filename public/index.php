@@ -40,6 +40,7 @@ use App\Router\Handler\ArticleRouteHandler;
 use App\Repository\ArticleRepository;
 use App\Repository\FileArticleRepository;
 use App\Service\MarkdownProcessor;
+use App\Api\SensorBatchController;
 
 // Try different possible locations for content (this is where the issue was)
 $possible_content_paths = [
@@ -169,6 +170,40 @@ $router->registerHandler('article', new ArticleRouteHandler($articleRepository))
 
 // Get current request
 $path = get_request_path();
+
+// Handle API endpoints early and return JSON
+if (str_starts_with($path, '/api/')) {
+    if ($path === '/api/sensor/batch') {
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+        } else {
+            $headers = [];
+            foreach ($_SERVER as $name => $value) {
+                if (str_starts_with($name, 'HTTP_')) {
+                    $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                    $headers[$key] = $value;
+                }
+            }
+        }
+
+        $rawBody = file_get_contents('php://input') ?: '';
+        $controller = new SensorBatchController();
+        $result = $controller->handle($method, $headers, $rawBody);
+
+        http_response_code($result['status'] ?? 200);
+        header('Content-Type: application/json');
+        echo json_encode($result['body'] ?? []);
+        exit;
+    }
+
+    // Unknown API path
+    http_response_code(404);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Not Found']);
+    exit;
+}
 $base_url = get_base_url();
 $current_url = $base_url . $_SERVER['REQUEST_URI'];
 
