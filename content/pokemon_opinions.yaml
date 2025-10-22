@@ -223,7 +223,8 @@ squirtle:
 wartortle:
   opinion: "Yes I love the attitude gain on this. Ready to battle!"
   rating: A
-blastoise: "Very iconic silhouette with the water cannons. Though I wish the funny gill things from wartortle came along for this one too."
+blastoise:
+  opinion: "Very iconic silhouette with the water cannons. Though I wish the funny gill things from wartortle came along for this one too."
   rating: A
 wurmple:
   opinion: "Who can really resist such a cute face? The grub stages of insect pokemon are almost always great. Kinda wish you didn't meet it in battle all the time in the games though. Why do the trainers just keep six of these."
