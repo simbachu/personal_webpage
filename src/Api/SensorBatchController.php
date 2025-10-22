@@ -126,7 +126,12 @@ class SensorBatchController
     //! @brief Load environment variables from .env file if it exists
     private function loadEnvironmentVariables(): void
     {
-        $envFile = dirname(__DIR__, 2) . '/.env';
+        // Use the same path resolution logic as index.php
+        $is_dev = (basename(dirname(__DIR__, 2)) === 'dev');
+        $base_path = $is_dev ? dirname(dirname(__DIR__, 2)) : dirname(__DIR__, 2);
+        $env_prefix = $is_dev ? '/dev' : '';
+
+        $envFile = $base_path . '/httpd.private' . $env_prefix . '/.env';
         if (file_exists($envFile)) {
             $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             foreach ($lines as $line) {
