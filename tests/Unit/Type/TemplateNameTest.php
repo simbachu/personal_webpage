@@ -16,9 +16,9 @@ class TemplateNameTest extends TestCase
         $templates = TemplateName::cases();
 
         //! @section Assert
-        $this->assertCount(3, $templates);
+        $this->assertCount(4, $templates);
 
-        $expectedTemplates = ['home', 'dex', '404'];
+        $expectedTemplates = ['home', 'dex', 'article', '404'];
         $actualTemplates = array_column($templates, 'value');
 
         foreach ($expectedTemplates as $expected) {
@@ -31,6 +31,7 @@ class TemplateNameTest extends TestCase
         //! @section Act & Assert
         $this->assertSame('home', TemplateName::HOME->value);
         $this->assertSame('dex', TemplateName::DEX->value);
+        $this->assertSame('article', TemplateName::ARTICLE->value);
         $this->assertSame('404', TemplateName::NOT_FOUND->value);
     }
 
@@ -39,6 +40,7 @@ class TemplateNameTest extends TestCase
         //! @section Act & Assert
         $this->assertSame(TemplateName::HOME, TemplateName::fromString('home'));
         $this->assertSame(TemplateName::DEX, TemplateName::fromString('dex'));
+        $this->assertSame(TemplateName::ARTICLE, TemplateName::fromString('article'));
         $this->assertSame(TemplateName::NOT_FOUND, TemplateName::fromString('404'));
     }
 
@@ -46,7 +48,7 @@ class TemplateNameTest extends TestCase
     {
         //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid template name: \'invalid\'. Valid templates are: home, dex, 404');
+        $this->expectExceptionMessage('Invalid template name: \'invalid\'. Valid templates are: home, dex, article, 404');
 
         //! @section Act
         TemplateName::fromString('invalid');
@@ -56,7 +58,7 @@ class TemplateNameTest extends TestCase
     {
         //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid template name: \'\'. Valid templates are: home, dex, 404');
+        $this->expectExceptionMessage('Invalid template name: \'\'. Valid templates are: home, dex, article, 404');
 
         //! @section Act
         TemplateName::fromString('');
@@ -67,6 +69,7 @@ class TemplateNameTest extends TestCase
         //! @section Act & Assert
         $this->assertTrue(TemplateName::isValid('home'));
         $this->assertTrue(TemplateName::isValid('dex'));
+        $this->assertTrue(TemplateName::isValid('article'));
         $this->assertTrue(TemplateName::isValid('404'));
     }
 
@@ -87,11 +90,12 @@ class TemplateNameTest extends TestCase
 
         //! @section Assert
         $this->assertIsArray($allValues);
-        $this->assertCount(3, $allValues);
+        $this->assertCount(4, $allValues);
         $this->assertContains('home', $allValues);
         $this->assertContains('dex', $allValues);
+        $this->assertContains('article', $allValues);
         $this->assertContains('404', $allValues);
-        $this->assertSame(['home', 'dex', '404'], $allValues);
+        $this->assertSame(['home', 'dex', 'article', '404'], $allValues);
     }
 
     public function test_get_description(): void
@@ -99,6 +103,7 @@ class TemplateNameTest extends TestCase
         //! @section Act & Assert
         $this->assertSame('Home page template', TemplateName::HOME->getDescription());
         $this->assertSame('Pokemon dex detail page template', TemplateName::DEX->getDescription());
+        $this->assertSame('Article/blog post template', TemplateName::ARTICLE->getDescription());
         $this->assertSame('404 error page template', TemplateName::NOT_FOUND->getDescription());
     }
 
@@ -107,6 +112,7 @@ class TemplateNameTest extends TestCase
         //! @section Act & Assert
         $this->assertFalse(TemplateName::HOME->isErrorTemplate());
         $this->assertFalse(TemplateName::DEX->isErrorTemplate());
+        $this->assertFalse(TemplateName::ARTICLE->isErrorTemplate());
         $this->assertTrue(TemplateName::NOT_FOUND->isErrorTemplate());
     }
 
@@ -115,6 +121,7 @@ class TemplateNameTest extends TestCase
         //! @section Act & Assert
         $this->assertTrue(TemplateName::HOME->isContentTemplate());
         $this->assertTrue(TemplateName::DEX->isContentTemplate());
+        $this->assertTrue(TemplateName::ARTICLE->isContentTemplate());
         $this->assertFalse(TemplateName::NOT_FOUND->isContentTemplate());
     }
 
@@ -123,6 +130,7 @@ class TemplateNameTest extends TestCase
         //! @section Act & Assert
         $this->assertSame('home', TemplateName::HOME->toString());
         $this->assertSame('dex', TemplateName::DEX->toString());
+        $this->assertSame('article', TemplateName::ARTICLE->toString());
         $this->assertSame('404', TemplateName::NOT_FOUND->toString());
     }
 
@@ -149,6 +157,7 @@ class TemplateNameTest extends TestCase
         $result = match ($template) {
             TemplateName::HOME => 'homepage',
             TemplateName::DEX => 'pokemon_page',
+            TemplateName::ARTICLE => 'article_page',
             TemplateName::NOT_FOUND => 'error_page',
         };
 
@@ -163,7 +172,7 @@ class TemplateNameTest extends TestCase
 
         //! @section Act
         $result = match ($template) {
-            TemplateName::HOME, TemplateName::DEX => 'content',
+            TemplateName::HOME, TemplateName::DEX, TemplateName::ARTICLE => 'content',
             TemplateName::NOT_FOUND => 'error',
         };
 
@@ -191,15 +200,18 @@ class TemplateNameTest extends TestCase
         $templates = [
             TemplateName::HOME->value => 'Home template',
             TemplateName::DEX->value => 'Dex template',
+            TemplateName::ARTICLE->value => 'Article template',
             TemplateName::NOT_FOUND->value => '404 template',
         ];
 
         //! @section Act & Assert
         $this->assertArrayHasKey(TemplateName::HOME->value, $templates);
         $this->assertArrayHasKey(TemplateName::DEX->value, $templates);
+        $this->assertArrayHasKey(TemplateName::ARTICLE->value, $templates);
         $this->assertArrayHasKey(TemplateName::NOT_FOUND->value, $templates);
         $this->assertSame('Home template', $templates[TemplateName::HOME->value]);
         $this->assertSame('Dex template', $templates[TemplateName::DEX->value]);
+        $this->assertSame('Article template', $templates[TemplateName::ARTICLE->value]);
         $this->assertSame('404 template', $templates[TemplateName::NOT_FOUND->value]);
     }
 
@@ -208,6 +220,7 @@ class TemplateNameTest extends TestCase
         //! @section Act & Assert
         $this->assertSame('home.twig', TemplateName::HOME->toTwigPath());
         $this->assertSame('dex.twig', TemplateName::DEX->toTwigPath());
+        $this->assertSame('article.twig', TemplateName::ARTICLE->toTwigPath());
         $this->assertSame('404.twig', TemplateName::NOT_FOUND->toTwigPath());
     }
 

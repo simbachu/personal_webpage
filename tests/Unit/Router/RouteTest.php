@@ -149,4 +149,59 @@ class RouteTest extends TestCase
         // Original route should be unchanged
         $this->assertArrayNotHasKey('cache', $route->getOptions());
     }
+
+    //! @brief Test dynamic path matching for article routes
+    public function test_dynamic_path_matching_for_article_routes(): void
+    {
+        //! @section Arrange
+        $readRoute = new Route('/read', TemplateName::ARTICLE);
+        $articleRoute = new Route('/article', TemplateName::ARTICLE);
+        $blogRoute = new Route('/blog', TemplateName::ARTICLE);
+
+        //! @section Act & Assert - /read routes
+        $this->assertTrue($readRoute->matches('/read'));
+        $this->assertTrue($readRoute->matches('/read/word-rotator'));
+        $this->assertTrue($readRoute->matches('/read/test-article'));
+        $this->assertFalse($readRoute->matches('/read/word-rotator/extra'));
+        $this->assertFalse($readRoute->matches('/article'));
+
+        //! @section Act & Assert - /article routes
+        $this->assertTrue($articleRoute->matches('/article'));
+        $this->assertTrue($articleRoute->matches('/article/word-rotator'));
+        $this->assertTrue($articleRoute->matches('/article/test-article'));
+        $this->assertFalse($articleRoute->matches('/article/word-rotator/extra'));
+        $this->assertFalse($articleRoute->matches('/read'));
+
+        //! @section Act & Assert - /blog routes
+        $this->assertTrue($blogRoute->matches('/blog'));
+        $this->assertTrue($blogRoute->matches('/blog/word-rotator'));
+        $this->assertTrue($blogRoute->matches('/blog/test-article'));
+        $this->assertFalse($blogRoute->matches('/blog/word-rotator/extra'));
+        $this->assertFalse($blogRoute->matches('/read'));
+    }
+
+    //! @brief Test parameter extraction from article routes
+    public function test_parameter_extraction_from_article_routes(): void
+    {
+        //! @section Arrange
+        $readRoute = new Route('/read', TemplateName::ARTICLE);
+        $articleRoute = new Route('/article', TemplateName::ARTICLE);
+        $blogRoute = new Route('/blog', TemplateName::ARTICLE);
+
+        //! @section Act & Assert - /read routes
+        $this->assertEquals([], $readRoute->extractParameters('/read'));
+        $this->assertEquals(['article_name' => 'word-rotator'], $readRoute->extractParameters('/read/word-rotator'));
+        $this->assertEquals(['article_name' => 'test-article'], $readRoute->extractParameters('/read/test-article'));
+        $this->assertEquals([], $readRoute->extractParameters('/'));
+
+        //! @section Act & Assert - /article routes
+        $this->assertEquals([], $articleRoute->extractParameters('/article'));
+        $this->assertEquals(['article_name' => 'word-rotator'], $articleRoute->extractParameters('/article/word-rotator'));
+        $this->assertEquals(['article_name' => 'test-article'], $articleRoute->extractParameters('/article/test-article'));
+
+        //! @section Act & Assert - /blog routes
+        $this->assertEquals([], $blogRoute->extractParameters('/blog'));
+        $this->assertEquals(['article_name' => 'word-rotator'], $blogRoute->extractParameters('/blog/word-rotator'));
+        $this->assertEquals(['article_name' => 'test-article'], $blogRoute->extractParameters('/blog/test-article'));
+    }
 }

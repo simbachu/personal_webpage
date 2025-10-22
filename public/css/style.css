@@ -90,7 +90,7 @@ body {
     }
 }
 
-header {
+#main-header {
     color: var(--black);
     position: relative;
     justify-content: center;
@@ -105,13 +105,13 @@ header {
 
 /* Modern browsers: use subgrid to inherit parent column definitions */
 @supports (grid-template-columns: subgrid) {
-    header {
+    #main-header {
         grid-template-columns: subgrid;
     }
 }
 
 /* Expanding gradient animation replacing the red bar */
-header::after {
+#main-header::after {
     content: '';
     display: block; /* make the pseudo-element a grid item */
     grid-column: left-column-start / right-column-end; /* span axis gutter through content area */
@@ -128,7 +128,7 @@ header::after {
 }
 
 /* The page title in the top-left quadrant of the header */
-header h1 {
+#main-header h1 {
     /* Fallback: center in single column */
     text-align: center;
     font-size: 4rem;
@@ -143,7 +143,7 @@ header h1 {
 
 /* Subgrid support: place in left column with right alignment */
 @supports (grid-template-columns: subgrid) {
-    header h1 {
+    #main-header h1 {
         grid-column: left-column-start / left-column-end;
         grid-row: upper;
         text-align: right;
@@ -164,7 +164,7 @@ header h1 {
     }
 }
 
-nav {
+#main-header nav {
     /* Nav section of the header contains the ul */
     display: block;
     grid-row: lower; /* place in bottom row of header grid */
@@ -173,7 +173,7 @@ nav {
 
 /* Subgrid support: place in right column with left alignment */
 @supports (grid-template-columns: subgrid) {
-    nav {
+    #main-header nav {
         grid-column: right-column-start;
         text-align: left;
     }
@@ -181,7 +181,7 @@ nav {
 
 
 
-nav ul {
+#main-header nav ul {
     width: fit-content;
     min-width: 15rem; /* Fixed minimum width to prevent border shifting */
     list-style: none;
@@ -197,16 +197,16 @@ nav ul {
 
 /* Subgrid support: left alignment */
 @supports (grid-template-columns: subgrid) {
-    nav ul {
+    #main-header nav ul {
         align-items: flex-start;
     }
 }
 
-nav li {
+#main-header nav li {
     width: 100%; /* Full width of ul container */
 }
 
-nav a {
+#main-header nav a {
     color: var(--black);
     text-decoration: none;
     font-weight: 700;
@@ -216,8 +216,8 @@ nav a {
     position: relative; /* For absolute positioning of transform */
 }
 
-nav a:hover,
-nav a:focus {
+#main-header nav a:hover,
+#main-header nav a:focus {
     color: var(--red);
     outline: none;
     transform: translateX(0.25rem);
@@ -225,14 +225,14 @@ nav a:focus {
 }
 
 /* Add # symbol for anchor links on hover */
-nav a[href^="#"]:hover::after,
-nav a[href^="#"]:focus::after {
+#main-header nav a[href^="#"]:hover::after,
+#main-header nav a[href^="#"]:focus::after {
     content: ' #';
     font-weight: 700;
     opacity: 0.7;
 }
 
-nav a:focus-visible {
+#main-header nav a:focus-visible {
     outline: 0.125rem solid var(--red);
     outline-offset: 0.25rem;
 }
@@ -306,6 +306,226 @@ article {
     display: flex;
     flex-direction: column;
     gap: 0; /* sections handle their own margins */
+}
+
+/* Article-specific typography following Tschichold principles */
+.article {
+    max-width: 65ch; /* Optimal reading line length */
+    margin: 0 auto; /* Center the article content */
+    padding: 0; /* No padding - align with grid line */
+}
+
+/* Article header with proper vertical rhythm */
+.article-header {
+    margin-top: calc(var(--spacing-unit) * 4); /* Generous top spacing */
+    margin-bottom: calc(var(--spacing-unit) * 3); /* Clear separation from content */
+    position: relative;
+}
+
+.article-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: calc(var(--spacing-unit) * 1.5); /* Spacing to byline */
+    color: var(--black);
+    letter-spacing: -0.01em;
+}
+
+/* Article metadata as dl dt dd structure */
+.article-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1);
+    margin-bottom: calc(var(--spacing-unit) * 2);
+    font-size: 0.85rem;
+    color: var(--process-black);
+    font-weight: 400;
+    font-style: italic;
+    align-items: baseline;
+}
+
+.article-author,
+.article-date {
+    font-weight: 600;
+    color: var(--black);
+    font-style: normal;
+}
+
+.article-author-value,
+.article-date-value {
+    margin: 0;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--process-black);
+}
+
+/* Inline tags list - using same styling as project tags for continuity */
+.article-tags {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--red);
+    font-weight: 600;
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    line-height: 1.4;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 0;
+}
+
+.article-tags .tag {
+    display: inline;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+    padding: 0.05em 0.15em;
+    margin: -0.05em -0.15em;
+}
+
+.article-tags .tag::after {
+    content: ', ';
+    color: var(--red);
+    padding-left: 0.15em;
+}
+
+.article-tags .tag:last-child::after {
+    content: '';
+}
+
+.article-tags .tag:hover {
+    background-color: var(--red);
+    color: var(--white);
+    cursor: default;
+}
+
+.article-tags .tag:hover::after {
+    color: var(--white);
+}
+
+/* Article content with improved paragraph spacing */
+.article-content {
+    margin-bottom: calc(var(--spacing-unit) * 3);
+    padding: 0 calc(var(--spacing-unit) * 1); /* Add padding back for content readability */
+}
+
+.article-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: calc(var(--spacing-unit) * 1.5); /* Generous paragraph spacing */
+    color: var(--black);
+    text-align: justify; /* Following Tschichold's preference for justified text */
+    hyphens: auto;
+}
+
+.article-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Subheadings with proper hierarchy and spacing */
+.article-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: calc(var(--spacing-unit) * 3);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    color: var(--black);
+    border-bottom: var(--line-weight) solid var(--process-black);
+    padding-bottom: calc(var(--spacing-unit) * 0.5);
+    display: inline-block;
+}
+
+.article-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: calc(var(--spacing-unit) * 2.5);
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    color: var(--black);
+}
+
+.article-content h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: calc(var(--spacing-unit) * 2);
+    margin-bottom: calc(var(--spacing-unit) * 0.75);
+    color: var(--black);
+}
+
+/* Article links */
+.article-content a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 0.125rem solid var(--red);
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+.article-content a:hover,
+.article-content a:focus {
+    background-color: var(--red);
+    color: var(--white);
+    outline: none;
+}
+
+.article-content a:focus-visible {
+    outline: 0.125rem solid var(--red);
+    outline-offset: 0.25rem;
+}
+
+/* Footnotes with Neue Typographie numbering */
+.footnotes {
+    margin-top: calc(var(--spacing-unit) * 4);
+    padding-top: calc(var(--spacing-unit) * 2);
+    border-top: var(--line-weight) solid var(--process-black);
+}
+
+.footnotes hr {
+    display: none; /* Hide the template hr, we have our own border */
+}
+
+.footnote {
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    padding-left: calc(var(--spacing-unit) * 2);
+    position: relative;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--process-black);
+}
+
+/* Neue Typographie footnote numbering */
+.footnote::before {
+    content: counter(footnote-counter);
+    counter-increment: footnote-counter;
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--black);
+    width: calc(var(--spacing-unit) * 1.5);
+    text-align: right;
+}
+
+.footnotes {
+    counter-reset: footnote-counter;
+}
+
+.footnote p {
+    margin: 0;
+    text-align: justify;
+    hyphens: auto;
+}
+
+.footnote-backref {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: calc(var(--spacing-unit) * 0.25);
+    transition: color var(--transition-fast);
+}
+
+.footnote-backref:hover,
+.footnote-backref:focus {
+    color: var(--red-dark);
+    outline: none;
 }
 
 /* Monster Card */
@@ -1100,18 +1320,18 @@ footer a:focus-visible {
     }
 
     /* Header: single column, no subgrid */
-    header {
+    #main-header {
         grid-column: 1 / -1;
         grid-template-columns: 1fr;
         grid-template-rows: auto auto;
         gap: calc(var(--spacing-unit) * 1.5);
     }
 
-    header::after {
+    #main-header::after {
         display: none;
     }
 
-    header h1 {
+    #main-header h1 {
         grid-column: 1;
         grid-row: 1;
         text-align: left;
@@ -1122,13 +1342,13 @@ footer a:focus-visible {
         border-image: var(--gradient-red) 1;
     }
 
-    nav {
+    #main-header nav {
         grid-column: 1;
         grid-row: 2;
         text-align: left;
     }
 
-    nav ul {
+    #main-header nav ul {
         flex-direction: row;
         gap: calc(var(--spacing-unit) * 1);
         align-items: center;
@@ -1136,7 +1356,7 @@ footer a:focus-visible {
         border: none;
     }
 
-    nav a {
+    #main-header nav a {
         font-size: 1rem;
     }
 
@@ -1212,5 +1432,68 @@ footer a:focus-visible {
     .branch-time {
         display: inline;
         text-align: left;
+    }
+
+    /* Mobile adjustments for article typography */
+    .article {
+        padding: 0; /* No padding - align with grid line */
+    }
+
+    .article-content {
+        padding: 0 calc(var(--spacing-unit) * 0.5); /* Add padding back for content readability on mobile */
+    }
+
+    .article-header {
+        margin-top: calc(var(--spacing-unit) * 2);
+        margin-bottom: calc(var(--spacing-unit) * 2);
+    }
+
+    .article-title {
+        font-size: 2rem;
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+    }
+
+    .article-meta {
+        grid-template-columns: 1fr;
+        gap: calc(var(--spacing-unit) * 0.25);
+        margin-bottom: calc(var(--spacing-unit) * 1.5);
+        font-size: 0.8rem;
+    }
+
+    .article-content p {
+        text-align: left; /* Left-align on mobile for better readability */
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+    }
+
+    .article-content h3 {
+        font-size: 1.3rem;
+        margin-top: calc(var(--spacing-unit) * 2.5);
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+    }
+
+    .article-content h4 {
+        font-size: 1.15rem;
+        margin-top: calc(var(--spacing-unit) * 2);
+        margin-bottom: calc(var(--spacing-unit) * 0.75);
+    }
+
+    .article-content h5 {
+        font-size: 1.05rem;
+        margin-top: calc(var(--spacing-unit) * 1.5);
+        margin-bottom: calc(var(--spacing-unit) * 0.5);
+    }
+
+    .footnotes {
+        margin-top: calc(var(--spacing-unit) * 3);
+        padding-top: calc(var(--spacing-unit) * 1.5);
+    }
+
+    .footnote {
+        margin-bottom: calc(var(--spacing-unit) * 1.25);
+        padding-left: calc(var(--spacing-unit) * 1.5);
+    }
+
+    .footnote::before {
+        width: calc(var(--spacing-unit) * 1.25);
     }
 }

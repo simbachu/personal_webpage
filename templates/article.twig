@@ -1,0 +1,40 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<article class="article">
+    <header class="article-header">
+        <h2 class="article-title">{{ article.title }}</h2>
+        <dl class="article-meta">
+            {% if article.author %}
+            <dt class="article-author">By:</dt>
+            <dd class="article-author-value">{{ article.author }}</dd>
+            {% endif %}
+            {% if article.date %}
+            <dt class="article-date">On:</dt>
+            <dd class="article-date-value">{{ article.date }}</dd>
+            {% endif %}
+        </dl>
+        {% if article.tags %}
+        <ul class="article-tags">
+            {% for tag in article.tags %}
+            <li class="tag">{{ tag }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </header>
+
+    <div class="article-content">
+        {{ article.content|raw }}
+    </div>
+
+    {% if article.footnotes %}
+    <section class="footnotes">
+        {% for id, footnote in article.footnotes %}
+        <div class="footnote" id="fn:{{ id }}">
+            <p>{{ footnote|raw }} <a href="#fnref:{{ id }}" class="footnote-backref">↩</a></p>
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+</article>
+{% endblock %}

@@ -146,6 +146,12 @@ class Route
             return count($segments) === 2 && $segments[0] === 'dex';
         }
 
+        // Dynamic route matching for article routes: /read/{article}, /article/{article}, /blog/{article}
+        if (in_array($this->path, ['/read', '/article', '/blog']) && str_starts_with($path, $this->path . '/')) {
+            $segments = explode('/', trim($path, '/'));
+            return count($segments) === 2 && $segments[0] === trim($this->path, '/');
+        }
+
         return false;
     }
 
@@ -158,6 +164,14 @@ class Route
             $segments = explode('/', trim($path, '/'));
             if (count($segments) === 2 && $segments[0] === 'dex') {
                 return ['id_or_name' => $segments[1]];
+            }
+        }
+
+        // Extract parameters for article routes
+        if (in_array($this->path, ['/read', '/article', '/blog']) && str_starts_with($path, $this->path . '/')) {
+            $segments = explode('/', trim($path, '/'));
+            if (count($segments) === 2 && $segments[0] === trim($this->path, '/')) {
+                return ['article_name' => $segments[1]];
             }
         }
 
