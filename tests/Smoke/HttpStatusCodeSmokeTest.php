@@ -17,32 +17,50 @@ class HttpStatusCodeSmokeTest extends TestCase
 {
     public function test_all_status_codes_can_be_created_and_used(): void
     {
-        //! @section Act & Assert - Test that all defined status codes work correctly
+        //! @section Act - Test that all defined status codes work correctly
         $allStatusCodes = HttpStatusCode::cases();
+        $validationResults = [];
+
+        foreach ($allStatusCodes as $statusCode) {
+            // Create RouteResult with status code
+            $result = new RouteResult(TemplateName::HOME, [], $statusCode);
+
+            // Collect validation data
+            $validationResults[$statusCode->value] = [
+                'statusCodeMatches' => $statusCode === $result->getStatusCode(),
+                'valueIsInt' => is_int($statusCode->getValue()),
+                'valueInRange' => $statusCode->getValue() >= 100 && $statusCode->getValue() <= 599,
+                'descriptionNotEmpty' => !empty($statusCode->getDescription()),
+                'descriptionIsString' => is_string($statusCode->getDescription()),
+                'statusLineContainsCode' => str_contains($statusCode->getStatusLine(), (string)$statusCode->getValue()),
+                'statusLineContainsDescription' => str_contains($statusCode->getStatusLine(), $statusCode->getDescription())
+            ];
+        }
+
+        //! @section Assert - Test that all defined status codes work correctly
         $this->assertGreaterThan(0, count($allStatusCodes));
 
         foreach ($allStatusCodes as $statusCode) {
+            $result = $validationResults[$statusCode->value];
+
             // Should be able to create RouteResult with any status code
-            $result = new RouteResult(TemplateName::HOME, [], $statusCode);
-            $this->assertSame($statusCode, $result->getStatusCode());
+            $this->assertTrue($result['statusCodeMatches']);
 
             // Should have a valid integer value
-            $this->assertIsInt($statusCode->getValue());
-            $this->assertGreaterThanOrEqual(100, $statusCode->getValue());
-            $this->assertLessThanOrEqual(599, $statusCode->getValue());
+            $this->assertTrue($result['valueIsInt']);
+            $this->assertTrue($result['valueInRange']);
 
             // Should have a non-empty description
-            $this->assertNotEmpty($statusCode->getDescription());
-            $this->assertIsString($statusCode->getDescription());
+            $this->assertTrue($result['descriptionNotEmpty']);
+            $this->assertTrue($result['descriptionIsString']);
 
             // Should have a properly formatted status line
-            $statusLine = $statusCode->getStatusLine();
-            $this->assertStringContainsString((string)$statusCode->getValue(), $statusLine);
-            $this->assertStringContainsString($statusCode->getDescription(), $statusLine);
+            $this->assertTrue($result['statusLineContainsCode']);
+            $this->assertTrue($result['statusLineContainsDescription']);
         }
     }
 
-    public function test_status_code_categories_are_complete_and_consistent(): void
+    public function test_all_status_codes_are_categorized(): void
     {
         //! @section Act
         $allStatusCodes = HttpStatusCode::cases();
@@ -65,32 +83,42 @@ class HttpStatusCodeSmokeTest extends TestCase
             }
         }
 
-        //! @section Assert - Every status code should be in exactly one category
         $totalCategorized = count($categories['success']) +
                           count($categories['redirection']) +
                           count($categories['client_error']) +
                           count($categories['server_error']);
 
+        //! @section Assert
         $this->assertEquals(count($allStatusCodes), $totalCategorized,
             'Every status code should be categorized');
-
-        //! @section Assert - Should have at least one status code in each expected category
         $this->assertGreaterThan(0, count($categories['success']), 'Should have success status codes');
         $this->assertGreaterThan(0, count($categories['redirection']), 'Should have redirection status codes');
         $this->assertGreaterThan(0, count($categories['client_error']), 'Should have client error status codes');
         $this->assertGreaterThan(0, count($categories['server_error']), 'Should have server error status codes');
+    }
 
-        //! @section Assert - Error detection should be consistent
+    public function test_error_detection_is_consistent(): void
+    {
+        //! @section Act
+        $allStatusCodes = HttpStatusCode::cases();
+        $consistencyResults = [];
+
         foreach ($allStatusCodes as $statusCode) {
             $expectedIsError = $statusCode->isClientError() || $statusCode->isServerError();
-            $this->assertEquals($expectedIsError, $statusCode->isError(),
+            $actualIsError = $statusCode->isError();
+            $consistencyResults[$statusCode->value] = $expectedIsError === $actualIsError;
+        }
+
+        //! @section Assert
+        foreach ($allStatusCodes as $statusCode) {
+            $this->assertTrue($consistencyResults[$statusCode->value],
                 "isError() should be consistent for status {$statusCode->value}");
         }
     }
 
-    public function test_status_code_validation_works_correctly(): void
+    public function test_valid_status_codes_pass_validation(): void
     {
-        //! @section Act & Assert - Valid status codes should pass validation
+        //! @section Act & Assert
         $validCodes = [200, 201, 404, 500, 301, 400, 422];
         foreach ($validCodes as $code) {
             $this->assertTrue(HttpStatusCode::isValid($code), "Status code {$code} should be valid");
@@ -98,8 +126,11 @@ class HttpStatusCodeSmokeTest extends TestCase
             $statusCode = HttpStatusCode::fromInt($code);
             $this->assertSame($code, $statusCode->getValue());
         }
+    }
 
-        //! @section Act & Assert - Invalid status codes should fail validation
+    public function test_invalid_status_codes_fail_validation(): void
+    {
+        //! @section Act & Assert
         $invalidCodes = [999, 418, -1, 0, 199, 600, 700];
         foreach ($invalidCodes as $code) {
             $this->assertFalse(HttpStatusCode::isValid($code), "Status code {$code} should be invalid");
@@ -130,28 +161,37 @@ class HttpStatusCodeSmokeTest extends TestCase
             'service_unavailable' => HttpStatusCode::SERVICE_UNAVAILABLE,
         ];
 
-        //! @section Act & Assert - Each scenario should work correctly
+        //! @section Act - Each scenario should work correctly
+        $validationResults = [];
         foreach ($scenarios as $scenario => $expectedStatusCode) {
             $result = new RouteResult(TemplateName::HOME, ['scenario' => $scenario], $expectedStatusCode);
-
-            // Should maintain the correct status code
-            $this->assertSame($expectedStatusCode, $result->getStatusCode());
-
-            // Should have appropriate category classification
             $statusCode = $result->getStatusCode();
-            $this->assertTrue(
-                $statusCode->isSuccess() ||
-                $statusCode->isRedirection() ||
-                $statusCode->isClientError() ||
-                $statusCode->isServerError(),
-                "Status code {$statusCode->value} for scenario '{$scenario}' should be in a valid category"
-            );
-
-            // Should be usable with http_response_code()
             $httpCode = $statusCode->getValue();
-            $this->assertIsInt($httpCode);
-            $this->assertGreaterThanOrEqual(100, $httpCode);
-            $this->assertLessThanOrEqual(599, $httpCode);
+
+            $validationResults[$scenario] = [
+                'statusCodeMatches' => $expectedStatusCode === $result->getStatusCode(),
+                'isInValidCategory' => $statusCode->isSuccess() ||
+                                    $statusCode->isRedirection() ||
+                                    $statusCode->isClientError() ||
+                                    $statusCode->isServerError(),
+                'isValidHttpCode' => is_int($httpCode) &&
+                                   $httpCode >= 100 &&
+                                   $httpCode <= 599
+            ];
+        }
+
+        //! @section Assert - Each scenario should work correctly
+        foreach ($scenarios as $scenario => $expectedStatusCode) {
+            $result = $validationResults[$scenario];
+
+            $this->assertTrue($result['statusCodeMatches'],
+                "Status code should match for scenario '{$scenario}'");
+
+            $this->assertTrue($result['isInValidCategory'],
+                "Status code for scenario '{$scenario}' should be in a valid category");
+
+            $this->assertTrue($result['isValidHttpCode'],
+                "HTTP code for scenario '{$scenario}' should be valid");
         }
     }
 
@@ -160,7 +200,7 @@ class HttpStatusCodeSmokeTest extends TestCase
         //! @section Arrange
         $original = new RouteResult(TemplateName::HOME, ['test' => 'data'], HttpStatusCode::OK);
 
-        //! @section Act & Assert - Test various operations
+        //! @section Act - Test various operations
         $operations = [
             'with_data' => function($result) {
                 return $result->withData(['additional' => 'info']);
@@ -179,25 +219,33 @@ class HttpStatusCodeSmokeTest extends TestCase
             },
         ];
 
+        $operationResults = [];
         foreach ($operations as $operation => $operationFn) {
             $result = $operationFn($original);
-
-            // Should return a new instance
-            $this->assertNotSame($original, $result, "Operation '{$operation}' should return new instance");
-
-            // Should maintain template
-            $this->assertSame($original->getTemplate(), $result->getTemplate(),
-                "Operation '{$operation}' should preserve template");
-
-            // Should have valid status code
             $statusCode = $result->getStatusCode();
-            $this->assertInstanceOf(HttpStatusCode::class, $statusCode);
-            $this->assertIsInt($statusCode->getValue());
-            $this->assertNotEmpty($statusCode->getDescription());
+
+            $operationResults[$operation] = [
+                'result' => $result,
+                'statusCode' => $statusCode,
+                'isNewInstance' => $original !== $result,
+                'templatePreserved' => $original->getTemplate() === $result->getTemplate(),
+                'statusCodeIsValid' => $statusCode instanceof HttpStatusCode &&
+                                     is_int($statusCode->getValue()) &&
+                                     !empty($statusCode->getDescription())
+            ];
+        }
+
+        //! @section Assert - Test various operations
+        foreach ($operations as $operation => $operationResult) {
+            $result = $operationResults[$operation];
+
+            $this->assertTrue($result['isNewInstance'], "Operation '{$operation}' should return new instance");
+            $this->assertTrue($result['templatePreserved'], "Operation '{$operation}' should preserve template");
+            $this->assertTrue($result['statusCodeIsValid'], "Operation '{$operation}' should have valid status code");
         }
     }
 
-    public function test_enum_serialization_and_deserialization(): void
+    public function test_status_code_serialization_and_deserialization(): void
     {
         //! @section Arrange
         $testStatusCodes = [
@@ -208,7 +256,7 @@ class HttpStatusCodeSmokeTest extends TestCase
             HttpStatusCode::BAD_REQUEST,
         ];
 
-        //! @section Act & Assert - Each status code should serialize/deserialize correctly
+        //! @section Act & Assert
         foreach ($testStatusCodes as $originalStatusCode) {
             $serialized = serialize($originalStatusCode);
             $this->assertIsString($serialized);
@@ -218,8 +266,11 @@ class HttpStatusCodeSmokeTest extends TestCase
             $this->assertSame($originalStatusCode->getValue(), $deserialized->getValue());
             $this->assertSame($originalStatusCode->getDescription(), $deserialized->getDescription());
         }
+    }
 
-        //! @section Act & Assert - RouteResult with status codes should serialize correctly
+    public function test_route_result_with_status_codes_serialization(): void
+    {
+        //! @section Act & Assert
         $result = new RouteResult(TemplateName::DEX, ['test' => 'data'], HttpStatusCode::CREATED);
         $serializedResult = serialize($result);
         $deserializedResult = unserialize($serializedResult);
@@ -255,18 +306,19 @@ class HttpStatusCodeSmokeTest extends TestCase
         $this->assertGreaterThan(0, $executionTime, "Operations should take some time");
     }
 
-    public function test_status_code_edge_cases(): void
+    public function test_status_code_range_and_values(): void
     {
-        //! @section Act & Assert - Test edge cases and boundary conditions
-
-        // Minimum and maximum status codes in our enum
+        //! @section Act & Assert
         $minStatusCode = HttpStatusCode::OK; // 200
         $maxStatusCode = HttpStatusCode::SERVICE_UNAVAILABLE; // 503
 
         $this->assertSame(200, $minStatusCode->getValue());
         $this->assertSame(503, $maxStatusCode->getValue());
+    }
 
-        // Test that all status codes have proper descriptions
+    public function test_all_status_codes_have_proper_descriptions(): void
+    {
+        //! @section Act & Assert
         $allStatusCodes = HttpStatusCode::cases();
         foreach ($allStatusCodes as $statusCode) {
             $description = $statusCode->getDescription();
@@ -275,8 +327,12 @@ class HttpStatusCodeSmokeTest extends TestCase
             $this->assertStringNotContainsString('undefined', strtolower($description));
             $this->assertStringNotContainsString('unknown', strtolower($description));
         }
+    }
 
-        // Test that status lines are properly formatted
+    public function test_all_status_lines_are_properly_formatted(): void
+    {
+        //! @section Act & Assert
+        $allStatusCodes = HttpStatusCode::cases();
         foreach ($allStatusCodes as $statusCode) {
             $statusLine = $statusCode->getStatusLine();
             $this->assertStringStartsWith((string)$statusCode->getValue(), $statusLine);
@@ -293,6 +349,8 @@ class HttpStatusCodeSmokeTest extends TestCase
         $statusCode2 = HttpStatusCode::OK;
         $statusCode3 = HttpStatusCode::NOT_FOUND;
 
+        $originalValue = $statusCode1->getValue();
+
         // Should be the same instance for same enum value
         $this->assertSame($statusCode1, $statusCode2);
         $this->assertSame($statusCode1, HttpStatusCode::OK);
@@ -306,7 +364,6 @@ class HttpStatusCodeSmokeTest extends TestCase
         $this->assertInstanceOf(HttpStatusCode::class, $statusCode3);
 
         // Values should be readonly (can't be modified)
-        $originalValue = $statusCode1->getValue();
         $this->assertSame($originalValue, $statusCode1->getValue());
 
         // Should work in type hints

@@ -15,9 +15,13 @@ class BranchNameTest extends TestCase
         //! @section Arrange
         $branch = BranchName::fromString('main');
 
-        //! @section Act & Assert
-        $this->assertSame('main', $branch->getValue());
-        $this->assertSame('main', (string) $branch);
+        //! @section Act
+        $branchValue = $branch->getValue();
+        $branchString = (string) $branch;
+
+        //! @section Assert
+        $this->assertSame('main', $branchValue);
+        $this->assertSame('main', $branchString);
     }
 
     public function test_branch_name_accepts_common_branch_names(): void
@@ -25,10 +29,15 @@ class BranchNameTest extends TestCase
         //! @section Arrange
         $branches = ['main', 'develop', 'developing', 'feature/new-feature', 'hotfix/bug-fix'];
 
-        //! @section Act & Assert
+        //! @section Act
+        $branchValues = [];
         foreach ($branches as $branchName) {
-            $branch = BranchName::fromString($branchName);
-            $this->assertSame($branchName, $branch->getValue());
+            $branchValues[$branchName] = BranchName::fromString($branchName)->getValue();
+        }
+
+        //! @section Assert
+        foreach ($branches as $branchName) {
+            $this->assertSame($branchName, $branchValues[$branchName]);
         }
     }
 
@@ -157,9 +166,13 @@ class BranchNameTest extends TestCase
         $branch2 = BranchName::fromString('main');
         $branch3 = BranchName::fromString('develop');
 
-        //! @section Act & Assert
-        $this->assertTrue($branch1->equals($branch2));
-        $this->assertFalse($branch1->equals($branch3));
+        //! @section Act
+        $branch1EqualsBranch2 = $branch1->equals($branch2);
+        $branch1EqualsBranch3 = $branch1->equals($branch3);
+
+        //! @section Assert
+        $this->assertTrue($branch1EqualsBranch2);
+        $this->assertFalse($branch1EqualsBranch3);
     }
 
     public function test_branch_name_trims_whitespace(): void

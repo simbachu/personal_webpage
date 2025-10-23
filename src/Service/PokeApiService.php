@@ -33,7 +33,6 @@ use App\Service\CacheKeys;
 //! @endcode
 class PokeApiService
 {
-    /** @var callable(string):string */
     private $http_client; //!< Simple HTTP client callback returning raw JSON
 
     //! @brief Construct a new PokeApiService instance
@@ -112,6 +111,32 @@ class PokeApiService
     public function fetchMonster(MonsterIdentifier $identifier, ?FilePath $cache_dir = null, int $ttl_seconds = 300, CacheVersion $cache_version = CacheVersion::V1): Result
     {
         $id_or_name = $identifier->getValue();
+
+        // Try the original identifier first
+        $result = $this->fetchMonsterByIdentifier($identifier, $cache_dir, $ttl_seconds, $cache_version);
+
+        // If that fails and it's a name (not numeric ID), try variant forms
+        if ($result->isFailure() && $identifier->isName()) {
+            $variant_identifiers = $this->getVariantIdentifiers($id_or_name);
+            foreach ($variant_identifiers as $variant_identifier) {
+                $variant_result = $this->fetchMonsterByIdentifier($variant_identifier, $cache_dir, $ttl_seconds, $cache_version);
+                if ($variant_result->isSuccess()) {
+                    return $variant_result;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    //! @brief Fetch a Pokemon monster by specific identifier without variant fallback
+    //! @param identifier MonsterIdentifier containing ID or name
+    //! @param cache_dir Optional directory for file-based caching
+    //! @param ttl_seconds Time-to-live for cache entries in seconds
+    //! @return Result<MonsterData> Success containing MonsterData, or failure with error message
+    private function fetchMonsterByIdentifier(MonsterIdentifier $identifier, ?FilePath $cache_dir, int $ttl_seconds, CacheVersion $cache_version): Result
+    {
+        $id_or_name = $identifier->getValue();
         $url = 'https://pokeapi.co/api/v2/pokemon/' . rawurlencode($id_or_name);
 
         // Simple file-based cache
@@ -156,6 +181,30 @@ class PokeApiService
         } catch (\Throwable $e) {
             return Result::failure('Failed to parse Pokemon data: ' . $e->getMessage());
         }
+    }
+
+    //! @brief Get variant identifiers for Pokemon that have multiple forms
+    //! @param name The base Pokemon name
+    //! @return MonsterIdentifier[] Array of variant identifiers to try
+    private function getVariantIdentifiers(string $name): array
+    {
+        $variants = [];
+
+        // Handle Maushold variants
+        if (strtolower($name) === 'maushold') {
+            $variants[] = MonsterIdentifier::fromString('maushold-family-of-four');
+            $variants[] = MonsterIdentifier::fromString('maushold-family-of-three');
+        }
+
+        // Add more Pokemon variants here as needed
+        // Example: if (strtolower($name) === 'deoxys') {
+        //     $variants[] = MonsterIdentifier::fromString('deoxys-normal');
+        //     $variants[] = MonsterIdentifier::fromString('deoxys-attack');
+        //     $variants[] = MonsterIdentifier::fromString('deoxys-defense');
+        //     $variants[] = MonsterIdentifier::fromString('deoxys-speed');
+        // }
+
+        return $variants;
     }
 
     //! @brief Fetch uncached Pokemon monsters in batch using concurrent HTTP requests
@@ -328,8 +377,7 @@ class PokeApiService
     //! @throws \InvalidArgumentException If required data is missing
     private function parseMonsterJson(string $json, FilePath $cache_dir, int $ttl_seconds, CacheVersion $cache_version): MonsterData
     {
-        /** @var array<string,mixed> $data */
-        $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+        $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR); /** @var array<string,mixed> $data */
 
 
         $types = $data['types'] ?? [];
@@ -358,10 +406,12 @@ class PokeApiService
 
         $precursor = null;
         $successors = [];
+        $speciesName = null;
         if ($evolutionResult->isSuccess()) {
             $evolutionData = $evolutionResult->getValue();
             $precursor = $evolutionData['precursor'] ?? null;
             $successors = $evolutionData['successors'] ?? [];
+            $speciesName = $evolutionData['species_name'] ?? null;
         }
 
 
@@ -374,7 +424,8 @@ class PokeApiService
             precursor: $precursor,
             successors: $successors,
             height: $cache_version === CacheVersion::V2 ? (isset($data['height']) ? (int)$data['height'] : null) : null,
-            weight: $cache_version === CacheVersion::V2 ? (isset($data['weight']) ? (int)$data['weight'] : null) : null
+            weight: $cache_version === CacheVersion::V2 ? (isset($data['weight']) ? (int)$data['weight'] : null) : null,
+            speciesName: $speciesName
         );
 
         // Cache aliasing for both numeric ID and canonical name
@@ -408,7 +459,7 @@ class PokeApiService
     //! @param current_pokemon_name Name of the current Pokemon to find in the evolution chain
     //! @param cache_dir Cache directory for storing evolution data
     //! @param ttl_seconds Time-to-live for evolution data cache entries
-    //! @return Result<array{precursor?:EvolutionData,successors:EvolutionData[]}> Success with evolution data or failure
+    //! @return Result<array{species_name:string,precursor?:EvolutionData,successors:EvolutionData[]}> Success with evolution data or failure
     private function fetchEvolutionChain(string $species_url, string $current_pokemon_name, ?FilePath $cache_dir, int $ttl_seconds, CacheVersion $cache_version): Result
     {
         if (empty($species_url)) {
@@ -438,15 +489,23 @@ class PokeApiService
         }
 
         try {
-            /** @var array<string,mixed> $speciesData */
-            $speciesData = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+            $speciesData = json_decode($json, true, flags: JSON_THROW_ON_ERROR); /** @var array<string,mixed> $speciesData */
+            $speciesName = self::titleCase((string)($speciesData['name'] ?? ''));
             $evolutionChainUrl = $speciesData['evolution_chain']['url'] ?? '';
 
             if (empty($evolutionChainUrl)) {
                 return Result::failure('No evolution chain URL found');
             }
 
-            return $this->parseEvolutionChain($evolutionChainUrl, $current_pokemon_name, $cache_dir, $ttl_seconds, $cache_version);
+            $evolutionResult = $this->parseEvolutionChain($evolutionChainUrl, $current_pokemon_name, $cache_dir, $ttl_seconds, $cache_version);
+            if ($evolutionResult->isFailure()) {
+                return $evolutionResult;
+            }
+
+            $evolutionData = $evolutionResult->getValue();
+            $evolutionData['species_name'] = $speciesName;
+
+            return Result::success($evolutionData);
         } catch (\JsonException $e) {
             return Result::failure('Invalid species JSON: ' . $e->getMessage());
         } catch (\Throwable $e) {
@@ -485,8 +544,7 @@ class PokeApiService
         }
 
         try {
-            /** @var array<string,mixed> $chainData */
-            $chainData = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+            $chainData = json_decode($json, true, flags: JSON_THROW_ON_ERROR); /** @var array<string,mixed> $chainData */
             $chain = $chainData['chain'] ?? [];
 
             // Seed species cache entries for all species in this chain so that
@@ -591,17 +649,18 @@ class PokeApiService
         return mb_strtoupper(mb_substr($name, 0, 1)) . mb_strtolower(mb_substr($name, 1));
     }
 
-    /**
-     * Seed species cache files for all species found in an evolution chain.
-     * Writes minimal JSON containing the evolution_chain url so later lookups
-     * of any species in the chain can avoid an immediate network call.
-     */
+    //! @brief Seed species cache files for all species found in an evolution chain
+    //! @details Writes minimal JSON containing the evolution_chain url so later lookups
+    //! of any species in the chain can avoid an immediate network call.
+    //! @param chain The evolution chain data array
+    //! @param evolution_chain_url URL of the evolution chain endpoint
+    //! @param cache_dir Cache directory for storing species data
+    //! @param cache_version Cache version for versioning
     private function seedSpeciesCachesFromChain(array $chain, string $evolution_chain_url, FilePath $cache_dir, CacheVersion $cache_version): void
     {
         $queue = [$chain];
         while (!empty($queue)) {
-            /** @var array<string,mixed> $node */
-            $node = array_shift($queue);
+            $node = array_shift($queue); /** @var array<string,mixed> $node */
             $speciesUrl = (string)($node['species']['url'] ?? '');
             if ($speciesUrl !== '') {
                 $speciesCache = CacheKeys::species($cache_dir, $cache_version, $speciesUrl);

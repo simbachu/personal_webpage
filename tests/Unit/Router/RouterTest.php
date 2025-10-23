@@ -142,10 +142,11 @@ class RouterTest extends TestCase
         $route = new Route('/test', TemplateName::HOME);
         $this->router->addRoute($route);
 
-        //! @section Act & Assert
+        //! @section Act
         $result1 = $this->router->route('/test');
         $result2 = $this->router->route('/test/');
 
+        //! @section Assert
         $this->assertEquals(TemplateName::HOME, $result1->getTemplate());
         $this->assertEquals(TemplateName::HOME, $result2->getTemplate());
     }

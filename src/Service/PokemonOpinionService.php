@@ -32,7 +32,6 @@ class PokemonOpinionService
 {
     private const OPINIONS_FILE = 'content/pokemon_opinions.yaml';
 
-    /** @var array<string,array{opinion:string,rating:string}>|null */
     private ?array $opinions = null; //!< Cached opinions data
 
     private string $opinionsFilePath; //!< Path to opinions file
@@ -59,6 +58,15 @@ class PokemonOpinionService
             return Result::failure('Failed to load opinions data');
         }
 
+        // Try species name first (for Pokemon with multiple forms like Maushold, Deoxys, etc.)
+        $speciesName = $this->extractSpeciesName($name);
+        $normalizedSpeciesName = mb_strtolower(trim($speciesName));
+
+        if (isset($opinions[$normalizedSpeciesName])) {
+            return Result::success($opinions[$normalizedSpeciesName]);
+        }
+
+        // Fall back to individual form name
         $normalizedName = mb_strtolower(trim($name));
         if (!isset($opinions[$normalizedName])) {
             return Result::failure('No opinion found for Pokemon: ' . $name);
@@ -91,8 +99,7 @@ class PokemonOpinionService
 
         try {
             $content = $filePath->readContents();
-            /** @var array<string,array{opinion:string,rating:string}> $data */
-            $data = Yaml::parse($content);
+            $data = Yaml::parse($content); /** @var array<string,array{opinion:string,rating:string}> $data */
 
             if (!is_array($data)) {
                 return null;
@@ -133,6 +140,88 @@ class PokemonOpinionService
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    //! @brief Extract species name from Pokemon form name
+    //! @param name The Pokemon name (e.g., "maushold-family-of-four")
+    //! @return string The species name (e.g., "maushold")
+    private function extractSpeciesName(string $name): string
+    {
+        $lowerName = mb_strtolower($name);
+
+        // Handle specific Pokemon with multiple forms that should be rated as species
+        $speciesMapping = [
+            // Maushold forms
+            'maushold-family-of-four' => 'maushold',
+            'maushold-family-of-three' => 'maushold',
+
+            // Deoxys forms
+            'deoxys-normal' => 'deoxys',
+            'deoxys-attack' => 'deoxys',
+            'deoxys-defense' => 'deoxys',
+            'deoxys-speed' => 'deoxys',
+
+            // Arceus forms
+            'arceus-normal' => 'arceus',
+            'arceus-fighting' => 'arceus',
+            'arceus-flying' => 'arceus',
+            'arceus-poison' => 'arceus',
+            'arceus-ground' => 'arceus',
+            'arceus-rock' => 'arceus',
+            'arceus-bug' => 'arceus',
+            'arceus-ghost' => 'arceus',
+            'arceus-steel' => 'arceus',
+            'arceus-fire' => 'arceus',
+            'arceus-water' => 'arceus',
+            'arceus-grass' => 'arceus',
+            'arceus-electric' => 'arceus',
+            'arceus-psychic' => 'arceus',
+            'arceus-ice' => 'arceus',
+            'arceus-dragon' => 'arceus',
+            'arceus-dark' => 'arceus',
+            'arceus-fairy' => 'arceus',
+
+            // Unown forms (all letters should map to unown)
+            // Pattern: unown-a, unown-b, etc.
+            // We'll handle this with a pattern match
+
+            // Genesect forms
+            'genesect' => 'genesect',
+            'genesect-douse' => 'genesect',
+            'genesect-shock' => 'genesect',
+            'genesect-burn' => 'genesect',
+            'genesect-chill' => 'genesect',
+
+            // Alcremie forms (too many to list individually, handle with pattern)
+
+            // Deerling/Sawsbuck seasonal forms
+            'deerling-spring' => 'deerling',
+            'deerling-summer' => 'deerling',
+            'deerling-autumn' => 'deerling',
+            'deerling-winter' => 'deerling',
+            'sawsbuck-spring' => 'sawsbuck',
+            'sawsbuck-summer' => 'sawsbuck',
+            'sawsbuck-autumn' => 'sawsbuck',
+            'sawsbuck-winter' => 'sawsbuck',
+        ];
+
+        // Check exact matches first
+        if (isset($speciesMapping[$lowerName])) {
+            return $speciesMapping[$lowerName];
+        }
+
+        // Handle Unown forms (any unown-* should map to unown)
+        if (str_starts_with($lowerName, 'unown-')) {
+            return 'unown';
+        }
+
+        // Handle Alcremie forms (any alcremie-* should map to alcremie)
+        if (str_starts_with($lowerName, 'alcremie-')) {
+            return 'alcremie';
+        }
+
+        // For other Pokemon, return the name as-is (they are their own species)
+        return $name;
     }
 
     //! @brief Get all available opinion names for debugging/testing purposes

@@ -28,33 +28,39 @@ class HttpStatusCodeIntegrationTest extends TestCase
 
     public function test_route_result_can_use_different_status_codes(): void
     {
-        //! @section Act & Assert - Success codes
+        //! @section Act - Success codes
         $okResult = new RouteResult(TemplateName::HOME, [], HttpStatusCode::OK);
+        $createdResult = new RouteResult(TemplateName::HOME, [], HttpStatusCode::CREATED);
+
+        //! @section Assert - Success codes
         $this->assertSame(HttpStatusCode::OK, $okResult->getStatusCode());
         $this->assertTrue($okResult->getStatusCode()->isSuccess());
-
-        $createdResult = new RouteResult(TemplateName::HOME, [], HttpStatusCode::CREATED);
         $this->assertSame(HttpStatusCode::CREATED, $createdResult->getStatusCode());
         $this->assertTrue($createdResult->getStatusCode()->isSuccess());
 
-        //! @section Act & Assert - Client error codes
+        //! @section Act - Client error codes
         $notFoundResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::NOT_FOUND);
+        $badRequestResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::BAD_REQUEST);
+
+        //! @section Assert - Client error codes
         $this->assertSame(HttpStatusCode::NOT_FOUND, $notFoundResult->getStatusCode());
         $this->assertTrue($notFoundResult->getStatusCode()->isClientError());
         $this->assertTrue($notFoundResult->getStatusCode()->isError());
-
-        $badRequestResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::BAD_REQUEST);
         $this->assertSame(HttpStatusCode::BAD_REQUEST, $badRequestResult->getStatusCode());
         $this->assertTrue($badRequestResult->getStatusCode()->isClientError());
 
-        //! @section Act & Assert - Server error codes
+        //! @section Act - Server error codes
         $serverErrorResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::INTERNAL_SERVER_ERROR);
+
+        //! @section Assert - Server error codes
         $this->assertSame(HttpStatusCode::INTERNAL_SERVER_ERROR, $serverErrorResult->getStatusCode());
         $this->assertTrue($serverErrorResult->getStatusCode()->isServerError());
         $this->assertTrue($serverErrorResult->getStatusCode()->isError());
 
-        //! @section Act & Assert - Redirection codes
+        //! @section Act - Redirection codes
         $redirectResult = new RouteResult(TemplateName::HOME, [], HttpStatusCode::MOVED_PERMANENTLY);
+
+        //! @section Assert - Redirection codes
         $this->assertSame(HttpStatusCode::MOVED_PERMANENTLY, $redirectResult->getStatusCode());
         $this->assertTrue($redirectResult->getStatusCode()->isRedirection());
     }
@@ -148,16 +154,18 @@ class HttpStatusCodeIntegrationTest extends TestCase
 
     public function test_status_descriptions_are_meaningful_in_context(): void
     {
-        //! @section Act & Assert - Test that descriptions make sense in HTTP context
+        //! @section Act - Test that descriptions make sense in HTTP context
         $notFoundResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::NOT_FOUND);
+        $serverErrorResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::INTERNAL_SERVER_ERROR);
+        $badRequestResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::BAD_REQUEST);
+
+        //! @section Assert - Test that descriptions make sense in HTTP context
         $this->assertSame('Not Found', $notFoundResult->getStatusCode()->getDescription());
         $this->assertSame('404 Not Found', $notFoundResult->getStatusCode()->getStatusLine());
 
-        $serverErrorResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::INTERNAL_SERVER_ERROR);
         $this->assertSame('Internal Server Error', $serverErrorResult->getStatusCode()->getDescription());
         $this->assertSame('500 Internal Server Error', $serverErrorResult->getStatusCode()->getStatusLine());
 
-        $badRequestResult = new RouteResult(TemplateName::NOT_FOUND, [], HttpStatusCode::BAD_REQUEST);
         $this->assertSame('Bad Request', $badRequestResult->getStatusCode()->getDescription());
         $this->assertSame('400 Bad Request', $badRequestResult->getStatusCode()->getStatusLine());
     }

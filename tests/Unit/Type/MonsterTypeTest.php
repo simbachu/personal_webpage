@@ -32,48 +32,88 @@ class MonsterTypeTest extends TestCase
 
     public function test_monster_type_values_are_correct(): void
     {
-        //! @section Act & Assert
-        $this->assertSame('normal', MonsterType::NORMAL->value);
-        $this->assertSame('fire', MonsterType::FIRE->value);
-        $this->assertSame('water', MonsterType::WATER->value);
-        $this->assertSame('electric', MonsterType::ELECTRIC->value);
-        $this->assertSame('grass', MonsterType::GRASS->value);
-        $this->assertSame('ice', MonsterType::ICE->value);
-        $this->assertSame('fighting', MonsterType::FIGHTING->value);
-        $this->assertSame('poison', MonsterType::POISON->value);
-        $this->assertSame('ground', MonsterType::GROUND->value);
-        $this->assertSame('flying', MonsterType::FLYING->value);
-        $this->assertSame('psychic', MonsterType::PSYCHIC->value);
-        $this->assertSame('bug', MonsterType::BUG->value);
-        $this->assertSame('rock', MonsterType::ROCK->value);
-        $this->assertSame('ghost', MonsterType::GHOST->value);
-        $this->assertSame('dragon', MonsterType::DRAGON->value);
-        $this->assertSame('dark', MonsterType::DARK->value);
-        $this->assertSame('steel', MonsterType::STEEL->value);
-        $this->assertSame('fairy', MonsterType::FAIRY->value);
+        //! @section Act
+        $normalValue = MonsterType::NORMAL->value;
+        $fireValue = MonsterType::FIRE->value;
+        $waterValue = MonsterType::WATER->value;
+        $electricValue = MonsterType::ELECTRIC->value;
+        $grassValue = MonsterType::GRASS->value;
+        $iceValue = MonsterType::ICE->value;
+        $fightingValue = MonsterType::FIGHTING->value;
+        $poisonValue = MonsterType::POISON->value;
+        $groundValue = MonsterType::GROUND->value;
+        $flyingValue = MonsterType::FLYING->value;
+        $psychicValue = MonsterType::PSYCHIC->value;
+        $bugValue = MonsterType::BUG->value;
+        $rockValue = MonsterType::ROCK->value;
+        $ghostValue = MonsterType::GHOST->value;
+        $dragonValue = MonsterType::DRAGON->value;
+        $darkValue = MonsterType::DARK->value;
+        $steelValue = MonsterType::STEEL->value;
+        $fairyValue = MonsterType::FAIRY->value;
+
+        //! @section Assert
+        $this->assertSame('normal', $normalValue);
+        $this->assertSame('fire', $fireValue);
+        $this->assertSame('water', $waterValue);
+        $this->assertSame('electric', $electricValue);
+        $this->assertSame('grass', $grassValue);
+        $this->assertSame('ice', $iceValue);
+        $this->assertSame('fighting', $fightingValue);
+        $this->assertSame('poison', $poisonValue);
+        $this->assertSame('ground', $groundValue);
+        $this->assertSame('flying', $flyingValue);
+        $this->assertSame('psychic', $psychicValue);
+        $this->assertSame('bug', $bugValue);
+        $this->assertSame('rock', $rockValue);
+        $this->assertSame('ghost', $ghostValue);
+        $this->assertSame('dragon', $dragonValue);
+        $this->assertSame('dark', $darkValue);
+        $this->assertSame('steel', $steelValue);
+        $this->assertSame('fairy', $fairyValue);
     }
 
     public function test_from_string_with_valid_types(): void
     {
-        //! @section Act & Assert
-        $this->assertSame(MonsterType::NORMAL, MonsterType::fromString('normal'));
-        $this->assertSame(MonsterType::FIRE, MonsterType::fromString('fire'));
-        $this->assertSame(MonsterType::WATER, MonsterType::fromString('water'));
-        $this->assertSame(MonsterType::ELECTRIC, MonsterType::fromString('electric'));
-        $this->assertSame(MonsterType::GRASS, MonsterType::fromString('grass'));
-        $this->assertSame(MonsterType::ICE, MonsterType::fromString('ice'));
-        $this->assertSame(MonsterType::FIGHTING, MonsterType::fromString('fighting'));
-        $this->assertSame(MonsterType::POISON, MonsterType::fromString('poison'));
-        $this->assertSame(MonsterType::GROUND, MonsterType::fromString('ground'));
-        $this->assertSame(MonsterType::FLYING, MonsterType::fromString('flying'));
-        $this->assertSame(MonsterType::PSYCHIC, MonsterType::fromString('psychic'));
-        $this->assertSame(MonsterType::BUG, MonsterType::fromString('bug'));
-        $this->assertSame(MonsterType::ROCK, MonsterType::fromString('rock'));
-        $this->assertSame(MonsterType::GHOST, MonsterType::fromString('ghost'));
-        $this->assertSame(MonsterType::DRAGON, MonsterType::fromString('dragon'));
-        $this->assertSame(MonsterType::DARK, MonsterType::fromString('dark'));
-        $this->assertSame(MonsterType::STEEL, MonsterType::fromString('steel'));
-        $this->assertSame(MonsterType::FAIRY, MonsterType::fromString('fairy'));
+        //! @section Act
+        $normalFromString = MonsterType::fromString('normal');
+        $fireFromString = MonsterType::fromString('fire');
+        $waterFromString = MonsterType::fromString('water');
+        $electricFromString = MonsterType::fromString('electric');
+        $grassFromString = MonsterType::fromString('grass');
+        $iceFromString = MonsterType::fromString('ice');
+        $fightingFromString = MonsterType::fromString('fighting');
+        $poisonFromString = MonsterType::fromString('poison');
+        $groundFromString = MonsterType::fromString('ground');
+        $flyingFromString = MonsterType::fromString('flying');
+        $psychicFromString = MonsterType::fromString('psychic');
+        $bugFromString = MonsterType::fromString('bug');
+        $rockFromString = MonsterType::fromString('rock');
+        $ghostFromString = MonsterType::fromString('ghost');
+        $dragonFromString = MonsterType::fromString('dragon');
+        $darkFromString = MonsterType::fromString('dark');
+        $steelFromString = MonsterType::fromString('steel');
+        $fairyFromString = MonsterType::fromString('fairy');
+
+        //! @section Assert
+        $this->assertSame(MonsterType::NORMAL, $normalFromString);
+        $this->assertSame(MonsterType::FIRE, $fireFromString);
+        $this->assertSame(MonsterType::WATER, $waterFromString);
+        $this->assertSame(MonsterType::ELECTRIC, $electricFromString);
+        $this->assertSame(MonsterType::GRASS, $grassFromString);
+        $this->assertSame(MonsterType::ICE, $iceFromString);
+        $this->assertSame(MonsterType::FIGHTING, $fightingFromString);
+        $this->assertSame(MonsterType::POISON, $poisonFromString);
+        $this->assertSame(MonsterType::GROUND, $groundFromString);
+        $this->assertSame(MonsterType::FLYING, $flyingFromString);
+        $this->assertSame(MonsterType::PSYCHIC, $psychicFromString);
+        $this->assertSame(MonsterType::BUG, $bugFromString);
+        $this->assertSame(MonsterType::ROCK, $rockFromString);
+        $this->assertSame(MonsterType::GHOST, $ghostFromString);
+        $this->assertSame(MonsterType::DRAGON, $dragonFromString);
+        $this->assertSame(MonsterType::DARK, $darkFromString);
+        $this->assertSame(MonsterType::STEEL, $steelFromString);
+        $this->assertSame(MonsterType::FAIRY, $fairyFromString);
     }
 
     public function test_from_string_with_invalid_type(): void
@@ -98,36 +138,64 @@ class MonsterTypeTest extends TestCase
 
     public function test_is_valid_with_valid_types(): void
     {
-        //! @section Act & Assert
-        $this->assertTrue(MonsterType::isValid('normal'));
-        $this->assertTrue(MonsterType::isValid('fire'));
-        $this->assertTrue(MonsterType::isValid('water'));
-        $this->assertTrue(MonsterType::isValid('electric'));
-        $this->assertTrue(MonsterType::isValid('grass'));
-        $this->assertTrue(MonsterType::isValid('ice'));
-        $this->assertTrue(MonsterType::isValid('fighting'));
-        $this->assertTrue(MonsterType::isValid('poison'));
-        $this->assertTrue(MonsterType::isValid('ground'));
-        $this->assertTrue(MonsterType::isValid('flying'));
-        $this->assertTrue(MonsterType::isValid('psychic'));
-        $this->assertTrue(MonsterType::isValid('bug'));
-        $this->assertTrue(MonsterType::isValid('rock'));
-        $this->assertTrue(MonsterType::isValid('ghost'));
-        $this->assertTrue(MonsterType::isValid('dragon'));
-        $this->assertTrue(MonsterType::isValid('dark'));
-        $this->assertTrue(MonsterType::isValid('steel'));
-        $this->assertTrue(MonsterType::isValid('fairy'));
+        //! @section Act
+        $normalValid = MonsterType::isValid('normal');
+        $fireValid = MonsterType::isValid('fire');
+        $waterValid = MonsterType::isValid('water');
+        $electricValid = MonsterType::isValid('electric');
+        $grassValid = MonsterType::isValid('grass');
+        $iceValid = MonsterType::isValid('ice');
+        $fightingValid = MonsterType::isValid('fighting');
+        $poisonValid = MonsterType::isValid('poison');
+        $groundValid = MonsterType::isValid('ground');
+        $flyingValid = MonsterType::isValid('flying');
+        $psychicValid = MonsterType::isValid('psychic');
+        $bugValid = MonsterType::isValid('bug');
+        $rockValid = MonsterType::isValid('rock');
+        $ghostValid = MonsterType::isValid('ghost');
+        $dragonValid = MonsterType::isValid('dragon');
+        $darkValid = MonsterType::isValid('dark');
+        $steelValid = MonsterType::isValid('steel');
+        $fairyValid = MonsterType::isValid('fairy');
+
+        //! @section Assert
+        $this->assertTrue($normalValid);
+        $this->assertTrue($fireValid);
+        $this->assertTrue($waterValid);
+        $this->assertTrue($electricValid);
+        $this->assertTrue($grassValid);
+        $this->assertTrue($iceValid);
+        $this->assertTrue($fightingValid);
+        $this->assertTrue($poisonValid);
+        $this->assertTrue($groundValid);
+        $this->assertTrue($flyingValid);
+        $this->assertTrue($psychicValid);
+        $this->assertTrue($bugValid);
+        $this->assertTrue($rockValid);
+        $this->assertTrue($ghostValid);
+        $this->assertTrue($dragonValid);
+        $this->assertTrue($darkValid);
+        $this->assertTrue($steelValid);
+        $this->assertTrue($fairyValid);
     }
 
     public function test_is_valid_with_invalid_types(): void
     {
-        //! @section Act & Assert
-        $this->assertFalse(MonsterType::isValid('invalid'));
-        $this->assertFalse(MonsterType::isValid(''));
-        $this->assertFalse(MonsterType::isValid('electic'));
-        $this->assertFalse(MonsterType::isValid('electric '));
-        $this->assertFalse(MonsterType::isValid(' ELECTRIC'));
-        $this->assertFalse(MonsterType::isValid('Electric'));
+        //! @section Act
+        $invalidValid = MonsterType::isValid('invalid');
+        $emptyValid = MonsterType::isValid('');
+        $electicValid = MonsterType::isValid('electic');
+        $electricSpaceValid = MonsterType::isValid('electric ');
+        $electricUpperValid = MonsterType::isValid(' ELECTRIC');
+        $electricCapitalValid = MonsterType::isValid('Electric');
+
+        //! @section Assert
+        $this->assertFalse($invalidValid);
+        $this->assertFalse($emptyValid);
+        $this->assertFalse($electicValid);
+        $this->assertFalse($electricSpaceValid);
+        $this->assertFalse($electricUpperValid);
+        $this->assertFalse($electricCapitalValid);
     }
 
     public function test_get_all_values(): void
@@ -160,123 +228,229 @@ class MonsterTypeTest extends TestCase
 
     public function test_get_display_name(): void
     {
-        //! @section Act & Assert
-        $this->assertSame('Normal', MonsterType::NORMAL->getDisplayName());
-        $this->assertSame('Fire', MonsterType::FIRE->getDisplayName());
-        $this->assertSame('Water', MonsterType::WATER->getDisplayName());
-        $this->assertSame('Electric', MonsterType::ELECTRIC->getDisplayName());
-        $this->assertSame('Grass', MonsterType::GRASS->getDisplayName());
-        $this->assertSame('Ice', MonsterType::ICE->getDisplayName());
-        $this->assertSame('Fighting', MonsterType::FIGHTING->getDisplayName());
-        $this->assertSame('Poison', MonsterType::POISON->getDisplayName());
-        $this->assertSame('Ground', MonsterType::GROUND->getDisplayName());
-        $this->assertSame('Flying', MonsterType::FLYING->getDisplayName());
-        $this->assertSame('Psychic', MonsterType::PSYCHIC->getDisplayName());
-        $this->assertSame('Bug', MonsterType::BUG->getDisplayName());
-        $this->assertSame('Rock', MonsterType::ROCK->getDisplayName());
-        $this->assertSame('Ghost', MonsterType::GHOST->getDisplayName());
-        $this->assertSame('Dragon', MonsterType::DRAGON->getDisplayName());
-        $this->assertSame('Dark', MonsterType::DARK->getDisplayName());
-        $this->assertSame('Steel', MonsterType::STEEL->getDisplayName());
-        $this->assertSame('Fairy', MonsterType::FAIRY->getDisplayName());
+        //! @section Act
+        $normalDisplayName = MonsterType::NORMAL->getDisplayName();
+        $fireDisplayName = MonsterType::FIRE->getDisplayName();
+        $waterDisplayName = MonsterType::WATER->getDisplayName();
+        $electricDisplayName = MonsterType::ELECTRIC->getDisplayName();
+        $grassDisplayName = MonsterType::GRASS->getDisplayName();
+        $iceDisplayName = MonsterType::ICE->getDisplayName();
+        $fightingDisplayName = MonsterType::FIGHTING->getDisplayName();
+        $poisonDisplayName = MonsterType::POISON->getDisplayName();
+        $groundDisplayName = MonsterType::GROUND->getDisplayName();
+        $flyingDisplayName = MonsterType::FLYING->getDisplayName();
+        $psychicDisplayName = MonsterType::PSYCHIC->getDisplayName();
+        $bugDisplayName = MonsterType::BUG->getDisplayName();
+        $rockDisplayName = MonsterType::ROCK->getDisplayName();
+        $ghostDisplayName = MonsterType::GHOST->getDisplayName();
+        $dragonDisplayName = MonsterType::DRAGON->getDisplayName();
+        $darkDisplayName = MonsterType::DARK->getDisplayName();
+        $steelDisplayName = MonsterType::STEEL->getDisplayName();
+        $fairyDisplayName = MonsterType::FAIRY->getDisplayName();
+
+        //! @section Assert
+        $this->assertSame('Normal', $normalDisplayName);
+        $this->assertSame('Fire', $fireDisplayName);
+        $this->assertSame('Water', $waterDisplayName);
+        $this->assertSame('Electric', $electricDisplayName);
+        $this->assertSame('Grass', $grassDisplayName);
+        $this->assertSame('Ice', $iceDisplayName);
+        $this->assertSame('Fighting', $fightingDisplayName);
+        $this->assertSame('Poison', $poisonDisplayName);
+        $this->assertSame('Ground', $groundDisplayName);
+        $this->assertSame('Flying', $flyingDisplayName);
+        $this->assertSame('Psychic', $psychicDisplayName);
+        $this->assertSame('Bug', $bugDisplayName);
+        $this->assertSame('Rock', $rockDisplayName);
+        $this->assertSame('Ghost', $ghostDisplayName);
+        $this->assertSame('Dragon', $dragonDisplayName);
+        $this->assertSame('Dark', $darkDisplayName);
+        $this->assertSame('Steel', $steelDisplayName);
+        $this->assertSame('Fairy', $fairyDisplayName);
     }
 
     public function test_is_physical_type(): void
     {
-        //! @section Act & Assert
+        //! @section Act
         // Physical types
-        $this->assertTrue(MonsterType::NORMAL->isPhysicalType());
-        $this->assertTrue(MonsterType::FIGHTING->isPhysicalType());
-        $this->assertTrue(MonsterType::POISON->isPhysicalType());
-        $this->assertTrue(MonsterType::GROUND->isPhysicalType());
-        $this->assertTrue(MonsterType::FLYING->isPhysicalType());
-        $this->assertTrue(MonsterType::BUG->isPhysicalType());
-        $this->assertTrue(MonsterType::ROCK->isPhysicalType());
-        $this->assertTrue(MonsterType::GHOST->isPhysicalType());
-        $this->assertTrue(MonsterType::DRAGON->isPhysicalType());
-        $this->assertTrue(MonsterType::DARK->isPhysicalType());
-        $this->assertTrue(MonsterType::STEEL->isPhysicalType());
-        $this->assertTrue(MonsterType::FAIRY->isPhysicalType());
+        $normalIsPhysical = MonsterType::NORMAL->isPhysicalType();
+        $fightingIsPhysical = MonsterType::FIGHTING->isPhysicalType();
+        $poisonIsPhysical = MonsterType::POISON->isPhysicalType();
+        $groundIsPhysical = MonsterType::GROUND->isPhysicalType();
+        $flyingIsPhysical = MonsterType::FLYING->isPhysicalType();
+        $bugIsPhysical = MonsterType::BUG->isPhysicalType();
+        $rockIsPhysical = MonsterType::ROCK->isPhysicalType();
+        $ghostIsPhysical = MonsterType::GHOST->isPhysicalType();
+        $dragonIsPhysical = MonsterType::DRAGON->isPhysicalType();
+        $darkIsPhysical = MonsterType::DARK->isPhysicalType();
+        $steelIsPhysical = MonsterType::STEEL->isPhysicalType();
+        $fairyIsPhysical = MonsterType::FAIRY->isPhysicalType();
 
         // Special types
-        $this->assertFalse(MonsterType::FIRE->isPhysicalType());
-        $this->assertFalse(MonsterType::WATER->isPhysicalType());
-        $this->assertFalse(MonsterType::ELECTRIC->isPhysicalType());
-        $this->assertFalse(MonsterType::GRASS->isPhysicalType());
-        $this->assertFalse(MonsterType::ICE->isPhysicalType());
-        $this->assertFalse(MonsterType::PSYCHIC->isPhysicalType());
+        $fireIsPhysical = MonsterType::FIRE->isPhysicalType();
+        $waterIsPhysical = MonsterType::WATER->isPhysicalType();
+        $electricIsPhysical = MonsterType::ELECTRIC->isPhysicalType();
+        $grassIsPhysical = MonsterType::GRASS->isPhysicalType();
+        $iceIsPhysical = MonsterType::ICE->isPhysicalType();
+        $psychicIsPhysical = MonsterType::PSYCHIC->isPhysicalType();
+
+        //! @section Assert
+        // Physical types
+        $this->assertTrue($normalIsPhysical);
+        $this->assertTrue($fightingIsPhysical);
+        $this->assertTrue($poisonIsPhysical);
+        $this->assertTrue($groundIsPhysical);
+        $this->assertTrue($flyingIsPhysical);
+        $this->assertTrue($bugIsPhysical);
+        $this->assertTrue($rockIsPhysical);
+        $this->assertTrue($ghostIsPhysical);
+        $this->assertTrue($dragonIsPhysical);
+        $this->assertTrue($darkIsPhysical);
+        $this->assertTrue($steelIsPhysical);
+        $this->assertTrue($fairyIsPhysical);
+
+        // Special types
+        $this->assertFalse($fireIsPhysical);
+        $this->assertFalse($waterIsPhysical);
+        $this->assertFalse($electricIsPhysical);
+        $this->assertFalse($grassIsPhysical);
+        $this->assertFalse($iceIsPhysical);
+        $this->assertFalse($psychicIsPhysical);
     }
 
     public function test_is_special_type(): void
     {
-        //! @section Act & Assert
+        //! @section Act
         // Special types
-        $this->assertTrue(MonsterType::FIRE->isSpecialType());
-        $this->assertTrue(MonsterType::WATER->isSpecialType());
-        $this->assertTrue(MonsterType::ELECTRIC->isSpecialType());
-        $this->assertTrue(MonsterType::GRASS->isSpecialType());
-        $this->assertTrue(MonsterType::ICE->isSpecialType());
-        $this->assertTrue(MonsterType::PSYCHIC->isSpecialType());
+        $fireIsSpecial = MonsterType::FIRE->isSpecialType();
+        $waterIsSpecial = MonsterType::WATER->isSpecialType();
+        $electricIsSpecial = MonsterType::ELECTRIC->isSpecialType();
+        $grassIsSpecial = MonsterType::GRASS->isSpecialType();
+        $iceIsSpecial = MonsterType::ICE->isSpecialType();
+        $psychicIsSpecial = MonsterType::PSYCHIC->isSpecialType();
 
         // Physical types
-        $this->assertFalse(MonsterType::NORMAL->isSpecialType());
-        $this->assertFalse(MonsterType::FIGHTING->isSpecialType());
-        $this->assertFalse(MonsterType::POISON->isSpecialType());
-        $this->assertFalse(MonsterType::GROUND->isSpecialType());
-        $this->assertFalse(MonsterType::FLYING->isSpecialType());
-        $this->assertFalse(MonsterType::BUG->isSpecialType());
-        $this->assertFalse(MonsterType::ROCK->isSpecialType());
-        $this->assertFalse(MonsterType::GHOST->isSpecialType());
-        $this->assertFalse(MonsterType::DRAGON->isSpecialType());
-        $this->assertFalse(MonsterType::DARK->isSpecialType());
-        $this->assertFalse(MonsterType::STEEL->isSpecialType());
-        $this->assertFalse(MonsterType::FAIRY->isSpecialType());
+        $normalIsSpecial = MonsterType::NORMAL->isSpecialType();
+        $fightingIsSpecial = MonsterType::FIGHTING->isSpecialType();
+        $poisonIsSpecial = MonsterType::POISON->isSpecialType();
+        $groundIsSpecial = MonsterType::GROUND->isSpecialType();
+        $flyingIsSpecial = MonsterType::FLYING->isSpecialType();
+        $bugIsSpecial = MonsterType::BUG->isSpecialType();
+        $rockIsSpecial = MonsterType::ROCK->isSpecialType();
+        $ghostIsSpecial = MonsterType::GHOST->isSpecialType();
+        $dragonIsSpecial = MonsterType::DRAGON->isSpecialType();
+        $darkIsSpecial = MonsterType::DARK->isSpecialType();
+        $steelIsSpecial = MonsterType::STEEL->isSpecialType();
+        $fairyIsSpecial = MonsterType::FAIRY->isSpecialType();
+
+        //! @section Assert
+        // Special types
+        $this->assertTrue($fireIsSpecial);
+        $this->assertTrue($waterIsSpecial);
+        $this->assertTrue($electricIsSpecial);
+        $this->assertTrue($grassIsSpecial);
+        $this->assertTrue($iceIsSpecial);
+        $this->assertTrue($psychicIsSpecial);
+
+        // Physical types
+        $this->assertFalse($normalIsSpecial);
+        $this->assertFalse($fightingIsSpecial);
+        $this->assertFalse($poisonIsSpecial);
+        $this->assertFalse($groundIsSpecial);
+        $this->assertFalse($flyingIsSpecial);
+        $this->assertFalse($bugIsSpecial);
+        $this->assertFalse($rockIsSpecial);
+        $this->assertFalse($ghostIsSpecial);
+        $this->assertFalse($dragonIsSpecial);
+        $this->assertFalse($darkIsSpecial);
+        $this->assertFalse($steelIsSpecial);
+        $this->assertFalse($fairyIsSpecial);
     }
 
     public function test_get_color(): void
     {
-        //! @section Act & Assert
-        $this->assertSame('#A8A878', MonsterType::NORMAL->getColor());
-        $this->assertSame('#F08030', MonsterType::FIRE->getColor());
-        $this->assertSame('#6890F0', MonsterType::WATER->getColor());
-        $this->assertSame('#F8D030', MonsterType::ELECTRIC->getColor());
-        $this->assertSame('#78C850', MonsterType::GRASS->getColor());
-        $this->assertSame('#98D8D8', MonsterType::ICE->getColor());
-        $this->assertSame('#C03028', MonsterType::FIGHTING->getColor());
-        $this->assertSame('#A040A0', MonsterType::POISON->getColor());
-        $this->assertSame('#E0C068', MonsterType::GROUND->getColor());
-        $this->assertSame('#A890F0', MonsterType::FLYING->getColor());
-        $this->assertSame('#F85888', MonsterType::PSYCHIC->getColor());
-        $this->assertSame('#A8B820', MonsterType::BUG->getColor());
-        $this->assertSame('#B8A038', MonsterType::ROCK->getColor());
-        $this->assertSame('#705898', MonsterType::GHOST->getColor());
-        $this->assertSame('#7038F8', MonsterType::DRAGON->getColor());
-        $this->assertSame('#705848', MonsterType::DARK->getColor());
-        $this->assertSame('#B8B8D0', MonsterType::STEEL->getColor());
-        $this->assertSame('#EE99AC', MonsterType::FAIRY->getColor());
+        //! @section Act
+        $normalColor = MonsterType::NORMAL->getColor();
+        $fireColor = MonsterType::FIRE->getColor();
+        $waterColor = MonsterType::WATER->getColor();
+        $electricColor = MonsterType::ELECTRIC->getColor();
+        $grassColor = MonsterType::GRASS->getColor();
+        $iceColor = MonsterType::ICE->getColor();
+        $fightingColor = MonsterType::FIGHTING->getColor();
+        $poisonColor = MonsterType::POISON->getColor();
+        $groundColor = MonsterType::GROUND->getColor();
+        $flyingColor = MonsterType::FLYING->getColor();
+        $psychicColor = MonsterType::PSYCHIC->getColor();
+        $bugColor = MonsterType::BUG->getColor();
+        $rockColor = MonsterType::ROCK->getColor();
+        $ghostColor = MonsterType::GHOST->getColor();
+        $dragonColor = MonsterType::DRAGON->getColor();
+        $darkColor = MonsterType::DARK->getColor();
+        $steelColor = MonsterType::STEEL->getColor();
+        $fairyColor = MonsterType::FAIRY->getColor();
+
+        //! @section Assert
+        $this->assertSame('#A8A878', $normalColor);
+        $this->assertSame('#F08030', $fireColor);
+        $this->assertSame('#6890F0', $waterColor);
+        $this->assertSame('#F8D030', $electricColor);
+        $this->assertSame('#78C850', $grassColor);
+        $this->assertSame('#98D8D8', $iceColor);
+        $this->assertSame('#C03028', $fightingColor);
+        $this->assertSame('#A040A0', $poisonColor);
+        $this->assertSame('#E0C068', $groundColor);
+        $this->assertSame('#A890F0', $flyingColor);
+        $this->assertSame('#F85888', $psychicColor);
+        $this->assertSame('#A8B820', $bugColor);
+        $this->assertSame('#B8A038', $rockColor);
+        $this->assertSame('#705898', $ghostColor);
+        $this->assertSame('#7038F8', $dragonColor);
+        $this->assertSame('#705848', $darkColor);
+        $this->assertSame('#B8B8D0', $steelColor);
+        $this->assertSame('#EE99AC', $fairyColor);
     }
 
     public function test_to_string(): void
     {
-        //! @section Act & Assert
-        $this->assertSame('normal', MonsterType::NORMAL->toString());
-        $this->assertSame('fire', MonsterType::FIRE->toString());
-        $this->assertSame('water', MonsterType::WATER->toString());
-        $this->assertSame('electric', MonsterType::ELECTRIC->toString());
-        $this->assertSame('grass', MonsterType::GRASS->toString());
-        $this->assertSame('ice', MonsterType::ICE->toString());
-        $this->assertSame('fighting', MonsterType::FIGHTING->toString());
-        $this->assertSame('poison', MonsterType::POISON->toString());
-        $this->assertSame('ground', MonsterType::GROUND->toString());
-        $this->assertSame('flying', MonsterType::FLYING->toString());
-        $this->assertSame('psychic', MonsterType::PSYCHIC->toString());
-        $this->assertSame('bug', MonsterType::BUG->toString());
-        $this->assertSame('rock', MonsterType::ROCK->toString());
-        $this->assertSame('ghost', MonsterType::GHOST->toString());
-        $this->assertSame('dragon', MonsterType::DRAGON->toString());
-        $this->assertSame('dark', MonsterType::DARK->toString());
-        $this->assertSame('steel', MonsterType::STEEL->toString());
-        $this->assertSame('fairy', MonsterType::FAIRY->toString());
+        //! @section Act
+        $normalString = MonsterType::NORMAL->toString();
+        $fireString = MonsterType::FIRE->toString();
+        $waterString = MonsterType::WATER->toString();
+        $electricString = MonsterType::ELECTRIC->toString();
+        $grassString = MonsterType::GRASS->toString();
+        $iceString = MonsterType::ICE->toString();
+        $fightingString = MonsterType::FIGHTING->toString();
+        $poisonString = MonsterType::POISON->toString();
+        $groundString = MonsterType::GROUND->toString();
+        $flyingString = MonsterType::FLYING->toString();
+        $psychicString = MonsterType::PSYCHIC->toString();
+        $bugString = MonsterType::BUG->toString();
+        $rockString = MonsterType::ROCK->toString();
+        $ghostString = MonsterType::GHOST->toString();
+        $dragonString = MonsterType::DRAGON->toString();
+        $darkString = MonsterType::DARK->toString();
+        $steelString = MonsterType::STEEL->toString();
+        $fairyString = MonsterType::FAIRY->toString();
+
+        //! @section Assert
+        $this->assertSame('normal', $normalString);
+        $this->assertSame('fire', $fireString);
+        $this->assertSame('water', $waterString);
+        $this->assertSame('electric', $electricString);
+        $this->assertSame('grass', $grassString);
+        $this->assertSame('ice', $iceString);
+        $this->assertSame('fighting', $fightingString);
+        $this->assertSame('poison', $poisonString);
+        $this->assertSame('ground', $groundString);
+        $this->assertSame('flying', $flyingString);
+        $this->assertSame('psychic', $psychicString);
+        $this->assertSame('bug', $bugString);
+        $this->assertSame('rock', $rockString);
+        $this->assertSame('ghost', $ghostString);
+        $this->assertSame('dragon', $dragonString);
+        $this->assertSame('dark', $darkString);
+        $this->assertSame('steel', $steelString);
+        $this->assertSame('fairy', $fairyString);
     }
 
     public function test_enum_comparison(): void
@@ -286,11 +460,15 @@ class MonsterTypeTest extends TestCase
         $type2 = MonsterType::ELECTRIC;
         $type3 = MonsterType::FIRE;
 
-        //! @section Act & Assert
+        //! @section Act
+        $type1EqualsType2 = $type1 === $type2;
+        $type1EqualsType3 = $type1 === $type3;
+
+        //! @section Assert
         $this->assertSame($type1, $type2);
         $this->assertNotSame($type1, $type3);
-        $this->assertTrue($type1 === $type2);
-        $this->assertFalse($type1 === $type3);
+        $this->assertTrue($type1EqualsType2);
+        $this->assertFalse($type1EqualsType3);
     }
 
     public function test_enum_can_be_used_in_match_statements(): void

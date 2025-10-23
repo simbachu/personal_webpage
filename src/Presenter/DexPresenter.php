@@ -6,6 +6,7 @@ namespace App\Presenter;
 
 use App\Service\PokeApiService;
 use App\Service\PokemonOpinionService;
+use App\Service\MonsterRatingServiceAdapter;
 use App\Type\MonsterData;
 use App\Type\MonsterIdentifier;
 use App\Type\TemplateName;
@@ -31,14 +32,14 @@ use App\Type\TemplateName;
 class DexPresenter
 {
     private PokeApiService $pokeapi; //!< Service for fetching pokemon data
-    private PokemonOpinionService $opinionService; //!< Service for fetching pokemon opinions
+    private PokemonOpinionService|MonsterRatingServiceAdapter $opinionService; //!< Service for fetching pokemon opinions
     private int $cacheTtl; //!< Cache TTL in seconds
 
     //! @brief Construct a new DexPresenter instance
     //! @param pokeapi PokeAPI service for fetching Pokemon data
-    //! @param opinionService Pokemon opinion service for fetching opinions
+    //! @param opinionService Pokemon opinion service or compatible adapter for fetching opinions
     //! @param cacheTtl Cache time-to-live in seconds for Pokemon data (defaults to 300)
-    public function __construct(PokeApiService $pokeapi, PokemonOpinionService $opinionService, int $cacheTtl = 300)
+    public function __construct(PokeApiService $pokeapi, PokemonOpinionService|MonsterRatingServiceAdapter $opinionService, int $cacheTtl = 300)
     {
         $this->pokeapi = $pokeapi;
         $this->opinionService = $opinionService;
@@ -53,8 +54,11 @@ class DexPresenter
         $monsterArray = $monsterData->toArray();
 
         // Try to add opinion data if available
-        $identifier = MonsterIdentifier::fromString((string)$monsterData->id);
-        $opinionResult = $this->opinionService->getOpinion($identifier);
+        // Use species name if available, otherwise fall back to individual form name
+        $lookupName = $monsterData->speciesName ?? $monsterData->name;
+        $opinionIdentifier = MonsterIdentifier::fromString($lookupName);
+
+        $opinionResult = $this->opinionService->getOpinion($opinionIdentifier);
 
         if ($opinionResult->isSuccess()) {
             $opinion = $opinionResult->getValue();
@@ -98,8 +102,11 @@ class DexPresenter
         $nameToRating = [];
 
         foreach ($names as $name) {
-            $identifier = MonsterIdentifier::fromString($name);
-            $opinionResult = $this->opinionService->getOpinion($identifier);
+            // For rating purposes, use the species name instead of the individual form name
+            $speciesName = $this->extractSpeciesNameFromFormName($name);
+            $ratingIdentifier = MonsterIdentifier::fromString($speciesName);
+
+            $opinionResult = $this->opinionService->getOpinion($ratingIdentifier);
             if (!$opinionResult->isSuccess()) {
                 continue;
             }
@@ -109,7 +116,9 @@ class DexPresenter
                 continue;
             }
 
-            $validIdentifiers[] = $identifier;
+            // For fetching Pokemon data, still use the original form name
+            $fetchIdentifier = MonsterIdentifier::fromString($name);
+            $validIdentifiers[] = $fetchIdentifier;
             $nameToRating[$name] = $rating;
         }
 
@@ -159,6 +168,82 @@ class DexPresenter
             'name' => "Jennifer's Pokémon Tierlist",
             'tiers' => $tiers,
         ];
+    }
+
+    //! @brief Extract species name from Pokemon form name for rating purposes
+    //! @param name The Pokemon name (e.g., "maushold-family-of-four")
+    //! @return string The species name (e.g., "maushold")
+    private function extractSpeciesNameFromFormName(string $name): string
+    {
+        $lowerName = mb_strtolower($name);
+
+        // Handle specific Pokemon with multiple forms that should be rated as species
+        $speciesMapping = [
+            // Maushold forms
+            'maushold-family-of-four' => 'maushold',
+            'maushold-family-of-three' => 'maushold',
+
+            // Deoxys forms
+            'deoxys-normal' => 'deoxys',
+            'deoxys-attack' => 'deoxys',
+            'deoxys-defense' => 'deoxys',
+            'deoxys-speed' => 'deoxys',
+
+            // Arceus forms
+            'arceus-normal' => 'arceus',
+            'arceus-fighting' => 'arceus',
+            'arceus-flying' => 'arceus',
+            'arceus-poison' => 'arceus',
+            'arceus-ground' => 'arceus',
+            'arceus-rock' => 'arceus',
+            'arceus-bug' => 'arceus',
+            'arceus-ghost' => 'arceus',
+            'arceus-steel' => 'arceus',
+            'arceus-fire' => 'arceus',
+            'arceus-water' => 'arceus',
+            'arceus-grass' => 'arceus',
+            'arceus-electric' => 'arceus',
+            'arceus-psychic' => 'arceus',
+            'arceus-ice' => 'arceus',
+            'arceus-dragon' => 'arceus',
+            'arceus-dark' => 'arceus',
+            'arceus-fairy' => 'arceus',
+
+            // Genesect forms
+            'genesect' => 'genesect',
+            'genesect-douse' => 'genesect',
+            'genesect-shock' => 'genesect',
+            'genesect-burn' => 'genesect',
+            'genesect-chill' => 'genesect',
+
+            // Deerling/Sawsbuck seasonal forms
+            'deerling-spring' => 'deerling',
+            'deerling-summer' => 'deerling',
+            'deerling-autumn' => 'deerling',
+            'deerling-winter' => 'deerling',
+            'sawsbuck-spring' => 'sawsbuck',
+            'sawsbuck-summer' => 'sawsbuck',
+            'sawsbuck-autumn' => 'sawsbuck',
+            'sawsbuck-winter' => 'sawsbuck',
+        ];
+
+        // Check exact matches first
+        if (isset($speciesMapping[$lowerName])) {
+            return $speciesMapping[$lowerName];
+        }
+
+        // Handle Unown forms (any unown-* should map to unown)
+        if (str_starts_with($lowerName, 'unown-')) {
+            return 'unown';
+        }
+
+        // Handle Alcremie forms (any alcremie-* should map to alcremie)
+        if (str_starts_with($lowerName, 'alcremie-')) {
+            return 'alcremie';
+        }
+
+        // For other Pokemon, return the name as-is (they are their own species)
+        return $name;
     }
 }
 

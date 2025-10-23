@@ -16,12 +16,19 @@ class IdentifierTest extends TestCase
         //! @section Arrange
         $identifier = MonsterIdentifier::fromString('pikachu');
 
-        //! @section Act & Assert
-        $this->assertSame('pikachu', $identifier->getValue());
-        $this->assertSame('pikachu', (string) $identifier);
-        $this->assertTrue($identifier->isName());
-        $this->assertFalse($identifier->isNumeric());
-        $this->assertSame('pikachu', $identifier->getName());
+        //! @section Act
+        $identifierValue = $identifier->getValue();
+        $identifierString = (string) $identifier;
+        $isName = $identifier->isName();
+        $isNumeric = $identifier->isNumeric();
+        $name = $identifier->getName();
+
+        //! @section Assert
+        $this->assertSame('pikachu', $identifierValue);
+        $this->assertSame('pikachu', $identifierString);
+        $this->assertTrue($isName);
+        $this->assertFalse($isNumeric);
+        $this->assertSame('pikachu', $name);
     }
 
     public function test_monster_identifier_accepts_valid_numeric_ids(): void
@@ -29,11 +36,17 @@ class IdentifierTest extends TestCase
         //! @section Arrange
         $identifier = MonsterIdentifier::fromString('25');
 
-        //! @section Act & Assert
-        $this->assertSame('25', $identifier->getValue());
-        $this->assertTrue($identifier->isNumeric());
-        $this->assertFalse($identifier->isName());
-        $this->assertSame(25, $identifier->getNumericId());
+        //! @section Act
+        $identifierValue = $identifier->getValue();
+        $isNumeric = $identifier->isNumeric();
+        $isName = $identifier->isName();
+        $numericId = $identifier->getNumericId();
+
+        //! @section Assert
+        $this->assertSame('25', $identifierValue);
+        $this->assertTrue($isNumeric);
+        $this->assertFalse($isName);
+        $this->assertSame(25, $numericId);
     }
 
     public function test_monster_identifier_accepts_names_with_hyphens_and_underscores(): void
@@ -109,9 +122,13 @@ class IdentifierTest extends TestCase
         $id2 = MonsterIdentifier::fromString('pikachu');
         $id3 = MonsterIdentifier::fromString('raichu');
 
-        //! @section Act & Assert
-        $this->assertTrue($id1->equals($id2));
-        $this->assertFalse($id1->equals($id3));
+        //! @section Act
+        $id1EqualsId2 = $id1->equals($id2);
+        $id1EqualsId3 = $id1->equals($id3);
+
+        //! @section Assert
+        $this->assertTrue($id1EqualsId2);
+        $this->assertFalse($id1EqualsId3);
     }
 
     public function test_repository_identifier_accepts_valid_format(): void
@@ -119,10 +136,15 @@ class IdentifierTest extends TestCase
         //! @section Arrange
         $identifier = RepositoryIdentifier::fromString('simbachu/personal_webpage');
 
-        //! @section Act & Assert
-        $this->assertSame('simbachu/personal_webpage', $identifier->getValue());
-        $this->assertSame('simbachu', $identifier->getOwner());
-        $this->assertSame('personal_webpage', $identifier->getRepository());
+        //! @section Act
+        $identifierValue = $identifier->getValue();
+        $owner = $identifier->getOwner();
+        $repository = $identifier->getRepository();
+
+        //! @section Assert
+        $this->assertSame('simbachu/personal_webpage', $identifierValue);
+        $this->assertSame('simbachu', $owner);
+        $this->assertSame('personal_webpage', $repository);
     }
 
     public function test_repository_identifier_accepts_names_with_hyphens_dots_underscores(): void

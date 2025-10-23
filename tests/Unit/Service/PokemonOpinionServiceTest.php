@@ -328,4 +328,60 @@ YAML);
         $this->assertSame('S', $opinion['rating']);
         $this->assertStringContainsString('cape dress and helmet', $opinion['opinion']);
     }
+
+    public function test_get_opinion_uses_species_name_for_maushold_variants(): void
+    {
+        //! @section Arrange
+        $this->createTestOpinionsFile(<<<YAML
+maushold:
+  opinion: "They are such a cute little family! So delightful!"
+  rating: A
+YAML);
+
+        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+
+        //! @section Act
+        $result1 = $service->getOpinion(MonsterIdentifier::fromString('maushold-family-of-four'));
+        $result2 = $service->getOpinion(MonsterIdentifier::fromString('maushold-family-of-three'));
+
+        //! @section Assert
+        $this->assertTrue($result1->isSuccess());
+        $this->assertTrue($result2->isSuccess());
+
+        $opinion1 = $result1->getValue();
+        $opinion2 = $result2->getValue();
+
+        // Both should return the same rating for maushold
+        $this->assertSame('A', $opinion1['rating']);
+        $this->assertSame('A', $opinion2['rating']);
+        $this->assertSame($opinion1['opinion'], $opinion2['opinion']);
+    }
+
+    public function test_get_opinion_uses_species_name_for_deoxys_forms(): void
+    {
+        //! @section Arrange
+        $this->createTestOpinionsFile(<<<YAML
+deoxys:
+  opinion: "The different forms are quite cool, but I think the concept is a bit overdone. Still, the design is solid."
+  rating: B
+YAML);
+
+        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+
+        //! @section Act
+        $result1 = $service->getOpinion(MonsterIdentifier::fromString('deoxys-normal'));
+        $result2 = $service->getOpinion(MonsterIdentifier::fromString('deoxys-attack'));
+
+        //! @section Assert
+        $this->assertTrue($result1->isSuccess());
+        $this->assertTrue($result2->isSuccess());
+
+        $opinion1 = $result1->getValue();
+        $opinion2 = $result2->getValue();
+
+        // Both should return the same rating for deoxys
+        $this->assertSame('B', $opinion1['rating']);
+        $this->assertSame('B', $opinion2['rating']);
+        $this->assertSame($opinion1['opinion'], $opinion2['opinion']);
+    }
 }

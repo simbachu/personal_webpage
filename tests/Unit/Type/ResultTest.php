@@ -44,10 +44,10 @@ final class ResultTest extends TestCase
     {
         //! @section Arrange
         $result = Result::failure('error message');
-
-        //! @section Act & Assert
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Cannot get value from failed Result: error message');
+
+        //! @section Act
         $result->getValue();
     }
 
@@ -56,10 +56,10 @@ final class ResultTest extends TestCase
     {
         //! @section Arrange
         $result = Result::success('value');
-
-        //! @section Act & Assert
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Cannot get error from successful Result');
+
+        //! @section Act
         $result->getError();
     }
 
@@ -287,18 +287,22 @@ final class ResultTest extends TestCase
     //! @brief Test constructor validation - both value and error
     public function test_constructor_throws_when_both_value_and_error_provided(): void
     {
-        //! @section Act & Assert
+        //! @section Arrange
         $this->expectException(\Error::class);
         $this->expectExceptionMessage('Call to private App\Type\Result::__construct()');
+
+        //! @section Act
         new Result(value: 'test', error: 'error');
     }
 
     //! @brief Test constructor validation - neither value nor error
     public function test_constructor_throws_when_neither_value_nor_error_provided(): void
     {
-        //! @section Act & Assert
+        //! @section Arrange
         $this->expectException(\Error::class);
         $this->expectExceptionMessage('Call to private App\Type\Result::__construct()');
+
+        //! @section Act
         new Result();
     }
 }

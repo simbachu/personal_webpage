@@ -208,7 +208,7 @@ final class DexPresenterTest extends TestCase
         //! @section Arrange
         $monsterData = new MonsterData(
             id: 999,
-            name: 'Unknown Pokemon',
+            name: 'unknown-pokemon',
             image: 'https://img.example/unknown.png',
             type1: MonsterType::NORMAL
         );
@@ -225,6 +225,108 @@ final class DexPresenterTest extends TestCase
         $this->assertArrayHasKey('monster', $view);
         $this->assertArrayNotHasKey('opinion', $view['monster']);
         $this->assertArrayNotHasKey('rating', $view['monster']);
+    }
+
+    public function test_present_with_repository_pattern(): void
+    {
+        //! @section Arrange - Using repository pattern for testing
+        $repository = new \App\Repository\TestMonsterRatingRepository();
+        $repository->addRating('maushold', 'A', 'They are such a cute little family! So delightful!');
+        $repository->addFormMapping('maushold-family-of-four', 'maushold');
+
+        $ratingService = new \App\Service\MonsterRatingService($repository);
+        $adapter = new \App\Service\MonsterRatingServiceAdapter($ratingService);
+        $pokeApiService = $this->createMock(\App\Service\PokeApiService::class);
+
+        $presenter = new \App\Presenter\DexPresenter($pokeApiService, $adapter, 300);
+
+        //! @section Act
+        $view = $presenter->present(new \App\Type\MonsterData(
+            id: 925,
+            name: 'Maushold-family-of-four',
+            image: 'https://img.example/maushold-family-of-four.png',
+            type1: \App\Type\MonsterType::NORMAL,
+            speciesName: 'maushold'
+        ));
+
+        //! @section Assert
+        $this->assertArrayHasKey('monster', $view);
+        $this->assertArrayHasKey('opinion', $view['monster']);
+        $this->assertArrayHasKey('rating', $view['monster']);
+        $this->assertSame('They are such a cute little family! So delightful!', $view['monster']['opinion']);
+        $this->assertSame('A', $view['monster']['rating']);
+    }
+
+    public function test_fetch_monster_data_handles_maushold_variants(): void
+    {
+        //! @section Arrange
+        $service = $this->createMock(PokeApiService::class);
+
+        // Mock the service to return success for 'maushold' (simulating the fixed behavior)
+        $service->method('fetchMonster')
+            ->willReturnCallback(function ($identifier) {
+                $idOrName = $identifier->getValue();
+                if ($idOrName === 'maushold') {
+                    // Simulate the fixed behavior where maushold succeeds by falling back to variants
+                    return Result::success(new MonsterData(
+                        id: 925,
+                        name: 'Maushold',
+                        image: 'https://img.example/maushold-family-of-four.png',
+                        type1: MonsterType::NORMAL,
+                        speciesName: 'maushold'
+                    ));
+                }
+                return Result::failure('Pokemon not found');
+            });
+
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getOpinion')->willReturn(Result::failure('No opinion'));
+
+        $presenter = new DexPresenter($service, $opinionService, 300);
+
+        //! @section Act
+        $monsterData = $presenter->fetchMonsterData(MonsterIdentifier::fromString('maushold'));
+
+        //! @section Assert
+        // Test that 'maushold' now succeeds by falling back to variant forms
+        $this->assertSame('Maushold', $monsterData->name);
+        $this->assertSame(925, $monsterData->id);
+        $this->assertSame(MonsterType::NORMAL, $monsterData->type1);
+        $this->assertSame('maushold', $monsterData->speciesName);
+    }
+
+    public function test_present_uses_species_name_for_opinions(): void
+    {
+        //! @section Arrange
+        $monsterData = new MonsterData(
+            id: 925,
+            name: 'Maushold-family-of-four',
+            image: 'https://img.example/maushold-family-of-four.png',
+            type1: MonsterType::NORMAL,
+            speciesName: 'maushold'
+        );
+
+        $opinionService = $this->createMock(PokemonOpinionService::class);
+        $opinionService->method('getOpinion')
+            ->with($this->callback(function ($identifier) {
+                return $identifier->getValue() === 'maushold';
+            }))
+            ->willReturn(Result::success([
+                'opinion' => 'They are such a cute little family! So delightful!',
+                'rating' => 'A'
+            ]));
+
+        $presenter = new DexPresenter($this->createMock(PokeApiService::class), $opinionService, 300);
+
+        //! @section Act
+        $view = $presenter->present($monsterData);
+
+        //! @section Assert
+        $this->assertArrayHasKey('monster', $view);
+        $this->assertArrayHasKey('opinion', $view['monster']);
+        $this->assertArrayHasKey('rating', $view['monster']);
+        $this->assertSame('They are such a cute little family! So delightful!', $view['monster']['opinion']);
+        $this->assertSame('A', $view['monster']['rating']);
     }
 }
 

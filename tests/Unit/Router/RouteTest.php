@@ -62,11 +62,17 @@ class RouteTest extends TestCase
         //! @section Arrange
         $route = new Route('/about', TemplateName::HOME);
 
-        //! @section Act & Assert
-        $this->assertTrue($route->matches('/about'));
-        $this->assertTrue($route->matches('/about/'));
-        $this->assertFalse($route->matches('/'));
-        $this->assertFalse($route->matches('/about/extra'));
+        //! @section Act
+        $matchesAbout = $route->matches('/about');
+        $matchesAboutWithSlash = $route->matches('/about/');
+        $matchesRoot = $route->matches('/');
+        $matchesAboutWithExtra = $route->matches('/about/extra');
+
+        //! @section Assert
+        $this->assertTrue($matchesAbout);
+        $this->assertTrue($matchesAboutWithSlash);
+        $this->assertFalse($matchesRoot);
+        $this->assertFalse($matchesAboutWithExtra);
     }
 
     //! @brief Test dynamic path matching for dex routes
@@ -75,12 +81,19 @@ class RouteTest extends TestCase
         //! @section Arrange
         $route = new Route('/dex', TemplateName::DEX);
 
-        //! @section Act & Assert
-        $this->assertTrue($route->matches('/dex'));
-        $this->assertTrue($route->matches('/dex/pikachu'));
-        $this->assertTrue($route->matches('/dex/25'));
-        $this->assertFalse($route->matches('/dex/pikachu/extra'));
-        $this->assertFalse($route->matches('/pokemon'));
+        //! @section Act
+        $matchesDex = $route->matches('/dex');
+        $matchesDexPikachu = $route->matches('/dex/pikachu');
+        $matchesDex25 = $route->matches('/dex/25');
+        $matchesDexPikachuExtra = $route->matches('/dex/pikachu/extra');
+        $matchesPokemon = $route->matches('/pokemon');
+
+        //! @section Assert
+        $this->assertTrue($matchesDex);
+        $this->assertTrue($matchesDexPikachu);
+        $this->assertTrue($matchesDex25);
+        $this->assertFalse($matchesDexPikachuExtra);
+        $this->assertFalse($matchesPokemon);
     }
 
     //! @brief Test parameter extraction from dynamic routes
@@ -89,11 +102,17 @@ class RouteTest extends TestCase
         //! @section Arrange
         $route = new Route('/dex', TemplateName::DEX);
 
-        //! @section Act & Assert
-        $this->assertEquals([], $route->extractParameters('/dex'));
-        $this->assertEquals(['id_or_name' => 'pikachu'], $route->extractParameters('/dex/pikachu'));
-        $this->assertEquals(['id_or_name' => '25'], $route->extractParameters('/dex/25'));
-        $this->assertEquals([], $route->extractParameters('/'));
+        //! @section Act
+        $paramsForDex = $route->extractParameters('/dex');
+        $paramsForDexPikachu = $route->extractParameters('/dex/pikachu');
+        $paramsForDex25 = $route->extractParameters('/dex/25');
+        $paramsForRoot = $route->extractParameters('/');
+
+        //! @section Assert
+        $this->assertEquals([], $paramsForDex);
+        $this->assertEquals(['id_or_name' => 'pikachu'], $paramsForDexPikachu);
+        $this->assertEquals(['id_or_name' => '25'], $paramsForDex25);
+        $this->assertEquals([], $paramsForRoot);
     }
 
     //! @brief Test metadata access methods
@@ -103,11 +122,21 @@ class RouteTest extends TestCase
         $meta = ['title' => 'Test Title', 'description' => 'Test Description'];
         $route = new Route('/', TemplateName::HOME, $meta);
 
-        //! @section Act & Assert
-        $this->assertEquals('Test Title', $route->getMetaValue('title'));
-        $this->assertEquals('Test Description', $route->getMetaValue('description'));
-        $this->assertNull($route->getMetaValue('nonexistent'));
-        $this->assertEquals('default', $route->getMetaValue('nonexistent', 'default'));
+        //! @section Act
+        $titleValue = $route->getMetaValue('title');
+        $descriptionValue = $route->getMetaValue('description');
+        $nonexistentValue = $route->getMetaValue('nonexistent');
+
+        //! @section Assert
+        $this->assertEquals('Test Title', $titleValue);
+        $this->assertEquals('Test Description', $descriptionValue);
+        $this->assertNull($nonexistentValue);
+
+        //! @section Act
+        $nonexistentWithDefault = $route->getMetaValue('nonexistent', 'default');
+
+        //! @section Assert
+        $this->assertEquals('default', $nonexistentWithDefault);
     }
 
     //! @brief Test route cloning with merged metadata
@@ -158,26 +187,47 @@ class RouteTest extends TestCase
         $articleRoute = new Route('/article', TemplateName::ARTICLE);
         $blogRoute = new Route('/blog', TemplateName::ARTICLE);
 
-        //! @section Act & Assert - /read routes
-        $this->assertTrue($readRoute->matches('/read'));
-        $this->assertTrue($readRoute->matches('/read/word-rotator'));
-        $this->assertTrue($readRoute->matches('/read/test-article'));
-        $this->assertFalse($readRoute->matches('/read/word-rotator/extra'));
-        $this->assertFalse($readRoute->matches('/article'));
+        //! @section Act - /read routes
+        $readMatchesRead = $readRoute->matches('/read');
+        $readMatchesReadWordRotator = $readRoute->matches('/read/word-rotator');
+        $readMatchesReadTestArticle = $readRoute->matches('/read/test-article');
+        $readMatchesReadWordRotatorExtra = $readRoute->matches('/read/word-rotator/extra');
+        $readMatchesArticle = $readRoute->matches('/article');
 
-        //! @section Act & Assert - /article routes
-        $this->assertTrue($articleRoute->matches('/article'));
-        $this->assertTrue($articleRoute->matches('/article/word-rotator'));
-        $this->assertTrue($articleRoute->matches('/article/test-article'));
-        $this->assertFalse($articleRoute->matches('/article/word-rotator/extra'));
-        $this->assertFalse($articleRoute->matches('/read'));
+        //! @section Assert - /read routes
+        $this->assertTrue($readMatchesRead);
+        $this->assertTrue($readMatchesReadWordRotator);
+        $this->assertTrue($readMatchesReadTestArticle);
+        $this->assertFalse($readMatchesReadWordRotatorExtra);
+        $this->assertFalse($readMatchesArticle);
 
-        //! @section Act & Assert - /blog routes
-        $this->assertTrue($blogRoute->matches('/blog'));
-        $this->assertTrue($blogRoute->matches('/blog/word-rotator'));
-        $this->assertTrue($blogRoute->matches('/blog/test-article'));
-        $this->assertFalse($blogRoute->matches('/blog/word-rotator/extra'));
-        $this->assertFalse($blogRoute->matches('/read'));
+        //! @section Act - /article routes
+        $articleMatchesArticle = $articleRoute->matches('/article');
+        $articleMatchesArticleWordRotator = $articleRoute->matches('/article/word-rotator');
+        $articleMatchesArticleTestArticle = $articleRoute->matches('/article/test-article');
+        $articleMatchesArticleWordRotatorExtra = $articleRoute->matches('/article/word-rotator/extra');
+        $articleMatchesRead = $articleRoute->matches('/read');
+
+        //! @section Assert - /article routes
+        $this->assertTrue($articleMatchesArticle);
+        $this->assertTrue($articleMatchesArticleWordRotator);
+        $this->assertTrue($articleMatchesArticleTestArticle);
+        $this->assertFalse($articleMatchesArticleWordRotatorExtra);
+        $this->assertFalse($articleMatchesRead);
+
+        //! @section Act - /blog routes
+        $blogMatchesBlog = $blogRoute->matches('/blog');
+        $blogMatchesBlogWordRotator = $blogRoute->matches('/blog/word-rotator');
+        $blogMatchesBlogTestArticle = $blogRoute->matches('/blog/test-article');
+        $blogMatchesBlogWordRotatorExtra = $blogRoute->matches('/blog/word-rotator/extra');
+        $blogMatchesRead = $blogRoute->matches('/read');
+
+        //! @section Assert - /blog routes
+        $this->assertTrue($blogMatchesBlog);
+        $this->assertTrue($blogMatchesBlogWordRotator);
+        $this->assertTrue($blogMatchesBlogTestArticle);
+        $this->assertFalse($blogMatchesBlogWordRotatorExtra);
+        $this->assertFalse($blogMatchesRead);
     }
 
     //! @brief Test parameter extraction from article routes
@@ -188,20 +238,36 @@ class RouteTest extends TestCase
         $articleRoute = new Route('/article', TemplateName::ARTICLE);
         $blogRoute = new Route('/blog', TemplateName::ARTICLE);
 
-        //! @section Act & Assert - /read routes
-        $this->assertEquals([], $readRoute->extractParameters('/read'));
-        $this->assertEquals(['article_name' => 'word-rotator'], $readRoute->extractParameters('/read/word-rotator'));
-        $this->assertEquals(['article_name' => 'test-article'], $readRoute->extractParameters('/read/test-article'));
-        $this->assertEquals([], $readRoute->extractParameters('/'));
+        //! @section Act - /read routes
+        $readParamsForRead = $readRoute->extractParameters('/read');
+        $readParamsForReadWordRotator = $readRoute->extractParameters('/read/word-rotator');
+        $readParamsForReadTestArticle = $readRoute->extractParameters('/read/test-article');
+        $readParamsForRoot = $readRoute->extractParameters('/');
 
-        //! @section Act & Assert - /article routes
-        $this->assertEquals([], $articleRoute->extractParameters('/article'));
-        $this->assertEquals(['article_name' => 'word-rotator'], $articleRoute->extractParameters('/article/word-rotator'));
-        $this->assertEquals(['article_name' => 'test-article'], $articleRoute->extractParameters('/article/test-article'));
+        //! @section Assert - /read routes
+        $this->assertEquals([], $readParamsForRead);
+        $this->assertEquals(['article_name' => 'word-rotator'], $readParamsForReadWordRotator);
+        $this->assertEquals(['article_name' => 'test-article'], $readParamsForReadTestArticle);
+        $this->assertEquals([], $readParamsForRoot);
 
-        //! @section Act & Assert - /blog routes
-        $this->assertEquals([], $blogRoute->extractParameters('/blog'));
-        $this->assertEquals(['article_name' => 'word-rotator'], $blogRoute->extractParameters('/blog/word-rotator'));
-        $this->assertEquals(['article_name' => 'test-article'], $blogRoute->extractParameters('/blog/test-article'));
+        //! @section Act - /article routes
+        $articleParamsForArticle = $articleRoute->extractParameters('/article');
+        $articleParamsForArticleWordRotator = $articleRoute->extractParameters('/article/word-rotator');
+        $articleParamsForArticleTestArticle = $articleRoute->extractParameters('/article/test-article');
+
+        //! @section Assert - /article routes
+        $this->assertEquals([], $articleParamsForArticle);
+        $this->assertEquals(['article_name' => 'word-rotator'], $articleParamsForArticleWordRotator);
+        $this->assertEquals(['article_name' => 'test-article'], $articleParamsForArticleTestArticle);
+
+        //! @section Act - /blog routes
+        $blogParamsForBlog = $blogRoute->extractParameters('/blog');
+        $blogParamsForBlogWordRotator = $blogRoute->extractParameters('/blog/word-rotator');
+        $blogParamsForBlogTestArticle = $blogRoute->extractParameters('/blog/test-article');
+
+        //! @section Assert - /blog routes
+        $this->assertEquals([], $blogParamsForBlog);
+        $this->assertEquals(['article_name' => 'word-rotator'], $blogParamsForBlogWordRotator);
+        $this->assertEquals(['article_name' => 'test-article'], $blogParamsForBlogTestArticle);
     }
 }

@@ -133,9 +133,13 @@ class FilePathTest extends TestCase
         $path2 = FilePath::fromString('/var/www/cache');
         $path3 = FilePath::fromString('/var/www/temp');
 
-        //! @section Act & Assert
-        $this->assertTrue($path1->equals($path2));
-        $this->assertFalse($path1->equals($path3));
+        //! @section Act
+        $path1EqualsPath2 = $path1->equals($path2);
+        $path1EqualsPath3 = $path1->equals($path3);
+
+        //! @section Assert
+        $this->assertTrue($path1EqualsPath2);
+        $this->assertFalse($path1EqualsPath3);
     }
 
     public function test_join_creates_new_path_with_component(): void
@@ -291,9 +295,13 @@ class FilePathTest extends TestCase
         $existingPath = FilePath::fromString(__FILE__); // This test file
         $nonExistingPath = FilePath::fromString('/non/existing/path.txt');
 
-        //! @section Act & Assert
-        $this->assertTrue($existingPath->exists());
-        $this->assertFalse($nonExistingPath->exists());
+        //! @section Act
+        $existingPathExists = $existingPath->exists();
+        $nonExistingPathExists = $nonExistingPath->exists();
+
+        //! @section Assert
+        $this->assertTrue($existingPathExists);
+        $this->assertFalse($nonExistingPathExists);
     }
 
     public function test_is_directory_checks_if_path_is_directory(): void
@@ -302,9 +310,13 @@ class FilePathTest extends TestCase
         $directoryPath = FilePath::fromString(__DIR__); // Test directory
         $filePath = FilePath::fromString(__FILE__); // This test file
 
-        //! @section Act & Assert
-        $this->assertTrue($directoryPath->isDirectory());
-        $this->assertFalse($filePath->isDirectory());
+        //! @section Act
+        $directoryPathIsDirectory = $directoryPath->isDirectory();
+        $filePathIsDirectory = $filePath->isDirectory();
+
+        //! @section Assert
+        $this->assertTrue($directoryPathIsDirectory);
+        $this->assertFalse($filePathIsDirectory);
     }
 
     public function test_is_file_checks_if_path_is_file(): void
@@ -313,9 +325,13 @@ class FilePathTest extends TestCase
         $directoryPath = FilePath::fromString(__DIR__); // Test directory
         $filePath = FilePath::fromString(__FILE__); // This test file
 
-        //! @section Act & Assert
-        $this->assertFalse($directoryPath->isFile());
-        $this->assertTrue($filePath->isFile());
+        //! @section Act
+        $directoryPathIsFile = $directoryPath->isFile();
+        $filePathIsFile = $filePath->isFile();
+
+        //! @section Assert
+        $this->assertFalse($directoryPathIsFile);
+        $this->assertTrue($filePathIsFile);
     }
 
     public function test_ensure_directory_exists_creates_directory(): void
@@ -465,13 +481,17 @@ class FilePathTest extends TestCase
         $filePath->writeContents('test content');
 
         try {
-            //! @section Act & Assert
-            $this->assertFalse($filePath->isOlderThan(1)); // Should not be older than 1 second
+            //! @section Act
+            $isOlderThan1Second = $filePath->isOlderThan(1);
+            $isOlderThan0Seconds = $filePath->isOlderThan(0);
+
+            //! @section Assert
+            $this->assertFalse($isOlderThan1Second); // Should not be older than 1 second
 
             // For filesystem precision, we can't reliably test isOlderThan(0) with files created
             // in the same second. Instead, test that it's not older than 1 second immediately
             // and that the method works correctly for reasonable time differences.
-            $this->assertFalse($filePath->isOlderThan(0)); // Should not be older than 0 seconds (just created)
+            $this->assertFalse($isOlderThan0Seconds); // Should not be older than 0 seconds (just created)
         } finally {
             // Cleanup
             if (is_dir($tempDir)) {
@@ -485,8 +505,11 @@ class FilePathTest extends TestCase
         //! @section Arrange
         $path = FilePath::fromString('/var/www/cache');
 
-        //! @section Act & Assert
-        $this->assertSame('/var/www/cache', (string) $path);
+        //! @section Act
+        $pathString = (string) $path;
+
+        //! @section Assert
+        $this->assertSame('/var/www/cache', $pathString);
     }
 
     //! @brief Helper method to recursively remove a directory

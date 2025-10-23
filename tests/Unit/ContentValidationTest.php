@@ -20,9 +20,13 @@ class ContentValidationTest extends TestCase
         //! @section Arrange
         // File path is set as class constant
 
-        //! @section Act & Assert
-        $this->assertFileExists(self::OPINIONS_FILE, 'pokemon_opinions.yaml file must exist');
-        $this->assertIsReadable(self::OPINIONS_FILE, 'pokemon_opinions.yaml file must be readable');
+        //! @section Act
+        $fileExists = file_exists(self::OPINIONS_FILE);
+        $fileIsReadable = is_readable(self::OPINIONS_FILE);
+
+        //! @section Assert
+        $this->assertTrue($fileExists, 'pokemon_opinions.yaml file must exist');
+        $this->assertTrue($fileIsReadable, 'pokemon_opinions.yaml file must be readable');
     }
 
     //! @brief Test that pokemon_opinions.yaml contains valid YAML syntax
@@ -47,29 +51,45 @@ class ContentValidationTest extends TestCase
         $data = Yaml::parse($content);
         $validRatings = ['S', 'A', 'B', 'C', 'D'];
 
-        //! @section Act & Assert
+        //! @section Act
+        $validationResults = [];
         foreach ($data as $pokemonName => $opinionData) {
-            $this->assertIsString($pokemonName, "Pokemon name must be a string for entry: $pokemonName");
-            $this->assertIsArray($opinionData, "Pokemon '$pokemonName' must have an object structure");
+            $validationResults[$pokemonName] = [
+                'isValidName' => is_string($pokemonName),
+                'isValidStructure' => is_array($opinionData),
+                'hasOpinion' => isset($opinionData['opinion']),
+                'hasRating' => isset($opinionData['rating']),
+                'opinionIsString' => is_string($opinionData['opinion'] ?? null),
+                'ratingIsString' => is_string($opinionData['rating'] ?? null),
+                'ratingIsValid' => in_array($opinionData['rating'] ?? null, $validRatings),
+                'opinionNotEmpty' => !empty(trim($opinionData['opinion'] ?? ''))
+            ];
+        }
+
+        //! @section Assert
+        foreach ($data as $pokemonName => $opinionData) {
+            $result = $validationResults[$pokemonName];
+
+            $this->assertTrue($result['isValidName'], "Pokemon name must be a string for entry: $pokemonName");
+            $this->assertTrue($result['isValidStructure'], "Pokemon '$pokemonName' must have an object structure");
 
             // Check required fields exist
-            $this->assertArrayHasKey('opinion', $opinionData, "Pokemon '$pokemonName' must have 'opinion' field");
-            $this->assertArrayHasKey('rating', $opinionData, "Pokemon '$pokemonName' must have 'rating' field");
+            $this->assertTrue($result['hasOpinion'], "Pokemon '$pokemonName' must have 'opinion' field");
+            $this->assertTrue($result['hasRating'], "Pokemon '$pokemonName' must have 'rating' field");
 
             // Check field types
-            $this->assertIsString($opinionData['opinion'], "Pokemon '$pokemonName' opinion must be a string");
-            $this->assertIsString($opinionData['rating'], "Pokemon '$pokemonName' rating must be a string");
+            $this->assertTrue($result['opinionIsString'], "Pokemon '$pokemonName' opinion must be a string");
+            $this->assertTrue($result['ratingIsString'], "Pokemon '$pokemonName' rating must be a string");
 
             // Check rating is valid
-            $this->assertContains(
-                $opinionData['rating'],
-                $validRatings,
+            $this->assertTrue(
+                $result['ratingIsValid'],
                 "Pokemon '$pokemonName' has invalid rating '{$opinionData['rating']}'. Must be one of: " . implode(', ', $validRatings)
             );
 
             // Check opinion is not empty
-            $this->assertNotEmpty(
-                trim($opinionData['opinion']),
+            $this->assertTrue(
+                $result['opinionNotEmpty'],
                 "Pokemon '$pokemonName' opinion must not be empty"
             );
         }
@@ -82,11 +102,19 @@ class ContentValidationTest extends TestCase
         $content = file_get_contents(self::OPINIONS_FILE);
         $data = Yaml::parse($content);
 
-        //! @section Act & Assert
+        //! @section Act
+        $nameValidationResults = [];
         foreach (array_keys($data) as $pokemonName) {
-            $this->assertEquals(
-                $pokemonName,
-                mb_strtolower($pokemonName),
+            $nameValidationResults[$pokemonName] = [
+                'isLowercase' => $pokemonName === mb_strtolower($pokemonName)
+            ];
+        }
+
+        //! @section Assert
+        foreach (array_keys($data) as $pokemonName) {
+            $result = $nameValidationResults[$pokemonName];
+            $this->assertTrue(
+                $result['isLowercase'],
                 "Pokemon name '$pokemonName' should be lowercase for consistency"
             );
         }
@@ -99,18 +127,29 @@ class ContentValidationTest extends TestCase
         $content = file_get_contents(self::OPINIONS_FILE);
         $data = Yaml::parse($content);
 
-        //! @section Act & Assert
+        //! @section Act
+        $formatValidationResults = [];
         foreach (array_keys($data) as $pokemonName) {
+            $formatValidationResults[$pokemonName] = [
+                'matchesPattern' => preg_match('/^[a-z0-9-]+$/', $pokemonName) === 1,
+                'doesNotStartWithHyphen' => !str_starts_with($pokemonName, '-'),
+                'doesNotEndWithHyphen' => !str_ends_with($pokemonName, '-')
+            ];
+        }
+
+        //! @section Assert
+        foreach (array_keys($data) as $pokemonName) {
+            $result = $formatValidationResults[$pokemonName];
+
             // Pokemon names should be alphanumeric with hyphens (for forms like iron-valiant)
-            $this->assertMatchesRegularExpression(
-                '/^[a-z0-9-]+$/',
-                $pokemonName,
+            $this->assertTrue(
+                $result['matchesPattern'],
                 "Pokemon name '$pokemonName' should contain only lowercase letters, numbers, and hyphens"
             );
 
             // Should not start or end with hyphen
-            $this->assertFalse(str_starts_with($pokemonName, '-'), "Pokemon name '$pokemonName' should not start with hyphen");
-            $this->assertFalse(str_ends_with($pokemonName, '-'), "Pokemon name '$pokemonName' should not end with hyphen");
+            $this->assertTrue($result['doesNotStartWithHyphen'], "Pokemon name '$pokemonName' should not start with hyphen");
+            $this->assertTrue($result['doesNotEndWithHyphen'], "Pokemon name '$pokemonName' should not end with hyphen");
         }
     }
 

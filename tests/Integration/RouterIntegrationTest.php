@@ -203,11 +203,12 @@ YAML;
     //! @brief Test routing with path normalization
     public function test_routing_with_path_normalization(): void
     {
-        //! @section Act & Assert
+        //! @section Act
         $result1 = $this->router->route('/');
         $result2 = $this->router->route('/dex');
         $result3 = $this->router->route('/dex/');
 
+        //! @section Assert
         $this->assertEquals(TemplateName::HOME, $result1->getTemplate());
         $this->assertEquals(TemplateName::DEX, $result2->getTemplate());
         $this->assertEquals(TemplateName::DEX, $result3->getTemplate()); // Trailing slash should be normalized

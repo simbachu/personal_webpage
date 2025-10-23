@@ -28,20 +28,32 @@ class TemplateNameTest extends TestCase
 
     public function test_template_name_values_are_correct(): void
     {
-        //! @section Act & Assert
-        $this->assertSame('home', TemplateName::HOME->value);
-        $this->assertSame('dex', TemplateName::DEX->value);
-        $this->assertSame('article', TemplateName::ARTICLE->value);
-        $this->assertSame('404', TemplateName::NOT_FOUND->value);
+        //! @section Act
+        $homeValue = TemplateName::HOME->value;
+        $dexValue = TemplateName::DEX->value;
+        $articleValue = TemplateName::ARTICLE->value;
+        $notFoundValue = TemplateName::NOT_FOUND->value;
+
+        //! @section Assert
+        $this->assertSame('home', $homeValue);
+        $this->assertSame('dex', $dexValue);
+        $this->assertSame('article', $articleValue);
+        $this->assertSame('404', $notFoundValue);
     }
 
     public function test_from_string_with_valid_templates(): void
     {
-        //! @section Act & Assert
-        $this->assertSame(TemplateName::HOME, TemplateName::fromString('home'));
-        $this->assertSame(TemplateName::DEX, TemplateName::fromString('dex'));
-        $this->assertSame(TemplateName::ARTICLE, TemplateName::fromString('article'));
-        $this->assertSame(TemplateName::NOT_FOUND, TemplateName::fromString('404'));
+        //! @section Act
+        $homeTemplate = TemplateName::fromString('home');
+        $dexTemplate = TemplateName::fromString('dex');
+        $articleTemplate = TemplateName::fromString('article');
+        $notFoundTemplate = TemplateName::fromString('404');
+
+        //! @section Assert
+        $this->assertSame(TemplateName::HOME, $homeTemplate);
+        $this->assertSame(TemplateName::DEX, $dexTemplate);
+        $this->assertSame(TemplateName::ARTICLE, $articleTemplate);
+        $this->assertSame(TemplateName::NOT_FOUND, $notFoundTemplate);
     }
 
     public function test_from_string_with_invalid_template(): void
@@ -66,20 +78,32 @@ class TemplateNameTest extends TestCase
 
     public function test_is_valid_with_valid_templates(): void
     {
-        //! @section Act & Assert
-        $this->assertTrue(TemplateName::isValid('home'));
-        $this->assertTrue(TemplateName::isValid('dex'));
-        $this->assertTrue(TemplateName::isValid('article'));
-        $this->assertTrue(TemplateName::isValid('404'));
+        //! @section Act
+        $homeValid = TemplateName::isValid('home');
+        $dexValid = TemplateName::isValid('dex');
+        $articleValid = TemplateName::isValid('article');
+        $notFoundValid = TemplateName::isValid('404');
+
+        //! @section Assert
+        $this->assertTrue($homeValid);
+        $this->assertTrue($dexValid);
+        $this->assertTrue($articleValid);
+        $this->assertTrue($notFoundValid);
     }
 
     public function test_is_valid_with_invalid_templates(): void
     {
-        //! @section Act & Assert
-        $this->assertFalse(TemplateName::isValid('invalid'));
-        $this->assertFalse(TemplateName::isValid(''));
-        $this->assertFalse(TemplateName::isValid('hom'));
-        $this->assertFalse(TemplateName::isValid('home '));
+        //! @section Act
+        $invalidValid = TemplateName::isValid('invalid');
+        $emptyValid = TemplateName::isValid('');
+        $homValid = TemplateName::isValid('hom');
+        $homeSpaceValid = TemplateName::isValid('home ');
+
+        //! @section Assert
+        $this->assertFalse($invalidValid);
+        $this->assertFalse($emptyValid);
+        $this->assertFalse($homValid);
+        $this->assertFalse($homeSpaceValid);
         $this->assertFalse(TemplateName::isValid(' HOME'));
     }
 
@@ -100,38 +124,66 @@ class TemplateNameTest extends TestCase
 
     public function test_get_description(): void
     {
-        //! @section Act & Assert
-        $this->assertSame('Home page template', TemplateName::HOME->getDescription());
-        $this->assertSame('Pokemon dex detail page template', TemplateName::DEX->getDescription());
-        $this->assertSame('Article/blog post template', TemplateName::ARTICLE->getDescription());
-        $this->assertSame('404 error page template', TemplateName::NOT_FOUND->getDescription());
+        //! @section Act
+        $homeDescription = TemplateName::HOME->getDescription();
+        $dexDescription = TemplateName::DEX->getDescription();
+
+        //! @section Assert
+        $this->assertSame('Home page template', $homeDescription);
+        $this->assertSame('Pokemon dex detail page template', $dexDescription);
+
+        //! @section Act
+        $articleDescription = TemplateName::ARTICLE->getDescription();
+        $notFoundDescription = TemplateName::NOT_FOUND->getDescription();
+
+        //! @section Assert
+        $this->assertSame('Article/blog post template', $articleDescription);
+        $this->assertSame('404 error page template', $notFoundDescription);
     }
 
     public function test_is_error_template(): void
     {
-        //! @section Act & Assert
-        $this->assertFalse(TemplateName::HOME->isErrorTemplate());
-        $this->assertFalse(TemplateName::DEX->isErrorTemplate());
-        $this->assertFalse(TemplateName::ARTICLE->isErrorTemplate());
-        $this->assertTrue(TemplateName::NOT_FOUND->isErrorTemplate());
+        //! @section Act
+        $homeIsError = TemplateName::HOME->isErrorTemplate();
+        $dexIsError = TemplateName::DEX->isErrorTemplate();
+        $articleIsError = TemplateName::ARTICLE->isErrorTemplate();
+        $notFoundIsError = TemplateName::NOT_FOUND->isErrorTemplate();
+
+        //! @section Assert
+        $this->assertFalse($homeIsError);
+        $this->assertFalse($dexIsError);
+        $this->assertFalse($articleIsError);
+        $this->assertTrue($notFoundIsError);
     }
 
     public function test_is_content_template(): void
     {
-        //! @section Act & Assert
-        $this->assertTrue(TemplateName::HOME->isContentTemplate());
-        $this->assertTrue(TemplateName::DEX->isContentTemplate());
-        $this->assertTrue(TemplateName::ARTICLE->isContentTemplate());
-        $this->assertFalse(TemplateName::NOT_FOUND->isContentTemplate());
+        //! @section Act
+        $homeIsContent = TemplateName::HOME->isContentTemplate();
+        $dexIsContent = TemplateName::DEX->isContentTemplate();
+        $articleIsContent = TemplateName::ARTICLE->isContentTemplate();
+        $notFoundIsContent = TemplateName::NOT_FOUND->isContentTemplate();
+
+        //! @section Assert
+        $this->assertTrue($homeIsContent);
+        $this->assertTrue($dexIsContent);
+        $this->assertTrue($articleIsContent);
+        $this->assertFalse($notFoundIsContent);
     }
 
     public function test_to_string(): void
     {
-        //! @section Act & Assert
-        $this->assertSame('home', TemplateName::HOME->toString());
-        $this->assertSame('dex', TemplateName::DEX->toString());
-        $this->assertSame('article', TemplateName::ARTICLE->toString());
-        $this->assertSame('404', TemplateName::NOT_FOUND->toString());
+        //! @section Act
+        $homeString = TemplateName::HOME->toString();
+        $dexString = TemplateName::DEX->toString();
+        $articleString = TemplateName::ARTICLE->toString();
+        $notFoundString = TemplateName::NOT_FOUND->toString();
+
+        //! @section Assert
+        $this->assertSame('home', $homeString);
+        $this->assertSame('dex', $dexString);
+        $this->assertSame('article', $articleString);
+        $this->assertSame('404', $notFoundString);
     }
 
     public function test_enum_comparison(): void
@@ -141,11 +193,15 @@ class TemplateNameTest extends TestCase
         $template2 = TemplateName::HOME;
         $template3 = TemplateName::DEX;
 
-        //! @section Act & Assert
+        //! @section Act
+        $template1EqualsTemplate2 = $template1 === $template2;
+        $template1EqualsTemplate3 = $template1 === $template3;
+
+        //! @section Assert
         $this->assertSame($template1, $template2);
         $this->assertNotSame($template1, $template3);
-        $this->assertTrue($template1 === $template2);
-        $this->assertFalse($template1 === $template3);
+        $this->assertTrue($template1EqualsTemplate2);
+        $this->assertFalse($template1EqualsTemplate3);
     }
 
     public function test_enum_can_be_used_in_match_statements(): void
@@ -204,24 +260,42 @@ class TemplateNameTest extends TestCase
             TemplateName::NOT_FOUND->value => '404 template',
         ];
 
-        //! @section Act & Assert
-        $this->assertArrayHasKey(TemplateName::HOME->value, $templates);
-        $this->assertArrayHasKey(TemplateName::DEX->value, $templates);
-        $this->assertArrayHasKey(TemplateName::ARTICLE->value, $templates);
-        $this->assertArrayHasKey(TemplateName::NOT_FOUND->value, $templates);
-        $this->assertSame('Home template', $templates[TemplateName::HOME->value]);
-        $this->assertSame('Dex template', $templates[TemplateName::DEX->value]);
-        $this->assertSame('Article template', $templates[TemplateName::ARTICLE->value]);
-        $this->assertSame('404 template', $templates[TemplateName::NOT_FOUND->value]);
+        //! @section Act
+        $homeHasKey = array_key_exists(TemplateName::HOME->value, $templates);
+        $dexHasKey = array_key_exists(TemplateName::DEX->value, $templates);
+        $articleHasKey = array_key_exists(TemplateName::ARTICLE->value, $templates);
+        $notFoundHasKey = array_key_exists(TemplateName::NOT_FOUND->value, $templates);
+
+        $homeValue = $templates[TemplateName::HOME->value];
+        $dexValue = $templates[TemplateName::DEX->value];
+        $articleValue = $templates[TemplateName::ARTICLE->value];
+        $notFoundValue = $templates[TemplateName::NOT_FOUND->value];
+
+        //! @section Assert
+        $this->assertTrue($homeHasKey);
+        $this->assertTrue($dexHasKey);
+        $this->assertTrue($articleHasKey);
+        $this->assertTrue($notFoundHasKey);
+
+        $this->assertSame('Home template', $homeValue);
+        $this->assertSame('Dex template', $dexValue);
+        $this->assertSame('Article template', $articleValue);
+        $this->assertSame('404 template', $notFoundValue);
     }
 
     public function test_to_twig_path_returns_filename_with_extension(): void
     {
-        //! @section Act & Assert
-        $this->assertSame('home.twig', TemplateName::HOME->toTwigPath());
-        $this->assertSame('dex.twig', TemplateName::DEX->toTwigPath());
-        $this->assertSame('article.twig', TemplateName::ARTICLE->toTwigPath());
-        $this->assertSame('404.twig', TemplateName::NOT_FOUND->toTwigPath());
+        //! @section Act
+        $homeTwigPath = TemplateName::HOME->toTwigPath();
+        $dexTwigPath = TemplateName::DEX->toTwigPath();
+        $articleTwigPath = TemplateName::ARTICLE->toTwigPath();
+        $notFoundTwigPath = TemplateName::NOT_FOUND->toTwigPath();
+
+        //! @section Assert
+        $this->assertSame('home.twig', $homeTwigPath);
+        $this->assertSame('dex.twig', $dexTwigPath);
+        $this->assertSame('article.twig', $articleTwigPath);
+        $this->assertSame('404.twig', $notFoundTwigPath);
     }
 
     public function test_to_path_builds_file_path_under_templates_dir(): void

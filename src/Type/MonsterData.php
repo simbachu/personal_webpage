@@ -34,6 +34,7 @@ final class MonsterData
     //! @param type2 The Pokemon's secondary type, null if single-type
     //! @param precursor Evolution precursor data (what this Pokemon evolves from)
     //! @param successors Array of evolution successor data (what this Pokemon evolves into)
+    //! @param speciesName The species name (e.g., "maushold" for both "maushold-family-of-four" and "maushold-family-of-three")
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -43,7 +44,8 @@ final class MonsterData
         public readonly ?EvolutionData $precursor = null,
         public readonly array $successors = [],
         public readonly ?int $height = null,
-        public readonly ?int $weight = null
+        public readonly ?int $weight = null,
+        public readonly ?string $speciesName = null
     ) {}
 
     //! @brief Check if this Pokemon has a secondary type
@@ -104,6 +106,9 @@ final class MonsterData
         if ($this->weight !== null) {
             $data['weight'] = $this->weight;
         }
+        if ($this->speciesName !== null) {
+            $data['species_name'] = $this->speciesName;
+        }
 
         return $data;
     }
@@ -137,7 +142,8 @@ final class MonsterData
             precursor: $precursor,
             successors: $successors,
             height: isset($data['height']) ? (int)$data['height'] : null,
-            weight: isset($data['weight']) ? (int)$data['weight'] : null
+            weight: isset($data['weight']) ? (int)$data['weight'] : null,
+            speciesName: isset($data['species_name']) ? (string)$data['species_name'] : null
         );
     }
 }

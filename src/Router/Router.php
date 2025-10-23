@@ -25,11 +25,8 @@ use App\Type\HttpStatusCode;
 //! @endcode
 class Router
 {
-    /** @var Route[] Array of registered routes */
-    private array $routes = [];
-
-    /** @var array<string, RouteHandler> Map of handler names to handler instances */
-    private array $handlers = [];
+    private array $routes = []; //!< Array of registered routes
+    private array $handlers = []; //!< Map of handler names to handler instances
 
     //! @brief Add a route to the router
     //! @param route The route to add
