@@ -10,12 +10,16 @@ use App\Type\HttpStatusCode;
 class SensorBatchController
 {
     private ?string $requiredBearer = null;
+    private ?string $basicAuthUser = null;
+    private ?string $basicAuthPass = null;
 
-    //! @brief Constructor - loads bearer token from environment
+    //! @brief Constructor - loads authentication credentials from environment
     public function __construct()
     {
         $this->loadEnvironmentVariables();
         $this->requiredBearer = $_ENV['API_BEARER_TOKEN'] ?? null;
+        $this->basicAuthUser = $_ENV['API_BASIC_AUTH_USER'] ?? null;
+        $this->basicAuthPass = $_ENV['API_BASIC_AUTH_PASS'] ?? null;
     }
 
     //! @brief Handle the API request
@@ -32,8 +36,7 @@ class SensorBatchController
             ];
         }
 
-        $authHeader = $this->getHeader($headers, 'Authorization');
-        if ($authHeader === null || !preg_match('/^Bearer\s+(\S+)/i', $authHeader, $m) || $m[1] !== $this->requiredBearer) {
+        if (!$this->authenticate($headers)) {
             return [
                 'status' => HttpStatusCode::UNAUTHORIZED->getValue(),
                 'body' => ['error' => 'Unauthorized']
@@ -110,6 +113,59 @@ class SensorBatchController
         }
 
         return null;
+    }
+
+    //! @brief Authenticate request using either HTTP Basic Auth or Bearer token
+    //! @param headers Associative array of request headers
+    //! @return bool True if authenticated, false otherwise
+    private function authenticate(array $headers): bool
+    {
+        $authHeader = $this->getHeader($headers, 'Authorization');
+        if ($authHeader === null) {
+            return false;
+        }
+
+        // Try HTTP Basic Auth first (for IoT devices)
+        if (preg_match('/^Basic\s+(.+)$/i', $authHeader, $matches)) {
+            return $this->authenticateBasic($matches[1]);
+        }
+
+        // Fall back to Bearer token auth
+        if (preg_match('/^Bearer\s+(\S+)/i', $authHeader, $matches)) {
+            return $this->authenticateBearer($matches[1]);
+        }
+
+        return false;
+    }
+
+    //! @brief Authenticate using HTTP Basic Auth
+    //! @param credentials Base64-encoded username:password
+    //! @return bool True if authenticated, false otherwise
+    private function authenticateBasic(string $credentials): bool
+    {
+        if ($this->basicAuthUser === null || $this->basicAuthPass === null) {
+            return false; // Basic auth not configured
+        }
+
+        $decoded = base64_decode($credentials, true);
+        if ($decoded === false) {
+            return false; // Invalid base64
+        }
+
+        if (!str_contains($decoded, ':')) {
+            return false; // Invalid format
+        }
+
+        [$username, $password] = explode(':', $decoded, 2);
+        return $username === $this->basicAuthUser && $password === $this->basicAuthPass;
+    }
+
+    //! @brief Authenticate using Bearer token
+    //! @param token Bearer token to validate
+    //! @return bool True if authenticated, false otherwise
+    private function authenticateBearer(string $token): bool
+    {
+        return $this->requiredBearer !== null && $token === $this->requiredBearer;
     }
 
     //! @brief Retrieve header value case-insensitively

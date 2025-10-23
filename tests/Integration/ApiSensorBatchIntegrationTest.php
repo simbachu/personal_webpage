@@ -11,14 +11,18 @@ class ApiSensorBatchIntegrationTest extends TestCase
 {
     protected function setUp(): void
     {
-        // Set up test environment with a known bearer token
+        // Set up test environment with both auth methods
         $_ENV['API_BEARER_TOKEN'] = 'test-bearer-123';
+        $_ENV['API_BASIC_AUTH_USER'] = 'test-user';
+        $_ENV['API_BASIC_AUTH_PASS'] = 'test-pass';
     }
 
     protected function tearDown(): void
     {
         // Clean up environment
         unset($_ENV['API_BEARER_TOKEN']);
+        unset($_ENV['API_BASIC_AUTH_USER']);
+        unset($_ENV['API_BASIC_AUTH_PASS']);
     }
 
     private function validPayload(): string
@@ -36,6 +40,11 @@ class ApiSensorBatchIntegrationTest extends TestCase
             ],
         ];
         return json_encode($payload, JSON_THROW_ON_ERROR);
+    }
+
+    private function basicAuthHeader(string $username, string $password): string
+    {
+        return 'Basic ' . base64_encode($username . ':' . $password);
     }
 
     public function test_success_with_valid_json_and_bearer(): void
@@ -105,6 +114,103 @@ class ApiSensorBatchIntegrationTest extends TestCase
 
         // Assert
         $this->assertSame(405, $result['status']);
+    }
+
+    public function test_success_with_valid_json_and_basic_auth(): void
+    {
+        // Arrange
+        $controller = new SensorBatchController();
+        $headers = ['Authorization' => $this->basicAuthHeader('test-user', 'test-pass')];
+        $body = $this->validPayload();
+
+        // Act
+        $result = $controller->handle('POST', $headers, $body);
+
+        // Assert
+        $this->assertSame(200, $result['status']);
+        $this->assertSame(['status' => 'ok'], $result['body']);
+    }
+
+    public function test_unauthorized_with_wrong_basic_auth_credentials(): void
+    {
+        // Arrange
+        $controller = new SensorBatchController();
+        $headers = ['Authorization' => $this->basicAuthHeader('wrong-user', 'wrong-pass')];
+
+        // Act
+        $result = $controller->handle('POST', $headers, $this->validPayload());
+
+        // Assert
+        $this->assertSame(401, $result['status']);
+    }
+
+    public function test_unauthorized_with_basic_auth_disabled(): void
+    {
+        // Arrange - unset Basic auth credentials to disable it
+        unset($_ENV['API_BASIC_AUTH_USER'], $_ENV['API_BASIC_AUTH_PASS']);
+        $controller = new SensorBatchController();
+        $headers = ['Authorization' => $this->basicAuthHeader('test-user', 'test-pass')];
+
+        // Act
+        $result = $controller->handle('POST', $headers, $this->validPayload());
+
+        // Assert
+        $this->assertSame(401, $result['status']);
+    }
+
+    public function test_unauthorized_with_malformed_basic_auth(): void
+    {
+        // Arrange
+        $controller = new SensorBatchController();
+        $headers = ['Authorization' => 'Basic invalid-base64'];
+
+        // Act
+        $result = $controller->handle('POST', $headers, $this->validPayload());
+
+        // Assert
+        $this->assertSame(401, $result['status']);
+    }
+
+    public function test_unauthorized_with_basic_auth_missing_password(): void
+    {
+        // Arrange
+        $controller = new SensorBatchController();
+        $headers = ['Authorization' => 'Basic ' . base64_encode('test-user')];
+
+        // Act
+        $result = $controller->handle('POST', $headers, $this->validPayload());
+
+        // Assert
+        $this->assertSame(401, $result['status']);
+    }
+
+    public function test_bearer_auth_still_works_when_basic_auth_configured(): void
+    {
+        // Arrange
+        $controller = new SensorBatchController();
+        $headers = ['Authorization' => 'Bearer test-bearer-123'];
+        $body = $this->validPayload();
+
+        // Act
+        $result = $controller->handle('POST', $headers, $body);
+
+        // Assert
+        $this->assertSame(200, $result['status']);
+        $this->assertSame(['status' => 'ok'], $result['body']);
+    }
+
+    public function test_unauthorized_with_only_bearer_when_bearer_disabled(): void
+    {
+        // Arrange - unset Bearer token to disable it
+        unset($_ENV['API_BEARER_TOKEN']);
+        $controller = new SensorBatchController();
+        $headers = ['Authorization' => 'Bearer test-bearer-123'];
+
+        // Act
+        $result = $controller->handle('POST', $headers, $this->validPayload());
+
+        // Assert
+        $this->assertSame(401, $result['status']);
     }
 }
 
