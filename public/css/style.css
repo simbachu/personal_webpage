@@ -306,6 +306,8 @@ article {
     display: flex;
     flex-direction: column;
     gap: 0; /* sections handle their own margins */
+    /* Consistent top margin for all articles following neue typographie harmonics */
+    margin-top: calc(var(--spacing-unit) * 4);
 }
 
 /* Article-specific typography following Tschichold principles */
@@ -317,7 +319,7 @@ article {
 
 /* Article header with proper vertical rhythm */
 .article-header {
-    margin-top: calc(var(--spacing-unit) * 4); /* Generous top spacing */
+    margin-top: 0; /* Remove top margin since article already has consistent top margin */
     margin-bottom: calc(var(--spacing-unit) * 3); /* Clear separation from content */
     position: relative;
 }
@@ -533,7 +535,7 @@ article {
     background: var(--white);
     border: var(--line-weight-thick) solid transparent;
     border-image: var(--gradient-process-black) 1;
-    margin-top: calc(var(--spacing-unit) * 4);
+    margin-top: 0; /* Remove specific margin since article already provides consistent spacing */
 }
 
 /* Put the items in a tier in a flex row, wrap and expand the box with the header */
@@ -1439,12 +1441,17 @@ footer a:focus-visible {
         padding: 0; /* No padding - align with grid line */
     }
 
+    /* Consistent article top margin on mobile */
+    article {
+        margin-top: calc(var(--spacing-unit) * 2);
+    }
+
     .article-content {
         padding: 0 calc(var(--spacing-unit) * 0.5); /* Add padding back for content readability on mobile */
     }
 
     .article-header {
-        margin-top: calc(var(--spacing-unit) * 2);
+        margin-top: 0; /* Consistent with desktop - no additional top margin needed */
         margin-bottom: calc(var(--spacing-unit) * 2);
     }
 
