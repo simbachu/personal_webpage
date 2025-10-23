@@ -29,17 +29,34 @@ class SensorBatchController
     //! @return array{status:int, body:array} Status code and JSON-serializable body
     public function handle(string $method, array $headers, string $rawBody): array
     {
-        if (strtoupper($method) !== 'POST') {
+        // Allow HEAD method for authentication checking (like the /api endpoint)
+        if (strtoupper($method) === 'HEAD') {
+            $authResult = $this->checkAuthentication($headers);
             return [
-                'status' => HttpStatusCode::METHOD_NOT_ALLOWED->getValue(),
-                'body' => ['error' => 'Method Not Allowed']
+                'status' => $authResult['status'],
+                'body' => $authResult['body'] ?? []
             ];
         }
 
-        if (!$this->authenticate($headers)) {
+        if (strtoupper($method) !== 'POST') {
             return [
-                'status' => HttpStatusCode::UNAUTHORIZED->getValue(),
-                'body' => ['error' => 'Unauthorized']
+                'status' => HttpStatusCode::METHOD_NOT_ALLOWED->getValue(),
+                'body' => $this->generateEspIdfFriendlyError(HttpStatusCode::METHOD_NOT_ALLOWED->getValue(), 'Method not allowed', [
+                    'supported_methods' => ['POST', 'HEAD'],
+                    'requested_method' => $method,
+                    'endpoint' => '/api/sensor/batch',
+                    'tip' => 'Use POST for submitting data or HEAD for authentication check'
+                ])
+            ];
+        }
+
+        $authResult = $this->checkAuthentication($headers);
+        if ($authResult['status'] !== 200) {
+            return [
+                'status' => $authResult['status'],
+                'body' => $authResult['body'] ?? $this->generateEspIdfFriendlyError($authResult['status'], 'Authentication failed', [
+                    'tip' => 'Use /api/debug/test-auth to verify your credentials'
+                ])
             ];
         }
 
@@ -47,7 +64,11 @@ class SensorBatchController
         if (json_last_error() !== JSON_ERROR_NONE) {
             return [
                 'status' => HttpStatusCode::BAD_REQUEST->getValue(),
-                'body' => ['error' => 'Invalid JSON']
+                'body' => $this->generateEspIdfFriendlyError(HttpStatusCode::BAD_REQUEST->getValue(), 'Invalid JSON format', [
+                    'json_error' => json_last_error_msg(),
+                    'body_length' => strlen($rawBody),
+                    'tip' => 'Use /api/debug/echo to validate your JSON format'
+                ])
             ];
         }
 
@@ -55,7 +76,20 @@ class SensorBatchController
         if ($schemaError !== null) {
             return [
                 'status' => HttpStatusCode::UNPROCESSABLE_ENTITY->getValue(),
-                'body' => ['error' => 'Schema validation failed', 'detail' => $schemaError]
+                'body' => $this->generateEspIdfFriendlyError(HttpStatusCode::UNPROCESSABLE_ENTITY->getValue(), 'Schema validation failed', [
+                    'validation_error' => $schemaError,
+                    'expected_format' => [
+                        'batch_id' => 'string (non-empty)',
+                        'generated_at' => 'integer (timestamp)',
+                        'sensors' => 'array of sensor objects',
+                        'sensors[].sensor_id' => 'integer',
+                        'sensors[].measurements' => 'array of measurement objects',
+                        'sensors[].measurements[].timestamp' => 'integer',
+                        'sensors[].measurements[].temperature_c' => 'number',
+                        'sensors[].measurements[].humidity_pct' => 'number'
+                    ],
+                    'tip' => 'Check the API documentation for the exact schema requirements'
+                ])
             ];
         }
 
@@ -115,57 +149,121 @@ class SensorBatchController
         return null;
     }
 
-    //! @brief Authenticate request using either HTTP Basic Auth or Bearer token
+    //! @brief Check authentication and return appropriate status code
     //! @param headers Associative array of request headers
-    //! @return bool True if authenticated, false otherwise
-    private function authenticate(array $headers): bool
+    //! @return array{status:int, body?:array} Status code and optional error body
+    private function checkAuthentication(array $headers): array
     {
+        // If no authentication is configured, always return 200
+        if ($this->requiredBearer === null && ($this->basicAuthUser === null || $this->basicAuthPass === null)) {
+            return ['status' => 200];
+        }
+
         $authHeader = $this->getHeader($headers, 'Authorization');
         if ($authHeader === null) {
-            return false;
+            return [
+                'status' => 401, // No auth provided
+                'body' => $this->generateEspIdfFriendlyError(401, 'Authentication required', [
+                    'tip' => 'Use /api/debug/test-auth to verify your credentials format'
+                ])
+            ];
         }
 
         // Try HTTP Basic Auth first (for IoT devices)
         if (preg_match('/^Basic\s+(.+)$/i', $authHeader, $matches)) {
-            return $this->authenticateBasic($matches[1]);
+            return $this->checkBasicAuth($matches[1]);
         }
 
         // Fall back to Bearer token auth
         if (preg_match('/^Bearer\s+(\S+)/i', $authHeader, $matches)) {
-            return $this->authenticateBearer($matches[1]);
+            return $this->checkBearerAuth($matches[1]);
         }
 
-        return false;
+        // Unknown auth format
+        return [
+            'status' => 403, // Auth provided but invalid format
+            'body' => $this->generateEspIdfFriendlyError(403, 'Invalid authentication format', [
+                'provided_format' => 'Unknown',
+                'supported_formats' => ['Basic <base64>', 'Bearer <token>'],
+                'tip' => 'Check Authorization header format in your ESP-IDF HTTP client'
+            ])
+        ];
     }
 
-    //! @brief Authenticate using HTTP Basic Auth
+    //! @brief Check HTTP Basic Auth credentials
     //! @param credentials Base64-encoded username:password
-    //! @return bool True if authenticated, false otherwise
-    private function authenticateBasic(string $credentials): bool
+    //! @return array{status:int, body?:array} Status code and optional error body
+    private function checkBasicAuth(string $credentials): array
     {
         if ($this->basicAuthUser === null || $this->basicAuthPass === null) {
-            return false; // Basic auth not configured
+            return [
+                'status' => 403, // Basic auth not configured but attempted
+                'body' => $this->generateEspIdfFriendlyError(403, 'Basic authentication not configured', [
+                    'configured_methods' => $this->requiredBearer ? ['Bearer'] : [],
+                    'tip' => 'Configure API_BASIC_AUTH_USER and API_BASIC_AUTH_PASS in your .env file'
+                ])
+            ];
         }
 
         $decoded = base64_decode($credentials, true);
         if ($decoded === false) {
-            return false; // Invalid base64
+            return [
+                'status' => 403, // Invalid base64
+                'body' => $this->generateEspIdfFriendlyError(403, 'Invalid Basic auth encoding', [
+                    'encoding_error' => 'Base64 decode failed',
+                    'tip' => 'Ensure credentials are properly base64 encoded: base64(username:password)'
+                ])
+            ];
         }
 
         if (!str_contains($decoded, ':')) {
-            return false; // Invalid format
+            return [
+                'status' => 403, // Invalid format
+                'body' => $this->generateEspIdfFriendlyError(403, 'Invalid Basic auth format', [
+                    'format_error' => 'Missing colon separator',
+                    'tip' => 'Format should be: username:password (before base64 encoding)'
+                ])
+            ];
         }
 
         [$username, $password] = explode(':', $decoded, 2);
-        return $username === $this->basicAuthUser && $password === $this->basicAuthPass;
+        if ($username === $this->basicAuthUser && $password === $this->basicAuthPass) {
+            return ['status' => 200]; // Valid credentials
+        }
+
+        return [
+            'status' => 403, // Invalid credentials
+            'body' => $this->generateEspIdfFriendlyError(403, 'Invalid Basic auth credentials', [
+                'tip' => 'Verify username and password match your .env configuration'
+            ])
+        ];
     }
 
-    //! @brief Authenticate using Bearer token
+    //! @brief Check Bearer token
     //! @param token Bearer token to validate
-    //! @return bool True if authenticated, false otherwise
-    private function authenticateBearer(string $token): bool
+    //! @return array{status:int, body?:array} Status code and optional error body
+    private function checkBearerAuth(string $token): array
     {
-        return $this->requiredBearer !== null && $token === $this->requiredBearer;
+        if ($this->requiredBearer === null) {
+            return [
+                'status' => 403, // Bearer auth not configured but attempted
+                'body' => $this->generateEspIdfFriendlyError(403, 'Bearer authentication not configured', [
+                    'configured_methods' => $this->basicAuthUser && $this->basicAuthPass ? ['Basic'] : [],
+                    'tip' => 'Configure API_BEARER_TOKEN in your .env file'
+                ])
+            ];
+        }
+
+        if ($token === $this->requiredBearer) {
+            return ['status' => 200]; // Valid token
+        }
+
+        return [
+            'status' => 403, // Invalid token
+            'body' => $this->generateEspIdfFriendlyError(403, 'Invalid Bearer token', [
+                'tip' => 'Verify token matches API_BEARER_TOKEN in your .env file'
+            ])
+        ];
     }
 
     //! @brief Retrieve header value case-insensitively
@@ -202,6 +300,98 @@ class SensorBatchController
                 }
             }
         }
+    }
+
+    //! @brief Generate ESP-IDF friendly error responses
+    //! @param statusCode HTTP status code
+    //! @param message Human readable error message
+    //! @param details Additional error details
+    //! @return array ESP-IDF friendly error response
+    private function generateEspIdfFriendlyError(int $statusCode, string $message, array $details = []): array
+    {
+        $baseResponse = [
+            'error' => true,
+            'status_code' => $statusCode,
+            'message' => $message,
+            'esp_idf_mapping' => $this->mapStatusToEspIdf($statusCode),
+            'timestamp' => date('c'),
+            'endpoint' => '/api/sensor/batch'
+        ];
+
+        // Add specific tips based on status code
+        $baseResponse['esp_idf_tips'] = $this->getStatusSpecificTips($statusCode);
+
+        // Merge with additional details
+        return array_merge($baseResponse, $details);
+    }
+
+    //! @brief Map HTTP status codes to ESP-IDF error codes
+    //! @param statusCode HTTP status code
+    //! @return string ESP-IDF error code mapping
+    private function mapStatusToEspIdf(int $statusCode): string
+    {
+        return match($statusCode) {
+            200 => 'ESP_OK',
+            400 => 'ESP_ERR_INVALID_ARG',
+            401 => 'ESP_ERR_HTTP_HEADER',
+            403 => 'ESP_ERR_HTTP_CONNECT',
+            404 => 'ESP_ERR_NOT_FOUND',
+            405 => 'ESP_ERR_NOT_SUPPORTED',
+            422 => 'ESP_ERR_INVALID_RESPONSE',
+            500 => 'ESP_FAIL',
+            default => 'ESP_FAIL'
+        };
+    }
+
+    //! @brief Get status-specific tips for ESP-IDF developers
+    //! @param statusCode HTTP status code
+    //! @return array Tips for the specific error
+    private function getStatusSpecificTips(int $statusCode): array
+    {
+        return match($statusCode) {
+            400 => [
+                'Check JSON syntax in your request body',
+                'Verify Content-Type header is application/json',
+                'Use /api/debug/echo to test your request format'
+            ],
+            401 => [
+                'Add Authorization header to your request',
+                'Use /api/debug/test-auth to verify your credentials',
+                'Check if authentication is required for this endpoint'
+            ],
+            403 => [
+                'Verify your credentials are correct',
+                'Check if the authentication method is enabled',
+                'Use /api/debug/test-auth to debug authentication',
+                'Ensure base64 encoding is correct for Basic auth'
+            ],
+            404 => [
+                'Verify the endpoint URL is correct',
+                'Use /api/debug to see available endpoints',
+                'Check HTTP method (GET, POST, HEAD)',
+                'Remove trailing slashes from URL'
+            ],
+            405 => [
+                'Check if HTTP method is supported',
+                'Use /api/debug to see supported methods',
+                'HEAD requests are supported for authentication checks'
+            ],
+            422 => [
+                'Check JSON schema in your request',
+                'Verify all required fields are present',
+                'Use /api/debug/echo to validate your JSON'
+            ],
+            500 => [
+                'Server internal error - check server logs',
+                'Try again in a few moments',
+                'Contact server administrator if persists'
+            ],
+            default => [
+                'Check server logs for more details',
+                'Use /api/debug endpoints for troubleshooting',
+                'Verify your HTTP client configuration'
+            ]
+        };
     }
 }
 
