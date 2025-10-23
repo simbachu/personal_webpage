@@ -100,6 +100,7 @@ class DexPresenter
         // Collect all valid Pokemon identifiers for batch fetching
         $validIdentifiers = [];
         $nameToRating = [];
+        $nameToSpeciesName = [];
 
         foreach ($names as $name) {
             // For rating purposes, use the species name instead of the individual form name
@@ -116,10 +117,16 @@ class DexPresenter
                 continue;
             }
 
-            // For fetching Pokemon data, still use the original form name
-            $fetchIdentifier = MonsterIdentifier::fromString($name);
+            // For fetching Pokemon data, use a canonical form name that exists in PokeAPI
+            $fetchName = $this->getCanonicalFormName($name);
+            $fetchIdentifier = MonsterIdentifier::fromString($fetchName);
             $validIdentifiers[] = $fetchIdentifier;
-            $nameToRating[$name] = $rating;
+
+            // Map the canonical form name to the original species name for URL generation
+            // and map the canonical form name to the rating for lookup
+            $speciesNameForUrl = $speciesName;
+            $nameToRating[$fetchName] = $rating;
+            $nameToSpeciesName[$fetchName] = $speciesNameForUrl;
         }
 
         // Batch fetch all Pokemon data at once for optimal performance
@@ -127,10 +134,11 @@ class DexPresenter
 
         // Process results and group by rating
         foreach ($validIdentifiers as $identifier) {
-            $name = $identifier->getValue();
-            $rating = $nameToRating[$name];
+            $fetchName = $identifier->getValue();
+            $rating = $nameToRating[$fetchName];
+            $speciesNameForUrl = $nameToSpeciesName[$fetchName];
 
-            $monsterResult = $monsterResults[$name] ?? null;
+            $monsterResult = $monsterResults[$fetchName] ?? null;
             if (!$monsterResult || $monsterResult->isFailure()) {
                 continue;
             }
@@ -140,7 +148,7 @@ class DexPresenter
             $grouped[$rating][] = [
                 'name' => $monster->name,
                 'sprite_image' => $spriteUrl,
-                'url' => '/dex/' . mb_strtolower($name),
+                'url' => '/dex/' . mb_strtolower($speciesNameForUrl),
             ];
         }
 
@@ -243,6 +251,38 @@ class DexPresenter
         }
 
         // For other Pokemon, return the name as-is (they are their own species)
+        return $name;
+    }
+
+    //! @brief Get the canonical form name for fetching Pokemon data from PokeAPI
+    //! @param name The Pokemon name (e.g., "maushold" or "maushold-family-of-four")
+    //! @return string The canonical form name that exists in PokeAPI (e.g., "maushold-family-of-four")
+    private function getCanonicalFormName(string $name): string
+    {
+        $speciesName = $this->extractSpeciesNameFromFormName($name);
+
+        // If the species name matches the original name, it's already a valid form
+        if ($speciesName === $name) {
+            return $name;
+        }
+
+        // For species that don't exist in PokeAPI, map to a canonical form
+        $canonicalFormMapping = [
+            // Maushold - use family-of-four as the canonical form
+            'maushold' => 'maushold-family-of-four',
+
+            // Add other species that need canonical forms here as needed
+            // Example: 'deoxys' => 'deoxys-normal',
+            // Example: 'arceus' => 'arceus-normal',
+        ];
+
+        // Check if we have a canonical form mapping for this species
+        $lowerSpeciesName = mb_strtolower($speciesName);
+        if (isset($canonicalFormMapping[$lowerSpeciesName])) {
+            return $canonicalFormMapping[$lowerSpeciesName];
+        }
+
+        // Fallback: return the original name
         return $name;
     }
 }
