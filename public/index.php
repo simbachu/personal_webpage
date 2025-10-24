@@ -173,35 +173,8 @@ $path = get_request_path();
 
 // Handle API endpoints early and return JSON
 if (str_starts_with($path, '/api/')) {
-    if ($path === '/api/sensor/batch') {
-        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-
-        if (function_exists('getallheaders')) {
-            $headers = getallheaders();
-        } else {
-            $headers = [];
-            foreach ($_SERVER as $name => $value) {
-                if (str_starts_with($name, 'HTTP_')) {
-                    $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
-                    $headers[$key] = $value;
-                }
-            }
-        }
-
-        $rawBody = file_get_contents('php://input') ?: '';
-        $controller = new SensorBatchController();
-        $result = $controller->handle($method, $headers, $rawBody);
-
-        http_response_code($result['status'] ?? 200);
-        header('Content-Type: application/json');
-        echo json_encode($result['body'] ?? []);
-        exit;
-    }
-
-    // Unknown API path
-    http_response_code(404);
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Not Found']);
+    // Include the full API implementation
+    require_once __DIR__ . '/api.php';
     exit;
 }
 $base_url = get_base_url();

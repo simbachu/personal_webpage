@@ -19,227 +19,10 @@ if (file_exists($vendor_autoload)) {
 
 use App\Api\SensorBatchController;
 
-// Route handling
-$requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-
-// Handle HEAD request for base /api endpoint (authentication check)
-if ($requestUri === '/api' && strtoupper($method) === 'HEAD') {
-    $result = handleApiHeadRequest();
-    http_response_code($result['status']);
-    // No body for HEAD requests
-    exit;
-}
-
-// Handle HEAD request for /api/sensor/batch (authentication check)
-if ($requestUri === '/api/sensor/batch' && strtoupper($method) === 'HEAD') {
-    $result = handleSensorBatchHeadRequest();
-    http_response_code($result['status']);
-    header('Content-Type: application/json');
-    if (isset($result['body'])) {
-        echo json_encode($result['body']);
-    }
-    exit;
-}
-
-// Handle GET request for base /api endpoint (API discovery)
-if ($requestUri === '/api' && strtoupper($method) === 'GET') {
-    $result = handleApiDiscovery();
-    http_response_code(200);
-    header('Content-Type: application/json');
-    echo json_encode($result);
-    exit;
-}
-
-// Debug routes for ESP-IDF and development
-if (str_starts_with($requestUri, '/api/debug')) {
-    $result = handleDebugRoutes($requestUri, $method);
-    http_response_code($result['status'] ?? 200);
-    header('Content-Type: application/json');
-    echo json_encode($result['body'] ?? []);
-    exit;
-}
-
-// Route only /api/sensor/batch for other methods
-if ($requestUri !== '/api/sensor/batch') {
-    $errorResponse = generateEspIdfFriendlyError(404, 'Endpoint not found', [
-        'requested_uri' => $requestUri,
-        'method' => $method,
-        'available_endpoints' => [
-            'POST /api/sensor/batch' => 'Submit sensor data',
-            'HEAD /api' => 'Check API authentication',
-            'HEAD /api/sensor/batch' => 'Check sensor endpoint authentication',
-            '/api/debug' => 'General API debugging info',
-            '/api/debug/status' => 'Authentication status check',
-            '/api/debug/echo' => 'Echo request details',
-            '/api/debug/test-auth' => 'Test authentication methods'
-        ],
-        'esp_idf_tips' => [
-            'Verify the URL is correct',
-            'Check if the endpoint requires authentication',
-            'Use /api/debug for available endpoints',
-            'Ensure HTTP method is supported (GET, POST, HEAD)'
-        ]
-    ]);
-
-    http_response_code(404);
-    header('Content-Type: application/json');
-    echo json_encode($errorResponse);
-    exit;
-}
-
-// Collect headers in a portable way
-if (function_exists('getallheaders')) {
-    $headers = getallheaders();
-} else {
-    $headers = [];
-    foreach ($_SERVER as $name => $value) {
-        if (str_starts_with($name, 'HTTP_')) {
-            $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
-            $headers[$key] = $value;
-        }
-    }
-}
-
-$rawBody = file_get_contents('php://input') ?: '';
-
-$controller = new SensorBatchController();
-$result = $controller->handle($method, $headers, $rawBody);
-
-http_response_code($result['status'] ?? 200);
-header('Content-Type: application/json');
-echo json_encode($result['body'] ?? []);
-
-if (!function_exists('handleApiHeadRequest')) {
-    //! @brief Handle HEAD request to /api endpoint for authentication checking
-    //! @return array{status:int} Status code for the response
-    function handleApiHeadRequest(): array
-    {
-        // Load environment variables like the controller does
-        $is_dev = (basename(dirname(__DIR__)) === 'dev');
-        $base_path = $is_dev ? dirname(dirname(__DIR__, 2)) : dirname(__DIR__, 2);
-        $env_prefix = $is_dev ? '/dev' : '';
-
-        $envFile = $base_path . '/httpd.private' . $env_prefix . '/.env';
-        if (file_exists($envFile)) {
-            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            foreach ($lines as $line) {
-                if (str_starts_with(trim($line), '#')) {
-                    continue; // Skip comments
-                }
-                if (str_contains($line, '=')) {
-                    [$key, $value] = explode('=', $line, 2);
-                    $key = trim($key);
-                    $value = trim($value, " \t\n\r\0\x0B\"'");
-                    $_ENV[$key] = $value;
-                }
-            }
-        }
-
-        // Check if any authentication method is configured
-        $bearerToken = $_ENV['API_BEARER_TOKEN'] ?? null;
-        $basicAuthUser = $_ENV['API_BASIC_AUTH_USER'] ?? null;
-        $basicAuthPass = $_ENV['API_BASIC_AUTH_PASS'] ?? null;
-
-        // If no authentication is configured, return 200 (API is accessible)
-        if ($bearerToken === null && ($basicAuthUser === null || $basicAuthPass === null)) {
-            return ['status' => 200];
-        }
-
-        // Get headers for authentication check
-        if (function_exists('getallheaders')) {
-            $headers = getallheaders();
-        } else {
-            $headers = [];
-            foreach ($_SERVER as $name => $value) {
-                if (str_starts_with($name, 'HTTP_')) {
-                    $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
-                    $headers[$key] = $value;
-                }
-            }
-        }
-
-        return checkAuthentication($headers, $bearerToken, $basicAuthUser, $basicAuthPass);
-    }
-}
-
-if (!function_exists('checkAuthentication')) {
-    //! @brief Check authentication and return appropriate status code
-    //! @param headers Request headers
-    //! @param bearerToken Configured bearer token
-    //! @param basicAuthUser Configured basic auth username
-    //! @param basicAuthPass Configured basic auth password
-    //! @return array{status:int} Status code (200, 401, or 403)
-    function checkAuthentication(array $headers, ?string $bearerToken, ?string $basicAuthUser, ?string $basicAuthPass): array
-{
-    $authHeader = getHeader($headers, 'Authorization');
-
-    // No auth header provided - 401 Unauthorized
-    if ($authHeader === null) {
-        return ['status' => 401];
-    }
-
-    // Check Basic Auth
-    if (preg_match('/^Basic\s+(.+)$/i', $authHeader, $matches)) {
-        if ($basicAuthUser === null || $basicAuthPass === null) {
-            return ['status' => 403]; // Basic auth not configured but attempted
-        }
-
-        $decoded = base64_decode($matches[1], true);
-        if ($decoded === false || !str_contains($decoded, ':')) {
-            return ['status' => 403]; // Invalid format
-        }
-
-        [$username, $password] = explode(':', $decoded, 2);
-        if ($username === $basicAuthUser && $password === $basicAuthPass) {
-            return ['status' => 200]; // Valid credentials
-        }
-        return ['status' => 403]; // Invalid credentials
-    }
-
-    // Check Bearer token
-    if (preg_match('/^Bearer\s+(\S+)/i', $authHeader, $matches)) {
-        if ($bearerToken === null) {
-            return ['status' => 403]; // Bearer auth not configured but attempted
-        }
-
-        if ($matches[1] === $bearerToken) {
-            return ['status' => 200]; // Valid token
-        }
-        return ['status' => 403]; // Invalid token
-    }
-
-        // Unknown auth format
-        return ['status' => 403];
-    }
-}
-
-if (!function_exists('handleSensorBatchHeadRequest')) {
-    //! @brief Handle HEAD request to /api/sensor/batch endpoint for authentication checking
-    //! @return array{status:int, body?:array} Status code and optional error body
-    function handleSensorBatchHeadRequest(): array
-    {
-        // Get headers for authentication check
-        if (function_exists('getallheaders')) {
-            $headers = getallheaders();
-        } else {
-            $headers = [];
-            foreach ($_SERVER as $name => $value) {
-                if (str_starts_with($name, 'HTTP_')) {
-                    $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
-                    $headers[$key] = $value;
-                }
-            }
-        }
-
-        $controller = new SensorBatchController();
-        return $controller->handle('HEAD', $headers, '');
-    }
-}
-
-//! @brief Handle GET /api endpoint - API discovery information
-//! @return array API discovery response
-function handleApiDiscovery(): array
+if (!function_exists('handleApiDiscovery')) {
+    //! @brief Handle GET /api endpoint - API discovery information
+    //! @return array API discovery response
+    function handleApiDiscovery(): array
     {
         // Load environment for auth checking
         loadEnvironmentForDebug();
@@ -415,6 +198,302 @@ function handleApiDiscovery(): array
             ]
         ];
     }
+}
+
+// Route handling
+$requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+// Handle HEAD request for base /api endpoint (authentication check)
+if ($requestUri === '/api' && strtoupper($method) === 'HEAD') {
+    if (!function_exists('handleApiHeadRequest')) {
+        $result = ['status' => 200]; // Default to OK if auth not configured
+    } else {
+        $result = handleApiHeadRequest();
+    }
+    http_response_code($result['status']);
+    // No body for HEAD requests
+    exit;
+}
+
+// Handle HEAD request for /api/sensor/batch (authentication check)
+if ($requestUri === '/api/sensor/batch' && strtoupper($method) === 'HEAD') {
+    if (!function_exists('handleSensorBatchHeadRequest')) {
+        $result = ['status' => 200]; // Default to OK if auth not configured
+    } else {
+        $result = handleSensorBatchHeadRequest();
+    }
+    http_response_code($result['status']);
+    header('Content-Type: application/json');
+    if (isset($result['body'])) {
+        echo json_encode($result['body']);
+    }
+    exit;
+}
+
+// Handle GET request for base /api endpoint (API discovery)
+if ($requestUri === '/api' && strtoupper($method) === 'GET') {
+    if (!function_exists('handleApiDiscovery')) {
+        $result = [
+            'error' => 'API discovery not available',
+            'message' => 'The API discovery endpoint is not properly configured',
+            'available_endpoints' => [
+                'POST /api/sensor/batch' => 'Submit sensor data batches',
+                '/api/debug' => 'Debug information (if available)'
+            ]
+        ];
+    } else {
+        $result = handleApiDiscovery();
+    }
+    http_response_code(200);
+    header('Content-Type: application/json');
+    echo json_encode($result);
+    exit;
+}
+
+// Debug routes for ESP-IDF and development
+if (str_starts_with($requestUri, '/api/debug')) {
+    if (!function_exists('handleDebugRoutes')) {
+        $result = [
+            'status' => 404,
+            'body' => [
+                'error' => 'Debug endpoints not available',
+                'message' => 'The debug endpoints are not properly configured',
+                'available_endpoints' => [
+                    'POST /api/sensor/batch' => 'Submit sensor data batches'
+                ]
+            ]
+        ];
+    } else {
+        $result = handleDebugRoutes($requestUri, $method);
+    }
+    http_response_code($result['status'] ?? 200);
+    header('Content-Type: application/json');
+    echo json_encode($result['body'] ?? []);
+    exit;
+}
+
+// Route only /api/sensor/batch for other methods
+if ($requestUri !== '/api/sensor/batch') {
+    if (!function_exists('generateEspIdfFriendlyError')) {
+        $errorResponse = [
+            'error' => true,
+            'status_code' => 404,
+            'message' => 'Endpoint not found',
+            'timestamp' => date('c'),
+            'request_info' => [
+                'method' => $method,
+                'uri' => $requestUri,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+            ],
+            'available_endpoints' => [
+                'POST /api/sensor/batch' => 'Submit sensor data',
+                'HEAD /api' => 'Check API authentication',
+                'HEAD /api/sensor/batch' => 'Check sensor endpoint authentication',
+                '/api/debug' => 'General API debugging info',
+                '/api/debug/status' => 'Authentication status check',
+                '/api/debug/echo' => 'Echo request details',
+                '/api/debug/test-auth' => 'Test authentication methods'
+            ],
+            'esp_idf_tips' => [
+                'Verify the URL is correct',
+                'Check if the endpoint requires authentication',
+                'Use /api/debug for available endpoints',
+                'Ensure HTTP method is supported (GET, POST, HEAD)'
+            ]
+        ];
+    } else {
+        $errorResponse = generateEspIdfFriendlyError(404, 'Endpoint not found', [
+            'requested_uri' => $requestUri,
+            'method' => $method,
+            'available_endpoints' => [
+                'POST /api/sensor/batch' => 'Submit sensor data',
+                'HEAD /api' => 'Check API authentication',
+                'HEAD /api/sensor/batch' => 'Check sensor endpoint authentication',
+                '/api/debug' => 'General API debugging info',
+                '/api/debug/status' => 'Authentication status check',
+                '/api/debug/echo' => 'Echo request details',
+                '/api/debug/test-auth' => 'Test authentication methods'
+            ],
+            'esp_idf_tips' => [
+                'Verify the URL is correct',
+                'Check if the endpoint requires authentication',
+                'Use /api/debug for available endpoints',
+                'Ensure HTTP method is supported (GET, POST, HEAD)'
+            ]
+        ]);
+    }
+
+    http_response_code(404);
+    header('Content-Type: application/json');
+    echo json_encode($errorResponse);
+    exit;
+}
+
+// Collect headers in a portable way
+if (function_exists('getallheaders')) {
+    $headers = getallheaders();
+} else {
+    $headers = [];
+    foreach ($_SERVER as $name => $value) {
+        if (str_starts_with($name, 'HTTP_')) {
+            $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+            $headers[$key] = $value;
+        }
+    }
+}
+
+$rawBody = file_get_contents('php://input') ?: '';
+
+if (!class_exists('App\Api\SensorBatchController')) {
+    $result = [
+        'status' => 500,
+        'body' => [
+            'error' => true,
+            'message' => 'Sensor controller not available',
+            'details' => 'The SensorBatchController class is not available'
+        ]
+    ];
+} else {
+    $controller = new SensorBatchController();
+    $result = $controller->handle($method, $headers, $rawBody);
+}
+
+http_response_code($result['status'] ?? 200);
+header('Content-Type: application/json');
+echo json_encode($result['body'] ?? []);
+
+if (!function_exists('handleApiHeadRequest')) {
+    //! @brief Handle HEAD request to /api endpoint for authentication checking
+    //! @return array{status:int} Status code for the response
+    function handleApiHeadRequest(): array
+    {
+        // Load environment variables like the controller does
+        $is_dev = (basename(dirname(__DIR__)) === 'dev');
+        $base_path = $is_dev ? dirname(dirname(__DIR__, 2)) : dirname(__DIR__, 2);
+        $env_prefix = $is_dev ? '/dev' : '';
+
+        $envFile = $base_path . '/httpd.private' . $env_prefix . '/.env';
+        if (file_exists($envFile)) {
+            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (str_starts_with(trim($line), '#')) {
+                    continue; // Skip comments
+                }
+                if (str_contains($line, '=')) {
+                    [$key, $value] = explode('=', $line, 2);
+                    $key = trim($key);
+                    $value = trim($value, " \t\n\r\0\x0B\"'");
+                    $_ENV[$key] = $value;
+                }
+            }
+        }
+
+        // Check if any authentication method is configured
+        $bearerToken = $_ENV['API_BEARER_TOKEN'] ?? null;
+        $basicAuthUser = $_ENV['API_BASIC_AUTH_USER'] ?? null;
+        $basicAuthPass = $_ENV['API_BASIC_AUTH_PASS'] ?? null;
+
+        // If no authentication is configured, return 200 (API is accessible)
+        if ($bearerToken === null && ($basicAuthUser === null || $basicAuthPass === null)) {
+            return ['status' => 200];
+        }
+
+        // Get headers for authentication check
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+        } else {
+            $headers = [];
+            foreach ($_SERVER as $name => $value) {
+                if (str_starts_with($name, 'HTTP_')) {
+                    $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                    $headers[$key] = $value;
+                }
+            }
+        }
+
+        return checkAuthentication($headers, $bearerToken, $basicAuthUser, $basicAuthPass);
+    }
+}
+
+if (!function_exists('checkAuthentication')) {
+    //! @brief Check authentication and return appropriate status code
+    //! @param headers Request headers
+    //! @param bearerToken Configured bearer token
+    //! @param basicAuthUser Configured basic auth username
+    //! @param basicAuthPass Configured basic auth password
+    //! @return array{status:int} Status code (200, 401, or 403)
+    function checkAuthentication(array $headers, ?string $bearerToken, ?string $basicAuthUser, ?string $basicAuthPass): array
+{
+    $authHeader = getHeader($headers, 'Authorization');
+
+    // No auth header provided - 401 Unauthorized
+    if ($authHeader === null) {
+        return ['status' => 401];
+    }
+
+    // Check Basic Auth
+    if (preg_match('/^Basic\s+(.+)$/i', $authHeader, $matches)) {
+        if ($basicAuthUser === null || $basicAuthPass === null) {
+            return ['status' => 403]; // Basic auth not configured but attempted
+        }
+
+        $decoded = base64_decode($matches[1], true);
+        if ($decoded === false || !str_contains($decoded, ':')) {
+            return ['status' => 403]; // Invalid format
+        }
+
+        [$username, $password] = explode(':', $decoded, 2);
+        if ($username === $basicAuthUser && $password === $basicAuthPass) {
+            return ['status' => 200]; // Valid credentials
+        }
+        return ['status' => 403]; // Invalid credentials
+    }
+
+    // Check Bearer token
+    if (preg_match('/^Bearer\s+(\S+)/i', $authHeader, $matches)) {
+        if ($bearerToken === null) {
+            return ['status' => 403]; // Bearer auth not configured but attempted
+        }
+
+        if ($matches[1] === $bearerToken) {
+            return ['status' => 200]; // Valid token
+        }
+        return ['status' => 403]; // Invalid token
+    }
+
+        // Unknown auth format
+        return ['status' => 403];
+    }
+}
+
+if (!function_exists('handleSensorBatchHeadRequest')) {
+    //! @brief Handle HEAD request to /api/sensor/batch endpoint for authentication checking
+    //! @return array{status:int, body?:array} Status code and optional error body
+    function handleSensorBatchHeadRequest(): array
+    {
+        // Get headers for authentication check
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+        } else {
+            $headers = [];
+            foreach ($_SERVER as $name => $value) {
+                if (str_starts_with($name, 'HTTP_')) {
+                    $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+                    $headers[$key] = $value;
+                }
+            }
+        }
+
+        if (!class_exists('App\Api\SensorBatchController')) {
+            return ['status' => 500, 'body' => ['error' => 'Sensor controller not available']];
+        }
+
+        $controller = new SensorBatchController();
+        return $controller->handle('HEAD', $headers, '');
+    }
+}
+
 
 if (!function_exists('handleDebugRoutes')) {
     //! @brief Handle debug routes for ESP-IDF and development
