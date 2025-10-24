@@ -42,6 +42,23 @@ class ApiSensorBatchIntegrationTest extends TestCase
         return json_encode($payload, JSON_THROW_ON_ERROR);
     }
 
+    private function validPayloadWithUuid(): string
+    {
+        $payload = [
+            'batch_id' => 'batch-uuid-1',
+            'generated_at' => 1758643200,
+            'sensors' => [
+                [
+                    'sensor_id' => '550e8400-e29b-41d4-a716-446655440000',
+                    'measurements' => [
+                        ['timestamp' => 1758643200, 'temperature_c' => -19.8, 'humidity_pct' => 41.2],
+                    ],
+                ],
+            ],
+        ];
+        return json_encode($payload, JSON_THROW_ON_ERROR);
+    }
+
     private function basicAuthHeader(string $username, string $password): string
     {
         return 'Basic ' . base64_encode($username . ':' . $password);
@@ -53,6 +70,21 @@ class ApiSensorBatchIntegrationTest extends TestCase
         $controller = new SensorBatchController();
         $headers = ['Authorization' => 'Bearer test-bearer-123'];
         $body = $this->validPayload();
+
+        // Act
+        $result = $controller->handle('POST', $headers, $body);
+
+        // Assert
+        $this->assertSame(200, $result['status']);
+        $this->assertSame(['status' => 'ok'], $result['body']);
+    }
+
+    public function test_success_with_uuid_sensor_id(): void
+    {
+        // Arrange
+        $controller = new SensorBatchController();
+        $headers = ['Authorization' => 'Bearer test-bearer-123'];
+        $body = $this->validPayloadWithUuid();
 
         // Act
         $result = $controller->handle('POST', $headers, $body);

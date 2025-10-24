@@ -57,7 +57,7 @@ if (!function_exists('handleApiDiscovery')) {
                         'batch_id' => 'string (unique identifier)',
                         'generated_at' => 'integer (Unix timestamp)',
                         'sensors' => 'array of sensor objects',
-                        'sensors[].sensor_id' => 'integer',
+                        'sensors[].sensor_id' => 'integer or string (UUID)',
                         'sensors[].measurements' => 'array of measurement objects',
                         'sensors[].measurements[].timestamp' => 'integer',
                         'sensors[].measurements[].temperature_c' => 'number',
@@ -167,7 +167,7 @@ if (!function_exists('handleApiDiscovery')) {
                         'generated_at' => time(),
                         'sensors' => [
                             [
-                                'sensor_id' => 1,
+                                'sensor_id' => 1, // Can be integer or UUID string like "550e8400-e29b-41d4-a716-446655440000"
                                 'measurements' => [
                                     [
                                         'timestamp' => time(),

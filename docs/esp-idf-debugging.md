@@ -44,7 +44,8 @@ GET /api
       "schema": {
         "batch_id": "string (unique identifier)",
         "generated_at": "integer (Unix timestamp)",
-        "sensors": "array of sensor objects"
+        "sensors": "array of sensor objects",
+        "sensors[].sensor_id": "integer or string (UUID)"
       }
     }
   },
@@ -159,7 +160,7 @@ POST /api/debug/echo
 Content-Type: application/json
 Authorization: Bearer your-token
 
-{"test": "data", "sensor_id": 1}
+{"test": "data", "sensor_id": 1} // sensor_id can be integer or UUID string
 ```
 
 **Response:**
@@ -247,7 +248,7 @@ esp_http_client_set_header(client, "Authorization", auth_header);
 // Set Content-Type
 esp_http_client_set_header(client, "Content-Type", "application/json");
 
-// Set request body
+// Set request body (sensor_id can be integer or UUID string)
 const char *post_data = "{\"batch_id\":\"batch-1\",\"generated_at\":1758643200,\"sensors\":[{\"sensor_id\":1,\"measurements\":[{\"timestamp\":1758643200,\"temperature_c\":-19.8,\"humidity_pct\":41.2}]}]}";
 esp_http_client_set_post_field(client, post_data, strlen(post_data));
 

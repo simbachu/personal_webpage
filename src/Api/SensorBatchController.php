@@ -82,7 +82,7 @@ class SensorBatchController
                         'batch_id' => 'string (non-empty)',
                         'generated_at' => 'integer (timestamp)',
                         'sensors' => 'array of sensor objects',
-                        'sensors[].sensor_id' => 'integer',
+                        'sensors[].sensor_id' => 'integer or string (UUID)',
                         'sensors[].measurements' => 'array of measurement objects',
                         'sensors[].measurements[].timestamp' => 'integer',
                         'sensors[].measurements[].temperature_c' => 'number',
@@ -124,8 +124,8 @@ class SensorBatchController
             if (!is_array($sensor)) {
                 return "sensors[$idx] must be an object";
             }
-            if (!array_key_exists('sensor_id', $sensor) || !is_int($sensor['sensor_id'])) {
-                return "sensors[$idx].sensor_id must be an integer";
+            if (!array_key_exists('sensor_id', $sensor) || (!is_int($sensor['sensor_id']) && !is_string($sensor['sensor_id']))) {
+                return "sensors[$idx].sensor_id must be an integer or string (UUID)";
             }
             if (!isset($sensor['measurements']) || !is_array($sensor['measurements'])) {
                 return "sensors[$idx].measurements must be an array";
