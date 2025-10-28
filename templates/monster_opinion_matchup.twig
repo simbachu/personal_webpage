@@ -1,0 +1,9 @@
+{% if monster_lhs is defined and monster_rhs is defined %}
+<article class="monster-opinion-matchup">
+<ul>
+<li>{% include "monster_brief.twig" with { monster: monster_lhs } %}</li>
+<li><button class="monster-opinion-matchup-button">Draw</button></li>
+<li>{% include "monster_brief.twig" with { monster: monster_rhs } %}</li>
+</ul>
+</article>
+{% endif %} {# monster_lhs is defined and monster_rhs is defined #}

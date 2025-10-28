@@ -1,0 +1,15 @@
+{% macro monster_brief(monster) %}
+<article class="monster-brief">
+    <h2 class="monster-brief-title">{{ monster.name }}</h2>
+    <figure class="monster-brief-image">
+        <img src="{{ monster.image }}" alt="{{ monster.name }}">
+    </figure>
+    {% if monster.forms is defined %}
+    <ul class="monster-brief-forms">
+        {% for form in monster.forms %}
+        <li class="monster-brief-form"><figure class="monster-brief-form-image"><img src="{{ form.image }}" alt="{{ form.name }}"></figure></li>
+        {% endfor %} {# for form in monster.forms #}
+    </ul>
+    {% endif %} {# monster.forms is defined #}
+</article>
+{% endmacro %} {# monster_brief #}
