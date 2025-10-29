@@ -1,0 +1,48 @@
+pokemon-catalog:
+  source:
+    strategy: species-list
+  filters:
+    include_mythical: true
+    include_legendary: true
+    regional_forms: include
+  forms_policy:
+    treat_as_forms:
+      - mega
+      - gmax
+      - totem
+      - alola
+      - galar
+      - hisui
+      - paldea
+    never_merge_evolutions: true
+    species_overrides:
+      mewtwo:
+        mode: keep_forms
+      arceus:
+        mode: keep_forms
+      eevee:
+        mode: separate_species
+      maushold:
+        mode: keep_forms
+        normalize_forms:
+          - from: maushold-family-of-three
+            to_display_name: Family of Three (rare)
+          - from: maushold-family-of-four
+            to_display_name: Family of Four
+  overrides:
+    - species: mewtwo
+      display_name: Mewtwo
+      forms:
+        - name: mega-mewtwo-x
+          display_name: Mega Mewtwo X
+        - name: mega-mewtwo-y
+          display_name: Mega Mewtwo Y
+  explicit_species:
+    - species: mewtwo
+    - species: eevee
+    - species: maushold
+  caching:
+    ttl_days: 90
+    sqlite_path: var/catalog.sqlite
+    batch_size: 50
+    rate_limit_per_sec: 5
