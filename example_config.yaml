@@ -1,0 +1,5 @@
+favorite-pokemon:
+    format: swiss-tournament
+    playoff: double-elimination
+    playoff-cutoff: 16
+    playoff-reset: false
