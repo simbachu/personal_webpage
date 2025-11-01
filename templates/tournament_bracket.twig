@@ -1,0 +1,37 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<section class="tournament-bracket">
+    <header class="tournament-header">
+        <h1>Top 16 Bracket</h1>
+        <p>Double Elimination - Top 16 from Swiss Tournament</p>
+    </header>
+    
+    <section class="bracket-seeds">
+        <h2>Qualified Pokémon (Top 16)</h2>
+        <ol class="bracket-seeds-list">
+            {% for pokemon in bracket %}
+            <li class="seed-entry">
+                <span class="seed-number">{{ loop.index }}</span>
+                {% if pokemon.image %}
+                <img src="{{ pokemon.image }}" alt="{{ pokemon.name }}" class="seed-sprite">
+                {% endif %}
+                <span class="seed-name">{{ pokemon.name }}</span>
+                <span class="seed-score">({{ pokemon.score }} pts)</span>
+            </li>
+            {% endfor %}
+        </ol>
+    </section>
+    
+    <div class="bracket-note">
+        <p><strong>Note:</strong> The double elimination bracket will be implemented after Swiss rounds are complete.</p>
+        <p>The top 16 Pokémon listed above will compete in the bracket phase.</p>
+    </div>
+    
+    <div class="tournament-actions">
+        <a href="/tournament/progress?id={{ tournament_id }}" class="button">View Full Standings</a>
+        <a href="/tournament" class="button">Start New Tournament</a>
+    </div>
+</section>
+{% endblock %}
+

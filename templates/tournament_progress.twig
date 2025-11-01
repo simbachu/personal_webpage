@@ -1,0 +1,92 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<section class="tournament-progress">
+    <header class="tournament-header">
+        <h1>Tournament Progress</h1>
+        <p class="round-info">
+            Round {{ round }} of {{ total_rounds }}
+            {% if is_complete %}
+            <span class="status-complete">(Complete)</span>
+            {% endif %}
+        </p>
+    </header>
+    
+    {% if is_complete %}
+    <div class="tournament-complete">
+        <p>Swiss rounds are complete! The top 16 will advance to the double elimination bracket.</p>
+        <div class="tournament-actions">
+            <a href="/tournament/bracket?id={{ tournament_id }}" class="button button-primary">View Bracket</a>
+            {% if email is defined %}
+            <a href="/tournament/bracket-vote?id={{ tournament_id }}&email={{ email|url_encode }}" class="button">Start Bracket Voting</a>
+            {% else %}
+            <a href="/tournament/bracket-vote?id={{ tournament_id }}" class="button">Start Bracket Voting</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <section class="standings">
+        <h2>Current Standings</h2>
+        <table class="standings-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Pokémon</th>
+                    <th>Score</th>
+                    <th>W-L-D</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for standing in standings %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        {% if standing.image %}
+                        <img src="{{ standing.image }}" alt="{{ standing.name }}" class="standings-sprite">
+                        {% endif %}
+                        {{ standing.name }}
+                    </td>
+                    <td class="score">{{ standing.score }}</td>
+                    <td class="record">{{ standing.wins }}-{{ standing.losses }}-{{ standing.draws }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    
+    <section class="remaining-matches">
+        <h2>Current Round Matches</h2>
+        {% if pairings is empty %}
+        <p>All matches in this round are complete.</p>
+        {% if not is_complete %}
+        <form method="POST" action="/tournament/progress">
+            <input type="hidden" name="tournament_id" value="{{ tournament_id }}">
+            <input type="hidden" name="action" value="advance_round">
+            <button type="submit" class="button">Advance to Next Round</button>
+        </form>
+        {% endif %}
+        {% else %}
+        <ul class="pairings-list">
+            {% for pairing in pairings %}
+            <li class="pairing">
+                {% if pairing[1] is defined %}
+                <a href="/tournament/vote?id={{ tournament_id }}&p1={{ pairing[0].name|lower }}&p2={{ pairing[1].name|lower }}">
+                    {{ pairing[0].name }} vs {{ pairing[1].name }}
+                </a>
+                {% else %}
+                <span class="bye">{{ pairing[0].name }} (Bye)</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% if email is defined %}
+        <a href="/tournament/vote?id={{ tournament_id }}&email={{ email|url_encode }}" class="button button-primary">Continue Voting</a>
+        {% else %}
+        <a href="/tournament/vote?id={{ tournament_id }}" class="button button-primary">Continue Voting</a>
+        {% endif %}
+        {% endif %}
+    </section>
+</section>
+{% endblock %}
+

@@ -1,0 +1,71 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<section class="tournament-voting">
+    <header class="tournament-header">
+        <h1>Tournament Vote</h1>
+        <p class="round-info">Round {{ round }} of {{ total_rounds }}</p>
+    </header>
+    
+    <p class="vote-instruction">Click on the Pokémon you prefer:</p>
+    
+    <form method="POST" action="{% if match_id is defined %}/tournament/bracket-vote{% else %}/tournament/vote{% endif %}" class="voting-form">
+        <input type="hidden" name="tournament_id" value="{{ tournament_id }}">
+        {% if match_id is defined %}
+        <input type="hidden" name="match_id" value="{{ match_id }}">
+        {% endif %}
+        <input type="hidden" name="participant1" value="{{ monster1.name|lower }}">
+        {% if monster2 %}
+        <input type="hidden" name="participant2" value="{{ monster2.name|lower }}">
+        {% endif %}
+        
+        <div class="voting-matchup">
+            <div class="monster-option" data-monster="{{ monster1.name|lower }}">
+                <button type="submit" name="winner" value="{{ monster1.name|lower }}" class="monster-vote-button">
+                    <figure class="monster-image">
+                        <img src="{{ monster1.image }}" alt="{{ monster1.name }}">
+                    </figure>
+                    <h2>{{ monster1.name }}</h2>
+                    {% if monster1.type1 %}
+                    <span class="type type-{{ monster1.type1 }}">{{ monster1.type1 }}</span>
+                    {% endif %}
+                </button>
+            </div>
+            
+            <div class="vs-separator">
+                <span>VS</span>
+                {% if monster2 %}
+                <button type="submit" name="outcome" value="draw" class="draw-button">Draw</button>
+                {% endif %}
+            </div>
+            
+            {% if monster2 %}
+            <div class="monster-option" data-monster="{{ monster2.name|lower }}">
+                <button type="submit" name="winner" value="{{ monster2.name|lower }}" class="monster-vote-button">
+                    <figure class="monster-image">
+                        <img src="{{ monster2.image }}" alt="{{ monster2.name }}">
+                    </figure>
+                    <h2>{{ monster2.name }}</h2>
+                    {% if monster2.type1 %}
+                    <span class="type type-{{ monster2.type1 }}">{{ monster2.type1 }}</span>
+                    {% endif %}
+                </button>
+            </div>
+            {% else %}
+            <div class="monster-option bye">
+                <p>Bye - {{ monster1.name }} automatically wins this round</p>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+    
+    <div class="tournament-actions">
+        {% if email is defined %}
+        <a href="/tournament/progress?id={{ tournament_id }}&email={{ email|url_encode }}" class="button">View Progress</a>
+        {% else %}
+        <a href="/tournament/progress?id={{ tournament_id }}" class="button">View Progress</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+

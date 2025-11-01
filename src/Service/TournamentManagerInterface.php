@@ -50,6 +50,11 @@ interface TournamentManagerInterface
         ?MonsterIdentifier $winner
     ): void;
 
+    //! @brief Check if all matches in the current round are complete
+    //! @param tournamentId The tournament identifier
+    //! @return bool True if all matches in current round are complete
+    public function isCurrentRoundComplete(TournamentIdentifier $tournamentId): bool;
+
     //! @brief Advance tournament to next round
     //! @param tournamentId The tournament identifier
     public function advanceToNextRound(TournamentIdentifier $tournamentId): void;

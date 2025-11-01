@@ -113,7 +113,7 @@ final class TournamentFlowIntegrationTest extends TestCase
         $tournament2 = $tournamentManager->createTournament($participants, $user2Email);
         
         //! @section Assert
-        $this->assertNotSame($tournament1->getId(), $tournament2->getId());
+        $this->assertNotSame($tournament1->getId()->__toString(), $tournament2->getId()->__toString());
         $this->assertSame($user1Email, $tournament1->getUserEmail());
         $this->assertSame($user2Email, $tournament2->getUserEmail());
         
@@ -123,8 +123,8 @@ final class TournamentFlowIntegrationTest extends TestCase
         
         $this->assertCount(1, $user1Tournaments);
         $this->assertCount(1, $user2Tournaments);
-        $this->assertSame($tournament1->getId(), $user1Tournaments[0]->getId());
-        $this->assertSame($tournament2->getId(), $user2Tournaments[0]->getId());
+        $this->assertTrue($tournament1->getId()->equals($user1Tournaments[0]->getId()));
+        $this->assertTrue($tournament2->getId()->equals($user2Tournaments[0]->getId()));
     }
 
     //! @brief Test tournament with incomplete rounds
@@ -253,7 +253,7 @@ final class TournamentFlowIntegrationTest extends TestCase
         
         $standings = $tournamentManager->getFinalStandings($tournament->getId());
         $this->assertCount(1, $standings);
-        $this->assertSame('pikachu', $standings[0]['monster']->toString());
+        $this->assertSame('pikachu', $standings[0]['monster']->__toString());
     }
 
     //! @brief Test tournament cleanup

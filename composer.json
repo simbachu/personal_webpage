@@ -6,6 +6,7 @@
     "require": {
         "twig/twig": "^3.21",
         "symfony/yaml": "^7.2",
+        "symfony/mailer": "^7.3",
         "league/commonmark": "^2.0"
     },
     "require-dev": {

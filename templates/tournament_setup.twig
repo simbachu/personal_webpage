@@ -1,0 +1,20 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<section class="tournament-setup">
+    <h1>Pokémon Tournament Ranking</h1>
+    
+    <p>Rank all Pokémon by voting them against each other using a Swiss tournament format. After the Swiss rounds, the top 16 will advance to a double elimination bracket.</p>
+    
+    <div class="tournament-actions">
+        <a href="/tournament/email" class="button button-primary">Start Tournament</a>
+    </div>
+    
+    {% if error is defined %}
+    <div class="error-message">
+        <p>{{ error }}</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+

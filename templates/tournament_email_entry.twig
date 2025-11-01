@@ -1,0 +1,34 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<section class="tournament-email-entry">
+    <h1>Register Your Email</h1>
+    
+    <p>Enter your email address to receive a verification code. This will register you for the tournament.</p>
+    
+    {% if error is defined %}
+    <div class="error-message">
+        <p>{{ error }}</p>
+    </div>
+    {% endif %}
+    
+    <form method="POST" action="/tournament/email" class="tournament-form">
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                required 
+                value="{{ email|default('') }}"
+                placeholder="your.email@example.com"
+            >
+        </div>
+        
+        <button type="submit" class="button button-primary">Send Verification Code</button>
+    </form>
+    
+    <p class="help-text">A verification code will be sent to your email. Check your inbox (and spam folder).</p>
+</section>
+{% endblock %}
+

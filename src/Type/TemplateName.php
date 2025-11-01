@@ -27,6 +27,12 @@ enum TemplateName: string
     case DEX = 'dex';
     case ARTICLE = 'article';
     case NOT_FOUND = '404';
+    case TOURNAMENT_EMAIL_ENTRY = 'tournament_email_entry';
+    case TOURNAMENT_SECRET_ENTRY = 'tournament_secret_entry';
+    case TOURNAMENT_VOTING = 'tournament_voting';
+    case TOURNAMENT_PROGRESS = 'tournament_progress';
+    case TOURNAMENT_BRACKET = 'tournament_bracket';
+    case TOURNAMENT_SETUP = 'tournament_setup';
 
     //! @brief Get all valid template names as an array
     //! @return string[] Array of all template name values
@@ -54,6 +60,12 @@ enum TemplateName: string
             'dex' => self::DEX,
             'article' => self::ARTICLE,
             '404' => self::NOT_FOUND,
+            'tournament_email_entry' => self::TOURNAMENT_EMAIL_ENTRY,
+            'tournament_secret_entry' => self::TOURNAMENT_SECRET_ENTRY,
+            'tournament_voting' => self::TOURNAMENT_VOTING,
+            'tournament_progress' => self::TOURNAMENT_PROGRESS,
+            'tournament_bracket' => self::TOURNAMENT_BRACKET,
+            'tournament_setup' => self::TOURNAMENT_SETUP,
             default => throw new \InvalidArgumentException(
                 "Invalid template name: '{$templateName}'. Valid templates are: " . implode(', ', self::getAllValues())
             ),
@@ -69,6 +81,12 @@ enum TemplateName: string
             self::DEX => 'Pokemon dex detail page template',
             self::ARTICLE => 'Article/blog post template',
             self::NOT_FOUND => '404 error page template',
+            self::TOURNAMENT_EMAIL_ENTRY => 'Tournament email entry template',
+            self::TOURNAMENT_SECRET_ENTRY => 'Tournament secret verification template',
+            self::TOURNAMENT_VOTING => 'Tournament voting/match template',
+            self::TOURNAMENT_PROGRESS => 'Tournament progress/standings template',
+            self::TOURNAMENT_BRACKET => 'Tournament bracket visualization template',
+            self::TOURNAMENT_SETUP => 'Tournament setup/landing template',
         };
     }
 

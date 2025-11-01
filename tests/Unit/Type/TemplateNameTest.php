@@ -16,9 +16,13 @@ class TemplateNameTest extends TestCase
         $templates = TemplateName::cases();
 
         //! @section Assert
-        $this->assertCount(4, $templates);
+        $this->assertCount(10, $templates);
 
-        $expectedTemplates = ['home', 'dex', 'article', '404'];
+        $expectedTemplates = [
+            'home', 'dex', 'article', '404',
+            'tournament_email_entry', 'tournament_secret_entry', 'tournament_voting',
+            'tournament_progress', 'tournament_bracket', 'tournament_setup'
+        ];
         $actualTemplates = array_column($templates, 'value');
 
         foreach ($expectedTemplates as $expected) {
@@ -60,7 +64,7 @@ class TemplateNameTest extends TestCase
     {
         //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid template name: \'invalid\'. Valid templates are: home, dex, article, 404');
+        $this->expectExceptionMessageMatches('/Invalid template name: \'invalid\'. Valid templates are:/');
 
         //! @section Act
         TemplateName::fromString('invalid');
@@ -70,7 +74,7 @@ class TemplateNameTest extends TestCase
     {
         //! @section Arrange
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid template name: \'\'. Valid templates are: home, dex, article, 404');
+        $this->expectExceptionMessageMatches('/Invalid template name: \'\'. Valid templates are:/');
 
         //! @section Act
         TemplateName::fromString('');
@@ -114,12 +118,17 @@ class TemplateNameTest extends TestCase
 
         //! @section Assert
         $this->assertIsArray($allValues);
-        $this->assertCount(4, $allValues);
+        $this->assertCount(10, $allValues);
         $this->assertContains('home', $allValues);
         $this->assertContains('dex', $allValues);
         $this->assertContains('article', $allValues);
         $this->assertContains('404', $allValues);
-        $this->assertSame(['home', 'dex', 'article', '404'], $allValues);
+        $this->assertContains('tournament_email_entry', $allValues);
+        $this->assertContains('tournament_secret_entry', $allValues);
+        $this->assertContains('tournament_voting', $allValues);
+        $this->assertContains('tournament_progress', $allValues);
+        $this->assertContains('tournament_bracket', $allValues);
+        $this->assertContains('tournament_setup', $allValues);
     }
 
     public function test_get_description(): void
@@ -215,6 +224,7 @@ class TemplateNameTest extends TestCase
             TemplateName::DEX => 'pokemon_page',
             TemplateName::ARTICLE => 'article_page',
             TemplateName::NOT_FOUND => 'error_page',
+            default => 'other_page',
         };
 
         //! @section Assert
@@ -230,6 +240,7 @@ class TemplateNameTest extends TestCase
         $result = match ($template) {
             TemplateName::HOME, TemplateName::DEX, TemplateName::ARTICLE => 'content',
             TemplateName::NOT_FOUND => 'error',
+            default => 'other',
         };
 
         //! @section Assert

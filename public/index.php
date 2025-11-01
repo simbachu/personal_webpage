@@ -37,10 +37,20 @@ use App\Router\Router;
 use App\Router\Handler\HomeRouteHandler;
 use App\Router\Handler\DexRouteHandler;
 use App\Router\Handler\ArticleRouteHandler;
+use App\Router\Handler\TournamentRouteHandler;
 use App\Repository\ArticleRepository;
 use App\Repository\FileArticleRepository;
+use App\Repository\TournamentRepository;
+use App\Repository\UserRegistrationRepository;
 use App\Service\MarkdownProcessor;
+use App\Service\TournamentManager;
+use App\Service\SwissTournamentService;
+use App\Service\EmailRegistrationService;
+use App\Service\PokemonCatalogService;
+use App\Presenter\TournamentPresenter;
 use App\Api\SensorBatchController;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport;
 
 // Try different possible locations for content (this is where the issue was)
 $possible_content_paths = [
@@ -68,6 +78,41 @@ $pokeApiService = new \App\Service\PokeApiService();
 $opinionsFilePath = $content_path . '/pokemon_opinions.yaml';
 $opinionService = new \App\Service\PokemonOpinionService($opinionsFilePath);
 $dexPresenter = new \App\Presenter\DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
+
+// Initialize tournament services
+$dbPath = $base_path . '/var/tournament.sqlite';
+$tournamentRepo = new TournamentRepository($dbPath);
+$userRepo = new UserRegistrationRepository($dbPath);
+$swissService = new SwissTournamentService();
+$bracketService = new \App\Service\DoubleEliminationBracketService();
+$tournamentManager = new TournamentManager($tournamentRepo, $swissService, $bracketService);
+
+// Initialize email service with Symfony Mailer
+// Configure mailer transport from environment or use default
+$mailerDsn = $_ENV['MAILER_DSN'] ?? 'null://null';
+try {
+    $transport = Transport::fromDsn($mailerDsn);
+    $mailer = new Mailer($transport);
+} catch (\Exception $e) {
+    // Fallback to null transport if configuration fails
+    $transport = Transport::fromDsn('null://null');
+    $mailer = new Mailer($transport);
+}
+$fromEmail = $_ENV['MAILER_FROM'] ?? 'noreply@example.com';
+$emailService = new EmailRegistrationService($mailer, $fromEmail);
+
+// Initialize Pokemon catalog service
+$catalogService = new PokemonCatalogService($pokeApiService);
+
+// Initialize tournament presenter and handler
+$tournamentPresenter = new TournamentPresenter($tournamentManager, $pokeApiService);
+$tournamentHandler = new TournamentRouteHandler(
+    $tournamentPresenter,
+    $tournamentManager,
+    $emailService,
+    $userRepo,
+    $catalogService
+);
 
 
 // Initialize Twig
@@ -159,6 +204,17 @@ $router->addRoute(new Route(
     ['handler' => 'article']
 ));
 
+// Add tournament route (catch-all for /tournament/*)
+$router->addRoute(new Route(
+    '/tournament',
+    TemplateName::TOURNAMENT_SETUP,
+    [
+        'title' => 'Pokémon Tournament Ranking',
+        'description' => 'Rank all Pokémon by voting in a Swiss tournament format.',
+    ],
+    ['handler' => 'tournament']
+));
+
 // Create article repository and handler
 $markdownProcessor = new MarkdownProcessor();
 $articleRepository = new FileArticleRepository($content_path, $markdownProcessor);
@@ -167,6 +223,7 @@ $articleRepository = new FileArticleRepository($content_path, $markdownProcessor
 $router->registerHandler('home', new HomeRouteHandler($homePresenter));
 $router->registerHandler('dex', new DexRouteHandler($dexPresenter));
 $router->registerHandler('article', new ArticleRouteHandler($articleRepository));
+$router->registerHandler('tournament', $tournamentHandler);
 
 // Get current request
 $path = get_request_path();

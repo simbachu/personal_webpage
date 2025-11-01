@@ -152,6 +152,11 @@ class Route
             return count($segments) === 2 && $segments[0] === trim($this->path, '/');
         }
 
+        // Dynamic route matching for tournament routes: /tournament/*
+        if ($this->path === '/tournament' && str_starts_with($path, '/tournament')) {
+            return true; // Match all tournament sub-paths
+        }
+
         return false;
     }
 

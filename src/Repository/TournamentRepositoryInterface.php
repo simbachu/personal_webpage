@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Type\Tournament;
 use App\Type\TournamentIdentifier;
+use App\Type\MonsterIdentifier;
 
 //! @brief Interface for tournament persistence operations
 //!
@@ -39,4 +40,35 @@ interface TournamentRepositoryInterface
     //! @brief Get all tournaments
     //! @return array<Tournament> All tournaments
     public function findAll(): array;
+
+    //! @brief Save a match result to the database
+    //! @param tournamentId Tournament identifier
+    //! @param roundNumber Round number for this match
+    //! @param participant1 First participant monster identifier
+    //! @param participant2 Second participant monster identifier
+    //! @param outcome Match outcome ('win', 'loss', 'draw')
+    //! @param winner Winner monster identifier (null for draws)
+    public function saveMatch(
+        TournamentIdentifier $tournamentId,
+        int $roundNumber,
+        MonsterIdentifier $participant1,
+        MonsterIdentifier $participant2,
+        string $outcome,
+        ?MonsterIdentifier $winner
+    ): void;
+
+    //! @brief Load all matches for a tournament
+    //! @param tournamentId Tournament identifier
+    //! @return array<array{round:int,participant1:MonsterIdentifier,participant2:MonsterIdentifier,outcome:string,winner:MonsterIdentifier|null}> Array of match data
+    public function loadMatches(TournamentIdentifier $tournamentId): array;
+
+    //! @brief Save bracket data for a tournament
+    //! @param tournamentId Tournament identifier
+    //! @param bracketData Bracket structure (will be JSON encoded)
+    public function saveBracketData(TournamentIdentifier $tournamentId, array $bracketData): void;
+
+    //! @brief Load bracket data for a tournament
+    //! @param tournamentId Tournament identifier
+    //! @return array|null Bracket structure or null if not found
+    public function loadBracketData(TournamentIdentifier $tournamentId): ?array;
 }

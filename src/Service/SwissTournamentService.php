@@ -95,17 +95,14 @@ final class SwissTournamentService implements SwissPairingInterface
             return 0; // Single participant tournament is immediately complete
         }
 
-        // Swiss tournaments typically use 4-6 rounds for most participant counts
-        // This is a simplified calculation - real Swiss tournaments use more complex formulas
-        if ($participantCount <= 4) {
-            return 3;
-        } elseif ($participantCount <= 8) {
-            return 4;
-        } elseif ($participantCount <= 16) {
-            return 5;
-        } else {
-            return 6;
-        }
+        // Requirement: Play log(n) rounds
+        // Using ceil(log2(n)) for Swiss tournament rounds
+        // This ensures enough rounds for proper ranking while keeping tournament manageable
+        $logRounds = (int) ceil(log($participantCount, 2));
+        
+        // Ensure minimum of 3 rounds for meaningful competition
+        // Cap at reasonable maximum (e.g., 8 rounds) to prevent excessive length
+        return max(3, min(8, $logRounds));
     }
 
     //! @brief Sort standings by tie-breaker criteria
