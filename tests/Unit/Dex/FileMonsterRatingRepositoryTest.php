@@ -2,18 +2,21 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Dex;
+
 use PHPUnit\Framework\TestCase;
-use App\Repository\FileMonsterRatingRepository;
-use App\Repository\MonsterRatingRepository;
-use App\Type\Result;
-use App\Type\MonsterIdentifier;
+use App\Dex\FileMonsterRatingRepository;
+use App\Dex\MonsterRatingRepository;
+use App\Shared\Support\Result;
+use App\Dex\MonsterIdentifier;
 
 final class FileMonsterRatingRepositoryTest extends TestCase
 {
-    private const TEST_RATINGS_FILE = 'tests/TestData/pokemon_ratings_test.yaml';
+    private string $testRatingsFile;
 
     protected function setUp(): void
     {
+        $this->testRatingsFile = sys_get_temp_dir() . '/pokemon_ratings_test_' . uniqid() . '.yaml';
         // Create test data file
         $yamlContent = <<<YAML
 maushold:
@@ -30,20 +33,20 @@ pikachu:
   rating: A
 YAML;
 
-        file_put_contents(self::TEST_RATINGS_FILE, $yamlContent);
+        file_put_contents($this->testRatingsFile, $yamlContent);
     }
 
     protected function tearDown(): void
     {
-        if (file_exists(self::TEST_RATINGS_FILE)) {
-            unlink(self::TEST_RATINGS_FILE);
+        if (file_exists($this->testRatingsFile)) {
+            unlink($this->testRatingsFile);
         }
     }
 
     public function test_get_rating_success(): void
     {
         //! @section Arrange
-        $repository = new FileMonsterRatingRepository(self::TEST_RATINGS_FILE);
+        $repository = new FileMonsterRatingRepository($this->testRatingsFile);
 
         //! @section Act
         $result = $repository->getRating('maushold');
@@ -59,7 +62,7 @@ YAML;
     public function test_get_rating_failure(): void
     {
         //! @section Arrange
-        $repository = new FileMonsterRatingRepository(self::TEST_RATINGS_FILE);
+        $repository = new FileMonsterRatingRepository($this->testRatingsFile);
 
         //! @section Act
         $result = $repository->getRating('nonexistent');
@@ -72,7 +75,7 @@ YAML;
     public function test_has_rating(): void
     {
         //! @section Arrange
-        $repository = new FileMonsterRatingRepository(self::TEST_RATINGS_FILE);
+        $repository = new FileMonsterRatingRepository($this->testRatingsFile);
 
         //! @section Assert
         $this->assertTrue($repository->hasRating('maushold'));
@@ -83,7 +86,7 @@ YAML;
     public function test_get_all_species_names(): void
     {
         //! @section Arrange
-        $repository = new FileMonsterRatingRepository(self::TEST_RATINGS_FILE);
+        $repository = new FileMonsterRatingRepository($this->testRatingsFile);
 
         //! @section Act
         $speciesNames = $repository->getAllSpeciesNames();
@@ -100,7 +103,7 @@ YAML;
     public function test_get_ratings_count(): void
     {
         //! @section Arrange
-        $repository = new FileMonsterRatingRepository(self::TEST_RATINGS_FILE);
+        $repository = new FileMonsterRatingRepository($this->testRatingsFile);
 
         //! @section Act
         $count = $repository->getRatingsCount();
@@ -112,7 +115,7 @@ YAML;
     public function test_get_all_ratings(): void
     {
         //! @section Arrange
-        $repository = new FileMonsterRatingRepository(self::TEST_RATINGS_FILE);
+        $repository = new FileMonsterRatingRepository($this->testRatingsFile);
 
         //! @section Act
         $allRatings = $repository->getAllRatings();
@@ -129,7 +132,7 @@ YAML;
     public function test_get_ratings_by_tier(): void
     {
         //! @section Arrange
-        $repository = new FileMonsterRatingRepository(self::TEST_RATINGS_FILE);
+        $repository = new FileMonsterRatingRepository($this->testRatingsFile);
 
         //! @section Act
         $aTier = $repository->getRatingsByTier('A');
@@ -147,7 +150,7 @@ YAML;
     public function test_get_all_tiers(): void
     {
         //! @section Arrange
-        $repository = new FileMonsterRatingRepository(self::TEST_RATINGS_FILE);
+        $repository = new FileMonsterRatingRepository($this->testRatingsFile);
 
         //! @section Act
         $tiers = $repository->getAllTiers();

@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Dex;
+
 use PHPUnit\Framework\TestCase;
-use App\Service\MonsterRatingService;
-use App\Repository\TestMonsterRatingRepository;
-use App\Repository\MonsterRatingRepository;
-use App\Type\Result;
-use App\Type\MonsterIdentifier;
+use App\Dex\MonsterRatingService;
+use App\Dex\TestMonsterRatingRepository;
+use App\Dex\MonsterRatingRepository;
+use App\Shared\Support\Result;
+use App\Dex\MonsterIdentifier;
 
 final class MonsterRatingServiceTest extends TestCase
 {
@@ -191,7 +193,7 @@ final class MonsterRatingServiceTest extends TestCase
         $repository = $service->getRepository();
 
         //! @section Assert
-        $this->assertInstanceOf(\App\Repository\FileMonsterRatingRepository::class, $repository);
+        $this->assertInstanceOf(\App\Dex\FileMonsterRatingRepository::class, $repository);
     }
 
     public function test_species_extraction_from_complex_forms(): void

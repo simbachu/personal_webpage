@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Type;
+namespace App\Shared\Http;
 
 //! @brief Enum representing valid template names used throughout the application
 //!
@@ -100,27 +100,56 @@ enum TemplateName: string
         return $this->value;
     }
 
-    //! @brief Get the Twig template file path for this name
-    //! @return string The filename with .twig extension (e.g., "home.twig")
+    //! @brief Twig loader namespace for this template's slice
+    //! @return string One of: site, dex, shared
+    public function getTwigNamespace(): string
+    {
+        return match ($this) {
+            self::HOME, self::ARTICLE => 'site',
+            self::DEX => 'dex',
+            self::NOT_FOUND => 'shared',
+        };
+    }
+
+    //! @brief Get the Twig template path including namespace (e.g. "@site/home.twig")
+    //! @return string Namespaced Twig path
     public function toTwigPath(): string
+    {
+        return '@' . $this->getTwigNamespace() . '/' . $this->value . '.twig';
+    }
+
+    //! @brief Filename within the slice templates directory
+    //! @return string The filename with .twig extension (e.g., "home.twig")
+    public function toFileName(): string
     {
         return $this->value . '.twig';
     }
 
-    //! @brief Build a FilePath to this template under a templates directory
-    //! @param templatesDir Base directory containing twig templates
+    //! @brief Build a FilePath to this template under a slice templates directory
+    //! @param templatesDir Directory for this template's Twig namespace
     //! @return FilePath Full path to the twig file
-    public function toPath(\App\Type\FilePath $templatesDir): \App\Type\FilePath
+    public function toPath(\App\Shared\Support\FilePath $templatesDir): \App\Shared\Support\FilePath
     {
-        return $templatesDir->join($this->toTwigPath());
+        return $templatesDir->join($this->toFileName());
     }
 
-    //! @brief Ensure this template file exists under given templates directory
-    //! @param templatesDir Base directory containing twig templates
+    //! @brief Ensure this template file exists under the matching namespace path
+    //! @param namespacePaths Map of Twig namespace => templates directory
     //! @return FilePath Full path to the twig file
     //! @throws \RuntimeException If the template file does not exist
-    public function ensureExists(\App\Type\FilePath $templatesDir): \App\Type\FilePath
+    //! @throws \InvalidArgumentException If the namespace path is not configured
+    public function ensureExists(array $namespacePaths): \App\Shared\Support\FilePath
     {
+        $namespace = $this->getTwigNamespace();
+        if (!isset($namespacePaths[$namespace])) {
+            throw new \InvalidArgumentException("No templates path configured for namespace '{$namespace}'");
+        }
+
+        $templatesDir = $namespacePaths[$namespace];
+        if (!$templatesDir instanceof \App\Shared\Support\FilePath) {
+            $templatesDir = \App\Shared\Support\FilePath::fromString((string) $templatesDir);
+        }
+
         $path = $this->toPath($templatesDir);
         if (!$path->exists() || !$path->isFile()) {
             throw new \RuntimeException('Template not found: ' . $path->getValue());

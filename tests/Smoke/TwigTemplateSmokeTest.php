@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Smoke;
 
 use PHPUnit\Framework\TestCase;
-use Tests\TestData\PokemonTestData;
+use Tests\Support\TwigTestFactory;
+use Tests\Unit\Dex\PokemonTestData;
 use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 
 //! @brief Smoke test for Twig template rendering with Pokemon data
 //!
@@ -19,24 +19,20 @@ class TwigTemplateSmokeTest extends TestCase
     //! @brief Set up Twig environment before each test
     protected function setUp(): void
     {
-        $loader = new FilesystemLoader(__DIR__ . '/../../templates');
-        $this->twig = new Environment($loader, [
-            'cache' => false,
-            'debug' => false,
-        ]);
+        $this->twig = TwigTestFactory::createEnvironment();
     }
 
     public function testMonsterCardRendersDualTypePokemon(): void
     {
         //! @section Arrange
         $monster = PokemonTestData::getBulbasaur();
-        $viewData = [
+        $viewData = array_merge(TwigTestFactory::layoutGlobals(), [
             'template' => 'dex',
             'monster' => $monster,
-        ];
+        ]);
 
         //! @section Act
-        $rendered = $this->twig->render('dex.twig', $viewData);
+        $rendered = $this->twig->render('@dex/dex.twig', $viewData);
 
         //! @section Assert
         $this->assertStringContainsString('Bulbasaur', $rendered);
@@ -60,13 +56,13 @@ class TwigTemplateSmokeTest extends TestCase
     {
         //! @section Arrange
         $monster = PokemonTestData::getCharmander();
-        $viewData = [
+        $viewData = array_merge(TwigTestFactory::layoutGlobals(), [
             'template' => 'dex',
             'monster' => $monster,
-        ];
+        ]);
 
         //! @section Act
-        $rendered = $this->twig->render('dex.twig', $viewData);
+        $rendered = $this->twig->render('@dex/dex.twig', $viewData);
 
         //! @section Assert
         $this->assertStringContainsString('Charmander', $rendered);
@@ -93,13 +89,13 @@ class TwigTemplateSmokeTest extends TestCase
         //! Remove type2 key to simulate service not adding it
         unset($monster['type2']);
 
-        $viewData = [
+        $viewData = array_merge(TwigTestFactory::layoutGlobals(), [
             'template' => 'dex',
             'monster' => $monster,
-        ];
+        ]);
 
         //! @section Act
-        $rendered = $this->twig->render('dex.twig', $viewData);
+        $rendered = $this->twig->render('@dex/dex.twig', $viewData);
 
         //! @section Assert
         $this->assertStringContainsString('Charmander', $rendered);
@@ -117,13 +113,13 @@ class TwigTemplateSmokeTest extends TestCase
     {
         //! @section Arrange
         $monster = PokemonTestData::getTypelessPokemon();
-        $viewData = [
+        $viewData = array_merge(TwigTestFactory::layoutGlobals(), [
             'template' => 'dex',
             'monster' => $monster,
-        ];
+        ]);
 
         //! @section Act
-        $rendered = $this->twig->render('dex.twig', $viewData);
+        $rendered = $this->twig->render('@dex/dex.twig', $viewData);
 
         //! @section Assert
         $this->assertStringContainsString('Unknown', $rendered);
@@ -143,13 +139,13 @@ class TwigTemplateSmokeTest extends TestCase
     {
         //! @section Arrange
         $monster = PokemonTestData::getBulbasaur();
-        $viewData = [
+        $viewData = array_merge(TwigTestFactory::layoutGlobals(), [
             'template' => 'dex',
             'monster' => $monster,
-        ];
+        ]);
 
         //! @section Act
-        $rendered = $this->twig->render('dex.twig', $viewData);
+        $rendered = $this->twig->render('@dex/dex.twig', $viewData);
 
         //! @section Assert
         //! Check for proper HTML structure
@@ -189,10 +185,10 @@ class TwigTemplateSmokeTest extends TestCase
         ];
 
         //! @section Act
-        $rendered = $this->twig->render('dex.twig', [
+        $rendered = $this->twig->render('@dex/dex.twig', array_merge(TwigTestFactory::layoutGlobals(), [
             'tierlist' => $tierlist,
             'meta' => ['title' => 'Tierlist']
-        ]);
+        ]));
 
         //! @section Assert
         $this->assertStringContainsString('Test Tierlist', $rendered);

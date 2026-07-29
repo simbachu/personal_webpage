@@ -31,12 +31,12 @@ jobs:
           echo "Validating YAML syntax..."
 
           # Check if pokemon_opinions.yaml exists and is valid YAML
-          if [ -f "content/pokemon_opinions.yaml" ]; then
+          if [ -f "content/dex/pokemon_opinions.yaml" ]; then
             echo "Validating pokemon_opinions.yaml..."
             php -r "
               require_once 'vendor/autoload.php';
               try {
-                \$content = file_get_contents('content/pokemon_opinions.yaml');
+                \$content = file_get_contents('content/dex/pokemon_opinions.yaml');
                 \$data = \Symfony\Component\Yaml\Yaml::parse(\$content);
                 if (!is_array(\$data)) {
                   echo 'ERROR: pokemon_opinions.yaml does not contain a valid YAML structure\n';
@@ -61,7 +61,7 @@ jobs:
           php -r "
             require_once 'vendor/autoload.php';
             try {
-              \$content = file_get_contents('content/pokemon_opinions.yaml');
+              \$content = file_get_contents('content/dex/pokemon_opinions.yaml');
               \$data = \Symfony\Component\Yaml\Yaml::parse(\$content);
 
               if (!is_array(\$data)) {

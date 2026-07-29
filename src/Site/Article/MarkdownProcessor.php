@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Site\Article;
 
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Environment\Environment;

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Type;
+namespace App\Shared\Github;
 
+use App\Shared\Support\Identifier;
 use InvalidArgumentException;
 
 //! @brief Identifier for Repository entities

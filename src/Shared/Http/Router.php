@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Router;
+namespace App\Shared\Http;
 
-use App\Type\Route;
-use App\Type\TemplateName;
-use App\Type\HttpStatusCode;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
+use App\Shared\Http\HttpStatusCode;
 
 //! @brief Router class that handles HTTP request routing following MVP pattern
 //!

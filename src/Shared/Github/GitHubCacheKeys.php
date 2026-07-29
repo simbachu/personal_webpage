@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Shared\Github;
 
-use App\Type\BranchName;
-use App\Type\FilePath;
-use App\Type\RepositoryIdentifier;
+use App\Shared\Github\BranchName;
+use App\Shared\Support\FilePath;
+use App\Shared\Github\RepositoryIdentifier;
 
 //! @brief Centralized cache key builder for GitHubService
 final class GitHubCacheKeys

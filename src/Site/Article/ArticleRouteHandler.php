@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Router\Handler;
+namespace App\Site\Article;
 
-use App\Model\Article;
-use App\Repository\ArticleRepository;
-use App\Router\RouteHandler;
-use App\Router\RouteResult;
-use App\Type\Route;
-use App\Type\TemplateName;
-use App\Type\HttpStatusCode;
+use App\Site\Article\Article;
+use App\Site\Article\ArticleRepository;
+use App\Shared\Http\RouteHandler;
+use App\Shared\Http\RouteResult;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
+use App\Shared\Http\HttpStatusCode;
 
 //! @brief Route handler for article/blog routes
 //!

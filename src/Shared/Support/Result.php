@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Type;
+namespace App\Shared\Support;
 
 //! @brief Generic Result type for handling success/failure states with explicit typing
 //!

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Type;
+namespace Tests\Unit\Shared\Http;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\HttpStatusCode;
+use App\Shared\Http\HttpStatusCode;
 
 //! @brief Test suite for the HttpStatusCode enum
 class HttpStatusCodeTest extends TestCase

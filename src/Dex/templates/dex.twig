@@ -1,6 +1,6 @@
-{% extends "layout.twig" %}
-{% import "monster_card.twig" as mc %}
-{% import "tierlist.twig" as tl %}
+{% extends "@shared/layout.twig" %}
+{% import "@dex/monster_card.twig" as mc %}
+{% import "@dex/tierlist.twig" as tl %}
 
 {% block content %}
     {% if monster is defined %}

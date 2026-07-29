@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Router;
+namespace App\Shared\Http;
 
-use App\Type\Route;
-use App\Type\TemplateName;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
 
 //! @brief Interface for route handlers that process route-specific logic
 //!

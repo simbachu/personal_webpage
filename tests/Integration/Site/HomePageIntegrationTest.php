@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration;
+namespace Tests\Integration\Site;
 
 use PHPUnit\Framework\TestCase;
-use App\Model\ContentRepository;
-use App\Presenter\HomePresenter;
-use App\Type\FilePath;
+use App\Site\Home\ContentRepository;
+use App\Site\Home\HomePresenter;
+use App\Shared\Support\FilePath;
 
 //! @brief Integration test for the complete MVP flow
 //!

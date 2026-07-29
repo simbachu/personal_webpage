@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Dex;
 
-use App\Type\Result;
-use App\Type\RatingData;
-use App\Type\MonsterIdentifier;
-use App\Type\FilePath;
+use App\Shared\Support\Result;
+use App\Dex\RatingData;
+use App\Dex\MonsterIdentifier;
+use App\Shared\Support\FilePath;
 use Symfony\Component\Yaml\Yaml;
 
 //! @brief File-based implementation of MonsterRatingRepository
@@ -18,7 +18,7 @@ use Symfony\Component\Yaml\Yaml;
 //!
 //! @code
 //! // Example usage:
-//! $repository = new FileMonsterRatingRepository('content/pokemon_ratings.yaml');
+//! $repository = new FileMonsterRatingRepository('content/dex/pokemon_opinions.yaml');
 //! $result = $repository->getRating('maushold');
 //!
 //! if ($result->isSuccess()) {
@@ -29,7 +29,7 @@ use Symfony\Component\Yaml\Yaml;
 //! @endcode
 final class FileMonsterRatingRepository implements MonsterRatingRepository
 {
-    private const DEFAULT_RATINGS_FILE = 'content/pokemon_opinions.yaml';
+    private const DEFAULT_RATINGS_FILE = 'content/dex/pokemon_opinions.yaml';
 
     private ?array $ratingsCache = null; //!< Cache of loaded ratings keyed by species name
 

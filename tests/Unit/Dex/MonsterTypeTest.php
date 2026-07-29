@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Type;
+namespace Tests\Unit\Dex;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\MonsterType;
+use App\Dex\MonsterType;
 
 //! @brief Test suite for the MonsterType enum
 class MonsterTypeTest extends TestCase

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\TestData;
+namespace Tests\Unit\Dex;
 
 //! @brief Local test data for Pokemon to avoid API calls during testing
 class PokemonTestData

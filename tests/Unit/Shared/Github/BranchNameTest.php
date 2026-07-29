@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Type;
+namespace Tests\Unit\Shared\Github;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\BranchName;
+use App\Shared\Github\BranchName;
 
 //! @brief Test suite for the BranchName value object
 class BranchNameTest extends TestCase

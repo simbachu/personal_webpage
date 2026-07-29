@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Unit\Dex;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Yaml\Yaml;
@@ -12,7 +12,7 @@ use Symfony\Component\Yaml\Yaml;
 //!          and can be parsed correctly by the application
 class ContentValidationTest extends TestCase
 {
-    private const OPINIONS_FILE = 'content/pokemon_opinions.yaml';
+    private const OPINIONS_FILE = 'content/dex/pokemon_opinions.yaml';
 
     //! @brief Test that pokemon_opinions.yaml exists and is readable
     public function testPokemonOpinionsFileExists(): void

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Model;
+namespace App\Site\Home;
 
-use App\Type\FilePath;
+use App\Shared\Support\FilePath;
 
 use Symfony\Component\Yaml\Yaml;
 use League\CommonMark\CommonMarkConverter;

@@ -2,33 +2,36 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Dex;
+
 use PHPUnit\Framework\TestCase;
-use App\Service\PokemonOpinionService;
-use App\Service\PokeApiService;
-use App\Type\Result;
-use App\Type\MonsterIdentifier;
+use App\Dex\PokemonOpinionService;
+use App\Dex\PokeApiService;
+use App\Shared\Support\Result;
+use App\Dex\MonsterIdentifier;
 
 final class PokemonOpinionServiceTest extends TestCase
 {
-    private const TEST_OPINIONS_FILE = 'content/pokemon_opinions_test.yaml';
+    private string $testOpinionsFile;
 
     //! @brief Create test YAML file with opinion data
     //! @param content YAML content to write
     private function createTestOpinionsFile(string $content): void
     {
-        file_put_contents(self::TEST_OPINIONS_FILE, $content);
+        file_put_contents($this->testOpinionsFile, $content);
     }
 
     //! @brief Clean up test file
     private function cleanupTestFile(): void
     {
-        if (file_exists(self::TEST_OPINIONS_FILE)) {
-            unlink(self::TEST_OPINIONS_FILE);
+        if (isset($this->testOpinionsFile) && file_exists($this->testOpinionsFile)) {
+            unlink($this->testOpinionsFile);
         }
     }
 
     protected function setUp(): void
     {
+        $this->testOpinionsFile = sys_get_temp_dir() . '/pokemon_opinions_test_' . uniqid() . '.yaml';
         $this->cleanupTestFile();
     }
 
@@ -46,7 +49,7 @@ pikachu:
   rating: A
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result = $service->getOpinion(MonsterIdentifier::fromString('pikachu'));
@@ -69,7 +72,7 @@ pikachu:
   rating: B
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result = $service->getOpinion(MonsterIdentifier::fromString('PIKACHU'));
@@ -89,7 +92,7 @@ pikachu:
   rating: B
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result = $service->getOpinion(MonsterIdentifier::fromString('  pikachu  '));
@@ -109,7 +112,7 @@ pikachu:
   rating: B
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result = $service->getOpinion(MonsterIdentifier::fromString('charizard'));
@@ -129,7 +132,7 @@ pikachu:
 YAML);
 
         // Create service with mocked PokeAPI
-        $service = new class(self::TEST_OPINIONS_FILE) extends PokemonOpinionService {
+        $service = new class($this->testOpinionsFile) extends PokemonOpinionService {
             public function normalizeToName(MonsterIdentifier $identifier): ?string {
                 $value = $identifier->getValue();
                 if (!is_numeric($value)) {
@@ -159,7 +162,7 @@ pikachu:
 YAML);
 
         // Create service with mocked PokeAPI that returns null for normalization
-        $service = new class(self::TEST_OPINIONS_FILE) extends PokemonOpinionService {
+        $service = new class($this->testOpinionsFile) extends PokemonOpinionService {
             public function normalizeToName(MonsterIdentifier $identifier): ?string {
                 $value = $identifier->getValue();
                 if (!is_numeric($value)) {
@@ -187,7 +190,7 @@ pikachu:
   rating: B
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $hasOpinion = $service->hasOpinion(MonsterIdentifier::fromString('pikachu'));
@@ -205,7 +208,7 @@ pikachu:
   rating: B
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $hasOpinion = $service->hasOpinion(MonsterIdentifier::fromString('charizard'));
@@ -229,7 +232,7 @@ blastoise:
   rating: B
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $names = $service->getAllOpinionNames();
@@ -245,7 +248,7 @@ YAML);
     public function testGetAllOpinionNamesReturnsEmptyArrayWhenFileDoesNotExist(): void
     {
         //! @section Arrange
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $names = $service->getAllOpinionNames();
@@ -258,7 +261,7 @@ YAML);
     public function testGetOpinionReturnsFailureWhenFileDoesNotExist(): void
     {
         //! @section Arrange
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result = $service->getOpinion(MonsterIdentifier::fromString('pikachu'));
@@ -273,7 +276,7 @@ YAML);
         //! @section Arrange
         $this->createTestOpinionsFile('invalid yaml content: [unclosed bracket');
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result = $service->getOpinion(MonsterIdentifier::fromString('pikachu'));
@@ -292,7 +295,7 @@ pikachu:
   rating: B
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result1 = $service->getOpinion(MonsterIdentifier::fromString('pikachu'));
@@ -317,7 +320,7 @@ iron-valiant:
   rating: S
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result = $service->getOpinion(MonsterIdentifier::fromString('iron-valiant'));
@@ -338,7 +341,7 @@ maushold:
   rating: A
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result1 = $service->getOpinion(MonsterIdentifier::fromString('maushold-family-of-four'));
@@ -366,7 +369,7 @@ deoxys:
   rating: B
 YAML);
 
-        $service = new PokemonOpinionService(self::TEST_OPINIONS_FILE);
+        $service = new PokemonOpinionService($this->testOpinionsFile);
 
         //! @section Act
         $result1 = $service->getOpinion(MonsterIdentifier::fromString('deoxys-normal'));

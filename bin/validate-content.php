@@ -15,7 +15,7 @@ use Symfony\Component\Yaml\Yaml;
 //! @return int Exit code (0 for success, 1 for failure)
 function validateContent(): int
 {
-    $opinionsFile = 'content/pokemon_opinions.yaml';
+    $opinionsFile = 'content/dex/pokemon_opinions.yaml';
 
     echo "🔍 Validating Pokemon opinions content...\n\n";
 

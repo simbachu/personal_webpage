@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Service\PokeApiService;
-use App\Service\PokemonOpinionService;
-use App\Type\MonsterIdentifier;
+use App\Dex\PokeApiService;
+use App\Dex\PokemonOpinionService;
+use App\Dex\MonsterIdentifier;
 
 // Load opinions
-$opinionsPath = __DIR__ . '/../content/pokemon_opinions.yaml';
+$opinionsPath = __DIR__ . '/../content/dex/pokemon_opinions.yaml';
 $opinionService = new PokemonOpinionService($opinionsPath);
 $rated = array_map('strtolower', $opinionService->getAllOpinionNames());
 

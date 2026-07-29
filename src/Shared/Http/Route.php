@@ -2,25 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Type;
+namespace App\Shared\Http;
 
 //! @brief Value object representing a route definition
 //!
-//! This class encapsulates route information including the path pattern,
-//! template, metadata, and handler configuration. It provides type safety
-//! and validation for route definitions.
+//! Supports static paths and dynamic `{param}` segments (e.g. `/dex/{id_or_name}`).
 //!
 //! @code
-//! // Example usage:
 //! $route = new Route(
-//!     '/',
-//!     TemplateName::HOME,
-//!     ['title' => 'Home Page'],
-//!     ['handler' => 'home']
+//!     '/dex/{id_or_name}',
+//!     TemplateName::DEX,
+//!     [],
+//!     ['handler' => 'dex']
 //! );
-//!
-//! echo $route->getPath(); // "/"
-//! echo $route->getTemplate()->value; // "home"
 //! @endcode
 class Route
 {
@@ -30,7 +24,7 @@ class Route
     private array $options; //!< Additional route options (handler, etc.)
 
     //! @brief Construct a new Route instance
-    //! @param path The route path pattern
+    //! @param path The route path pattern (may include `{param}` segments)
     //! @param template The template to render for this route
     //! @param meta Optional metadata array (title, description, etc.)
     //! @param options Optional additional options (handler, etc.)
@@ -97,15 +91,7 @@ class Route
     //! @return bool True if the path matches this route
     public function matches(string $path): bool
     {
-        $normalizedPath = $this->normalizePath($path);
-
-        // Exact match for static routes
-        if ($this->path === $normalizedPath) {
-            return true;
-        }
-
-        // Check for dynamic route patterns (e.g., /dex/{id})
-        return $this->matchesDynamicPattern($normalizedPath);
+        return $this->matchSegments($this->normalizePath($path)) !== null;
     }
 
     //! @brief Extract parameters from a matching path
@@ -113,15 +99,7 @@ class Route
     //! @return array Array of extracted parameters
     public function extractParameters(string $path): array
     {
-        $normalizedPath = $this->normalizePath($path);
-
-        // For exact matches, no parameters
-        if ($this->path === $normalizedPath) {
-            return [];
-        }
-
-        // Extract parameters from dynamic patterns
-        return $this->extractDynamicParameters($normalizedPath);
+        return $this->matchSegments($this->normalizePath($path)) ?? [];
     }
 
     //! @brief Normalize a path by removing trailing slashes (except root)
@@ -135,47 +113,36 @@ class Route
         return $path;
     }
 
-    //! @brief Check if path matches dynamic pattern (e.g., /dex/{id})
-    //! @param path The path to check
-    //! @return bool True if matches dynamic pattern
-    private function matchesDynamicPattern(string $path): bool
+    //! @brief Match path segments against this route pattern
+    //! @param path Normalized request path
+    //! @return array<string, string>|null Parameters on match, null otherwise
+    private function matchSegments(string $path): ?array
     {
-        // Simple dynamic route matching for /dex/{id_or_name}
-        if ($this->path === '/dex' && str_starts_with($path, '/dex/')) {
-            $segments = explode('/', trim($path, '/'));
-            return count($segments) === 2 && $segments[0] === 'dex';
+        $patternSegments = $this->path === '/' ? [] : explode('/', trim($this->path, '/'));
+        $pathSegments = $path === '/' ? [] : explode('/', trim($path, '/'));
+
+        if (count($patternSegments) !== count($pathSegments)) {
+            return null;
         }
 
-        // Dynamic route matching for article routes: /read/{article}, /article/{article}, /blog/{article}
-        if (in_array($this->path, ['/read', '/article', '/blog']) && str_starts_with($path, $this->path . '/')) {
-            $segments = explode('/', trim($path, '/'));
-            return count($segments) === 2 && $segments[0] === trim($this->path, '/');
-        }
+        $parameters = [];
+        foreach ($patternSegments as $index => $patternSegment) {
+            $pathSegment = $pathSegments[$index];
 
-        return false;
-    }
+            if (preg_match('/^\{([a-zA-Z_][a-zA-Z0-9_]*)\}$/', $patternSegment, $matches) === 1) {
+                if ($pathSegment === '') {
+                    return null;
+                }
+                $parameters[$matches[1]] = $pathSegment;
+                continue;
+            }
 
-    //! @brief Extract parameters from dynamic path patterns
-    //! @param path The path to extract from
-    //! @return array Extracted parameters
-    private function extractDynamicParameters(string $path): array
-    {
-        if ($this->path === '/dex' && str_starts_with($path, '/dex/')) {
-            $segments = explode('/', trim($path, '/'));
-            if (count($segments) === 2 && $segments[0] === 'dex') {
-                return ['id_or_name' => $segments[1]];
+            if ($patternSegment !== $pathSegment) {
+                return null;
             }
         }
 
-        // Extract parameters for article routes
-        if (in_array($this->path, ['/read', '/article', '/blog']) && str_starts_with($path, $this->path . '/')) {
-            $segments = explode('/', trim($path, '/'));
-            if (count($segments) === 2 && $segments[0] === trim($this->path, '/')) {
-                return ['article_name' => $segments[1]];
-            }
-        }
-
-        return [];
+        return $parameters;
     }
 
     //! @brief Create a route with merged metadata

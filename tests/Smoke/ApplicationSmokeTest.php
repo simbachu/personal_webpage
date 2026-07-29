@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Smoke;
 
 use PHPUnit\Framework\TestCase;
-use App\Model\ContentRepository;
-use App\Type\FilePath;
-use App\Presenter\HomePresenter;
+use App\Site\Home\ContentRepository;
+use App\Shared\Support\FilePath;
+use App\Site\Home\HomePresenter;
 
 //! @brief Smoke tests to verify critical application paths work
 //!

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Dex;
 
-use App\Type\Result;
-use App\Type\FilePath;
-use App\Type\MonsterIdentifier;
+use App\Shared\Support\Result;
+use App\Shared\Support\FilePath;
+use App\Dex\MonsterIdentifier;
 use Symfony\Component\Yaml\Yaml;
 
 //! @brief Service for fetching Pokemon opinions from YAML file with caching and error handling
@@ -30,7 +30,7 @@ use Symfony\Component\Yaml\Yaml;
 //! @endcode
 class PokemonOpinionService
 {
-    private const OPINIONS_FILE = 'content/pokemon_opinions.yaml';
+    private const OPINIONS_FILE = 'content/dex/pokemon_opinions.yaml';
 
     private ?array $opinions = null; //!< Cached opinions data
 

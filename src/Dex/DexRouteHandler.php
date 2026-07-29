@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Router\Handler;
+namespace App\Dex;
 
-use App\Router\RouteHandler;
-use App\Router\RouteResult;
-use App\Type\Route;
-use App\Type\TemplateName;
-use App\Type\HttpStatusCode;
-use App\Type\MonsterIdentifier;
-use App\Presenter\DexPresenter;
+use App\Shared\Http\RouteHandler;
+use App\Shared\Http\RouteResult;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
+use App\Shared\Http\HttpStatusCode;
+use App\Dex\MonsterIdentifier;
+use App\Dex\DexPresenter;
 
 //! @brief Route handler for Pokemon dex routes
 //!

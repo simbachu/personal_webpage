@@ -20,88 +20,113 @@ if ($is_dev) {
 
 // Use the original working vendor autoload path
 $vendor_autoload = $base_path . '/httpd.private' . $env_prefix . '/vendor/autoload.php';
-
-// Use the original working templates path
-define('TEMPLATES_DIR', $base_path . '/httpd.private' . $env_prefix . '/templates');
+if (!file_exists($vendor_autoload)) {
+    $vendor_autoload = $base_path . '/vendor/autoload.php';
+}
 
 // Load Composer autoloader
 require_once $vendor_autoload;
 
-// Import classes for type safety
-use App\Type\RepositoryIdentifier;
-use App\Type\BranchName;
-use App\Type\TemplateName;
-use App\Type\FilePath;
-use App\Type\Route;
-use App\Router\Router;
-use App\Router\Handler\HomeRouteHandler;
-use App\Router\Handler\DexRouteHandler;
-use App\Router\Handler\ArticleRouteHandler;
-use App\Repository\ArticleRepository;
-use App\Repository\FileArticleRepository;
-use App\Service\MarkdownProcessor;
-use App\Api\SensorBatchController;
+use App\Shared\Github\RepositoryIdentifier;
+use App\Shared\Http\TemplateName;
+use App\Shared\Support\FilePath;
+use App\Shared\Http\Route;
+use App\Shared\Http\Router;
+use App\Site\Home\HomeRouteHandler;
+use App\Site\Home\ContentRepository;
+use App\Site\Home\HomePresenter;
+use App\Dex\DexRouteHandler;
+use App\Dex\PokeApiService;
+use App\Dex\PokemonOpinionService;
+use App\Dex\DexPresenter;
+use App\Site\Article\ArticleRouteHandler;
+use App\Site\Article\FileArticleRepository;
+use App\Site\Article\MarkdownProcessor;
+use App\Shared\Github\GitHubService;
 
-// Try different possible locations for content (this is where the issue was)
-$possible_content_paths = [
-    $base_path . $env_prefix . '/content',  // Local dev structure
-    $base_path . '/httpd.private' . $env_prefix . '/content',  // Production structure
+//! @brief Resolve private app root (contains src/, content/, vendor/)
+//! @return string Absolute path to private root
+function resolve_private_root(string $base_path, string $env_prefix): string
+{
+    $candidates = [
+        $base_path . '/httpd.private' . $env_prefix,
+        $base_path . $env_prefix,
+        $base_path,
+    ];
+
+    foreach ($candidates as $candidate) {
+        if (is_dir($candidate . '/src') && is_dir($candidate . '/content')) {
+            return $candidate;
+        }
+    }
+
+    die('Error: Could not find private application root with src/ and content/');
+}
+
+$private_root = resolve_private_root($base_path, $env_prefix);
+$site_content_path = $private_root . '/content/site';
+$dex_content_path = $private_root . '/content/dex';
+
+if (!is_dir($site_content_path)) {
+    die('Error: Could not find site content directory at ' . $site_content_path);
+}
+
+$shared_templates = $private_root . '/src/Shared/templates';
+$site_templates = $private_root . '/src/Site/templates';
+$dex_templates = $private_root . '/src/Dex/templates';
+
+$template_namespace_paths = [
+    'shared' => FilePath::fromString($shared_templates),
+    'site' => FilePath::fromString($site_templates),
+    'dex' => FilePath::fromString($dex_templates),
 ];
 
-$content_path = null;
-foreach ($possible_content_paths as $path) {
-    if (is_dir($path)) {
-        $content_path = $path;
-        break;
-    }
-}
-
-if ($content_path === null) {
-    die('Error: Could not find content directory in any expected location');
-}
-$contentRepository = new \App\Model\ContentRepository(FilePath::fromString($content_path));
-$homePresenter = new \App\Presenter\HomePresenter($contentRepository);
+$contentRepository = new ContentRepository(FilePath::fromString($site_content_path));
+$homePresenter = new HomePresenter($contentRepository);
 
 // Configure cache TTL based on environment
 $pokeApiCacheTtl = $is_dev ? 30 : 300; // 30 seconds for dev, 5 minutes for production
-$pokeApiService = new \App\Service\PokeApiService();
-$opinionsFilePath = $content_path . '/pokemon_opinions.yaml';
-$opinionService = new \App\Service\PokemonOpinionService($opinionsFilePath);
-$dexPresenter = new \App\Presenter\DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
+$pokeApiService = new PokeApiService();
+$opinionsFilePath = $dex_content_path . '/pokemon_opinions.yaml';
+$opinionService = new PokemonOpinionService($opinionsFilePath);
+$dexPresenter = new DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
 
+// Initialize Twig with slice namespaces
+$loader = new \Twig\Loader\FilesystemLoader();
+$loader->addPath($shared_templates, 'shared');
+$loader->addPath($site_templates, 'site');
+$loader->addPath($dex_templates, 'dex');
 
-// Initialize Twig
-$loader = new \Twig\Loader\FilesystemLoader(TEMPLATES_DIR);
 $twigOptions = [
     'autoescape' => 'html',
     'strict_variables' => true,
 ];
 
 if ($is_dev) {
-    $twigOptions['cache'] = false; // Disable cache in development
+    $twigOptions['cache'] = false;
     $twigOptions['debug'] = true;
 } else {
-    $twigOptions['cache'] = sys_get_temp_dir() . '/twig'; // Enable cache in production
+    $twigOptions['cache'] = sys_get_temp_dir() . '/twig';
     $twigOptions['debug'] = false;
 }
 
 $twig = new \Twig\Environment($loader, $twigOptions);
 
 //! @brief Renders a Twig template
-//! @param TemplateName $template Template name (without .twig extension)
+//! @param TemplateName $template Template name
 //! @param array $data Data to pass to template
-function render(TemplateName $template, array $data = []): void {
-    global $twig;
-    // Validate template exists to fail-fast with a clear error
-    $template->ensureExists(FilePath::fromString(TEMPLATES_DIR));
+function render(TemplateName $template, array $data = []): void
+{
+    global $twig, $template_namespace_paths;
+    $template->ensureExists($template_namespace_paths);
     echo $twig->render($template->toTwigPath(), $data);
 }
 
 //! @brief Gets the current request path
 //! @return string Normalized path (e.g., '/', '/about')
-function get_request_path(): string {
+function get_request_path(): string
+{
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-    // Normalize: remove trailing slash unless it's root
     if ($path !== '/' && str_ends_with($path, '/')) {
         $path = rtrim($path, '/');
     }
@@ -110,7 +135,8 @@ function get_request_path(): string {
 
 //! @brief Builds base URL for the site
 //! @return string Base URL (e.g., 'https://example.com')
-function get_base_url(): string {
+function get_base_url(): string
+{
     $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
     return $protocol . '://' . $_SERVER['HTTP_HOST'];
 }
@@ -118,7 +144,6 @@ function get_base_url(): string {
 // Initialize router and configure routes
 $router = new Router();
 
-// Add routes to the router
 $router->addRoute(new Route(
     '/',
     TemplateName::HOME,
@@ -137,60 +162,52 @@ $router->addRoute(new Route(
     ['handler' => 'dex']
 ));
 
-// Add article routes
 $router->addRoute(new Route(
-    '/read',
+    '/dex/{id_or_name}',
+    TemplateName::DEX,
+    [],
+    ['handler' => 'dex']
+));
+
+$router->addRoute(new Route(
+    '/read/{article_name}',
     TemplateName::ARTICLE,
     [],
     ['handler' => 'article']
 ));
 
 $router->addRoute(new Route(
-    '/article',
+    '/article/{article_name}',
     TemplateName::ARTICLE,
     [],
     ['handler' => 'article']
 ));
 
 $router->addRoute(new Route(
-    '/blog',
+    '/blog/{article_name}',
     TemplateName::ARTICLE,
     [],
     ['handler' => 'article']
 ));
 
-// Create article repository and handler
 $markdownProcessor = new MarkdownProcessor();
-$articleRepository = new FileArticleRepository($content_path, $markdownProcessor);
+$articleRepository = new FileArticleRepository($site_content_path, $markdownProcessor);
 
-// Register route handlers
 $router->registerHandler('home', new HomeRouteHandler($homePresenter));
 $router->registerHandler('dex', new DexRouteHandler($dexPresenter));
 $router->registerHandler('article', new ArticleRouteHandler($articleRepository));
 
-// Get current request
 $path = get_request_path();
-
-// Handle API endpoints early and return JSON
-if (str_starts_with($path, '/api/')) {
-    // Include the full API implementation
-    require_once __DIR__ . '/api.php';
-    exit;
-}
 $base_url = get_base_url();
 $current_url = $base_url . $_SERVER['REQUEST_URI'];
 
-// Route the request
 $routeResult = $router->route($path);
 
-// Set HTTP status code
 http_response_code($routeResult->getStatusCode()->getValue());
 
-// Fetch GitHub info for footer
-$githubService = new \App\Service\GitHubService();
+$githubService = new GitHubService();
 $github_info = $githubService->getRepositoryInfoTyped(RepositoryIdentifier::fromString('simbachu/personal_webpage'));
 
-// Format GitHub dates for Twig
 $github = [
     'main' => $github_info->main ? [
         'url' => $github_info->main->url,
@@ -205,7 +222,6 @@ $github = [
     'commits_ahead' => $github_info->commitsAhead ?? 0,
 ];
 
-// Prepare common template data
 $commonData = [
     'github' => $github,
     'base_url' => $base_url,
@@ -215,8 +231,6 @@ $commonData = [
     'current_year' => date('Y'),
 ];
 
-// Merge route result data with common data
 $templateData = array_merge($commonData, $routeResult->getData());
 
-// Render the template
 render($routeResult->getTemplate(), $templateData);

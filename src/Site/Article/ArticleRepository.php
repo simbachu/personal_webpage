@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Site\Article;
 
-use App\Model\Article;
+use App\Site\Article\Article;
 
 //! @brief Repository interface for article data access
 interface ArticleRepository

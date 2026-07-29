@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Type;
+namespace Tests\Unit\Shared\Support;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\FilePath;
+use App\Shared\Support\FilePath;
 
 //! @brief Test suite for the FilePath value object
 class FilePathTest extends TestCase

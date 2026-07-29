@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Type;
+namespace Tests\Unit\Shared\Support;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\Result;
+use App\Shared\Support\Result;
 
 final class ResultTest extends TestCase
 {
@@ -289,7 +289,7 @@ final class ResultTest extends TestCase
     {
         //! @section Arrange
         $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Call to private App\Type\Result::__construct()');
+        $this->expectExceptionMessage('Call to private App\Shared\Support\Result::__construct()');
 
         //! @section Act
         new Result(value: 'test', error: 'error');
@@ -300,7 +300,7 @@ final class ResultTest extends TestCase
     {
         //! @section Arrange
         $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Call to private App\Type\Result::__construct()');
+        $this->expectExceptionMessage('Call to private App\Shared\Support\Result::__construct()');
 
         //! @section Act
         new Result();

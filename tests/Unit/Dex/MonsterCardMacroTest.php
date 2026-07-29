@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Twig;
+namespace Tests\Unit\Dex;
 
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
-use Twig\Loader\FilesystemLoader;
 
 final class MonsterCardMacroTest extends TestCase
 {
@@ -17,14 +16,14 @@ final class MonsterCardMacroTest extends TestCase
     protected function setUp(): void
     {
         $inlineTemplate = <<<'TWIG'
-{% import "monster_card.twig" as mc %}
+{% import "@dex/monster_card.twig" as mc %}
 {{ mc.monster_card(monster) }}
 TWIG;
 
         $arrayLoader = new ArrayLoader([
             'inline.twig' => $inlineTemplate,
         ]);
-        $fsLoader = new FilesystemLoader(__DIR__ . '/../../../templates');
+        $fsLoader = \Tests\Support\TwigTestFactory::createLoader();
         $loader = new ChainLoader([$arrayLoader, $fsLoader]);
 
         $this->twig = new Environment($loader, [

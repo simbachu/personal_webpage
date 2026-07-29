@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Dex;
 
-use App\Type\Result;
-use App\Type\RatingData;
-use App\Type\MonsterIdentifier;
+use App\Shared\Support\Result;
+use App\Dex\RatingData;
+use App\Dex\MonsterIdentifier;
 
 //! @brief Repository interface for Pokemon rating data access
 //!

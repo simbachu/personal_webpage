@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Smoke;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\HttpStatusCode;
-use App\Type\TemplateName;
-use App\Router\RouteResult;
+use App\Shared\Http\HttpStatusCode;
+use App\Shared\Http\TemplateName;
+use App\Shared\Http\RouteResult;
 
 //! @brief Smoke test for HttpStatusCode enum functionality
 //!

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Type;
+namespace App\Shared\Http;
 
 //! @brief Enum representing HTTP status codes used in routing responses
 //!

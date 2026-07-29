@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Type;
+namespace Tests\Unit\Dex;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\MonsterData;
-use App\Type\EvolutionData;
-use App\Type\MonsterType;
+use App\Dex\MonsterData;
+use App\Dex\EvolutionData;
+use App\Dex\MonsterType;
 
 final class MonsterDataTest extends TestCase
 {

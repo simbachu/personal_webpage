@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Service;
+namespace Tests\Unit\Shared\Github;
 
 use PHPUnit\Framework\TestCase;
-use App\Service\GitHubService;
-use App\Type\RepositoryInfo;
-use App\Type\RepositoryIdentifier;
-use App\Type\BranchName;
+use App\Shared\Github\GitHubService;
+use App\Shared\Github\RepositoryInfo;
+use App\Shared\Github\RepositoryIdentifier;
+use App\Shared\Github\BranchName;
 
 //! @brief Test suite for GitHubService
 //!

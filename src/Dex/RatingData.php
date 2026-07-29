@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Type;
+namespace App\Dex;
 
 //! @brief Immutable value object representing Pokemon rating data
 //!

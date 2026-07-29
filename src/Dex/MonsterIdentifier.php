@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Type;
+namespace App\Dex;
 
+use App\Shared\Support\Identifier;
 use InvalidArgumentException;
 
 //! @brief Identifier for Monster entities

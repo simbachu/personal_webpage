@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Dex;
+
 use PHPUnit\Framework\TestCase;
-use App\Repository\TestMonsterRatingRepository;
-use App\Repository\MonsterRatingRepository;
-use App\Type\Result;
-use App\Type\MonsterIdentifier;
+use App\Dex\TestMonsterRatingRepository;
+use App\Dex\MonsterRatingRepository;
+use App\Shared\Support\Result;
+use App\Dex\MonsterIdentifier;
 
 final class TestMonsterRatingRepositoryTest extends TestCase
 {

@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Dex;
+
 use PHPUnit\Framework\TestCase;
-use App\Service\PokeApiService;
-use App\Type\Result;
-use App\Type\MonsterData;
-use App\Type\MonsterIdentifier;
-use App\Type\MonsterType;
-use App\Type\FilePath;
-use App\Type\CacheVersion;
+use App\Dex\PokeApiService;
+use App\Shared\Support\Result;
+use App\Dex\MonsterData;
+use App\Dex\MonsterIdentifier;
+use App\Dex\MonsterType;
+use App\Shared\Support\FilePath;
+use App\Dex\CacheVersion;
 
 final class PokeApiServiceTest extends TestCase
 {

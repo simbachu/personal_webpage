@@ -84,7 +84,6 @@ jobs:
           echo "Deploying to private path: ${{ steps.deploy_path.outputs.private }}"
           rsync -avz --delete \
             --include='src/***' \
-            --include='templates/***' \
             --include='content/***' \
             --include='composer.json' \
             --include='composer.lock' \
@@ -109,7 +108,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-            "cd ${{ steps.deploy_path.outputs.private }} && php -r \"require 'vendor/autoload.php'; if (!class_exists('App\\\\Model\\\\ContentRepository')) { echo 'ERROR: Autoloader verification failed'; exit(1); } echo 'Autoloader OK';\""
+            "cd ${{ steps.deploy_path.outputs.private }} && php -r \"require 'vendor/autoload.php'; if (!class_exists('App\\\\Site\\\\Home\\\\ContentRepository')) { echo 'ERROR: Autoloader verification failed'; exit(1); } echo 'Autoloader OK';\""
 
       - name: Cleanup SSH key
         if: always()

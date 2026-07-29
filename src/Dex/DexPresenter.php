@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Presenter;
+namespace App\Dex;
 
-use App\Service\PokeApiService;
-use App\Service\PokemonOpinionService;
-use App\Service\MonsterRatingServiceAdapter;
-use App\Type\MonsterData;
-use App\Type\MonsterIdentifier;
-use App\Type\TemplateName;
+use App\Dex\PokeApiService;
+use App\Dex\PokemonOpinionService;
+use App\Dex\MonsterRatingServiceAdapter;
+use App\Dex\MonsterData;
+use App\Dex\MonsterIdentifier;
+use App\Shared\Http\TemplateName;
 
 //! @brief Presenter for Pokemon dex detail view with clean separation of concerns
 //!

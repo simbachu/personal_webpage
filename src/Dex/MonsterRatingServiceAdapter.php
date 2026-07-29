@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Dex;
 
-use App\Type\Result;
-use App\Type\MonsterIdentifier;
+use App\Shared\Support\Result;
+use App\Dex\MonsterIdentifier;
 
 //! @brief Adapter to make MonsterRatingService compatible with PokemonOpinionService interface
 //!

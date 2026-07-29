@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Dex;
 
-use App\Type\Result;
-use App\Type\MonsterData;
-use App\Type\EvolutionData;
-use App\Type\MonsterIdentifier;
-use App\Type\MonsterType;
-use App\Type\FilePath;
-use App\Type\CacheVersion;
-use App\Service\CacheKeys;
+use App\Shared\Support\Result;
+use App\Dex\MonsterData;
+use App\Dex\EvolutionData;
+use App\Dex\MonsterIdentifier;
+use App\Dex\MonsterType;
+use App\Shared\Support\FilePath;
+use App\Dex\CacheVersion;
+use App\Dex\CacheKeys;
 
 //! @brief Service for fetching Pokemon data from the PokeAPI with caching and error handling
 //!

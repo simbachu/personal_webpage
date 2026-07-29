@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Presenter;
+namespace App\Site\Home;
 
-use App\Model\ContentRepository;
+use App\Site\Home\ContentRepository;
 
 //! @brief HomePresenter - Prepares data for the home page view
 //!

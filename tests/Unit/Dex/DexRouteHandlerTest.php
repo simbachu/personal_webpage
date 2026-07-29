@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Router\Handler;
+namespace Tests\Unit\Dex;
 
 use PHPUnit\Framework\TestCase;
-use App\Router\Handler\DexRouteHandler;
-use App\Type\Route;
-use App\Type\TemplateName;
-use App\Type\MonsterIdentifier;
-use App\Type\MonsterData;
-use App\Type\HttpStatusCode;
-use App\Presenter\DexPresenter;
+use App\Dex\DexRouteHandler;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
+use App\Dex\MonsterIdentifier;
+use App\Dex\MonsterData;
+use App\Shared\Http\HttpStatusCode;
+use App\Dex\DexPresenter;
 
 //! @brief Unit tests for DexRouteHandler
 class DexRouteHandlerTest extends TestCase
@@ -57,7 +57,7 @@ class DexRouteHandlerTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://example.com/pikachu.png',
-            type1: \App\Type\MonsterType::ELECTRIC
+            type1: \App\Dex\MonsterType::ELECTRIC
         );
 
         $presenter = $this->createMock(DexPresenter::class);
@@ -164,7 +164,7 @@ class DexRouteHandlerTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://example.com/pikachu.png',
-            type1: \App\Type\MonsterType::ELECTRIC
+            type1: \App\Dex\MonsterType::ELECTRIC
         );
 
         $presenter = $this->createMock(DexPresenter::class);
@@ -217,7 +217,7 @@ class DexRouteHandlerTest extends TestCase
             id: 999,
             name: 'Unknown Pokemon',
             image: 'https://example.com/unknown.png',
-            type1: \App\Type\MonsterType::NORMAL
+            type1: \App\Dex\MonsterType::NORMAL
         );
 
         $presenter = $this->createMock(DexPresenter::class);
@@ -269,7 +269,7 @@ class DexRouteHandlerTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://example.com/pikachu.png',
-            type1: \App\Type\MonsterType::ELECTRIC
+            type1: \App\Dex\MonsterType::ELECTRIC
         );
 
         $presenter = $this->createMock(DexPresenter::class);
@@ -321,7 +321,7 @@ class DexRouteHandlerTest extends TestCase
             id: 25,
             name: 'Pikachu',
             image: 'https://example.com/pikachu.png',
-            type1: \App\Type\MonsterType::ELECTRIC
+            type1: \App\Dex\MonsterType::ELECTRIC
         );
 
         $longOpinion = 'This is a very long opinion about Pikachu that should be truncated because it exceeds the maximum length allowed for Open Graph descriptions. It goes on and on with many words that will definitely exceed the character limit we want to enforce.';

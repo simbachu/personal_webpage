@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration;
+namespace Tests\Integration\Dex;
 
 use PHPUnit\Framework\TestCase;
-use App\Service\PokeApiService;
-use App\Service\PokemonOpinionService;
-use App\Presenter\DexPresenter;
-use App\Type\MonsterIdentifier;
+use App\Dex\PokeApiService;
+use App\Dex\PokemonOpinionService;
+use App\Dex\DexPresenter;
+use App\Dex\MonsterIdentifier;
 use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 
 //! @brief Integration test for opinion display in templates
 //!
@@ -28,14 +27,14 @@ final class OpinionIntegrationTest extends TestCase
 
         // Initialize Twig with inline template for macro testing
         $inlineTemplate = <<<TWIG
-{% import "monster_card.twig" as mc %}
+{% import "@dex/monster_card.twig" as mc %}
 {{ mc.monster_card(monster) }}
 TWIG;
 
         $arrayLoader = new \Twig\Loader\ArrayLoader([
             'inline.twig' => $inlineTemplate,
         ]);
-        $fsLoader = new FilesystemLoader(__DIR__ . '/../../templates');
+        $fsLoader = \Tests\Support\TwigTestFactory::createLoader();
         $loader = new \Twig\Loader\ChainLoader([$arrayLoader, $fsLoader]);
 
         $this->twig = new Environment($loader, [

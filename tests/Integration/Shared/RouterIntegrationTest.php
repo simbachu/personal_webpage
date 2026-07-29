@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration;
+namespace Tests\Integration\Shared;
 
 use PHPUnit\Framework\TestCase;
-use App\Router\Router;
-use App\Router\Handler\HomeRouteHandler;
-use App\Router\Handler\DexRouteHandler;
-use App\Type\Route;
-use App\Type\TemplateName;
-use App\Type\HttpStatusCode;
-use App\Type\FilePath;
-use App\Model\ContentRepository;
-use App\Presenter\HomePresenter;
-use App\Presenter\DexPresenter;
-use App\Service\PokeApiService;
-use App\Service\PokemonOpinionService;
+use App\Shared\Http\Router;
+use App\Site\Home\HomeRouteHandler;
+use App\Dex\DexRouteHandler;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
+use App\Shared\Http\HttpStatusCode;
+use App\Shared\Support\FilePath;
+use App\Site\Home\ContentRepository;
+use App\Site\Home\HomePresenter;
+use App\Dex\DexPresenter;
+use App\Dex\PokeApiService;
+use App\Dex\PokemonOpinionService;
 
 //! @brief Integration test for the complete Router system
 //!
@@ -55,6 +55,12 @@ class RouterIntegrationTest extends TestCase
         ));
         $this->router->addRoute(new Route(
             '/dex',
+            TemplateName::DEX,
+            [],
+            ['handler' => 'dex']
+        ));
+        $this->router->addRoute(new Route(
+            '/dex/{id_or_name}',
             TemplateName::DEX,
             [],
             ['handler' => 'dex']

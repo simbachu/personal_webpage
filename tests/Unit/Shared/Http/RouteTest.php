@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Router;
+namespace Tests\Unit\Shared\Http;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\Route;
-use App\Type\TemplateName;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
 
 //! @brief Unit tests for Route value object
 class RouteTest extends TestCase
@@ -79,34 +79,40 @@ class RouteTest extends TestCase
     public function test_dynamic_path_matching_for_dex(): void
     {
         //! @section Arrange
-        $route = new Route('/dex', TemplateName::DEX);
+        $listRoute = new Route('/dex', TemplateName::DEX);
+        $detailRoute = new Route('/dex/{id_or_name}', TemplateName::DEX);
 
         //! @section Act
-        $matchesDex = $route->matches('/dex');
-        $matchesDexPikachu = $route->matches('/dex/pikachu');
-        $matchesDex25 = $route->matches('/dex/25');
-        $matchesDexPikachuExtra = $route->matches('/dex/pikachu/extra');
-        $matchesPokemon = $route->matches('/pokemon');
+        $matchesDex = $listRoute->matches('/dex');
+        $listMatchesDetail = $listRoute->matches('/dex/pikachu');
+        $matchesDexPikachu = $detailRoute->matches('/dex/pikachu');
+        $matchesDex25 = $detailRoute->matches('/dex/25');
+        $matchesDexPikachuExtra = $detailRoute->matches('/dex/pikachu/extra');
+        $matchesPokemon = $detailRoute->matches('/pokemon');
+        $detailMatchesList = $detailRoute->matches('/dex');
 
         //! @section Assert
         $this->assertTrue($matchesDex);
+        $this->assertFalse($listMatchesDetail);
         $this->assertTrue($matchesDexPikachu);
         $this->assertTrue($matchesDex25);
         $this->assertFalse($matchesDexPikachuExtra);
         $this->assertFalse($matchesPokemon);
+        $this->assertFalse($detailMatchesList);
     }
 
     //! @brief Test parameter extraction from dynamic routes
     public function test_parameter_extraction_from_dynamic_routes(): void
     {
         //! @section Arrange
-        $route = new Route('/dex', TemplateName::DEX);
+        $listRoute = new Route('/dex', TemplateName::DEX);
+        $detailRoute = new Route('/dex/{id_or_name}', TemplateName::DEX);
 
         //! @section Act
-        $paramsForDex = $route->extractParameters('/dex');
-        $paramsForDexPikachu = $route->extractParameters('/dex/pikachu');
-        $paramsForDex25 = $route->extractParameters('/dex/25');
-        $paramsForRoot = $route->extractParameters('/');
+        $paramsForDex = $listRoute->extractParameters('/dex');
+        $paramsForDexPikachu = $detailRoute->extractParameters('/dex/pikachu');
+        $paramsForDex25 = $detailRoute->extractParameters('/dex/25');
+        $paramsForRoot = $detailRoute->extractParameters('/');
 
         //! @section Assert
         $this->assertEquals([], $paramsForDex);
@@ -183,19 +189,19 @@ class RouteTest extends TestCase
     public function test_dynamic_path_matching_for_article_routes(): void
     {
         //! @section Arrange
-        $readRoute = new Route('/read', TemplateName::ARTICLE);
-        $articleRoute = new Route('/article', TemplateName::ARTICLE);
-        $blogRoute = new Route('/blog', TemplateName::ARTICLE);
+        $readRoute = new Route('/read/{article_name}', TemplateName::ARTICLE);
+        $articleRoute = new Route('/article/{article_name}', TemplateName::ARTICLE);
+        $blogRoute = new Route('/blog/{article_name}', TemplateName::ARTICLE);
 
         //! @section Act - /read routes
         $readMatchesRead = $readRoute->matches('/read');
         $readMatchesReadWordRotator = $readRoute->matches('/read/word-rotator');
         $readMatchesReadTestArticle = $readRoute->matches('/read/test-article');
         $readMatchesReadWordRotatorExtra = $readRoute->matches('/read/word-rotator/extra');
-        $readMatchesArticle = $readRoute->matches('/article');
+        $readMatchesArticle = $readRoute->matches('/article/word-rotator');
 
         //! @section Assert - /read routes
-        $this->assertTrue($readMatchesRead);
+        $this->assertFalse($readMatchesRead);
         $this->assertTrue($readMatchesReadWordRotator);
         $this->assertTrue($readMatchesReadTestArticle);
         $this->assertFalse($readMatchesReadWordRotatorExtra);
@@ -206,10 +212,10 @@ class RouteTest extends TestCase
         $articleMatchesArticleWordRotator = $articleRoute->matches('/article/word-rotator');
         $articleMatchesArticleTestArticle = $articleRoute->matches('/article/test-article');
         $articleMatchesArticleWordRotatorExtra = $articleRoute->matches('/article/word-rotator/extra');
-        $articleMatchesRead = $articleRoute->matches('/read');
+        $articleMatchesRead = $articleRoute->matches('/read/word-rotator');
 
         //! @section Assert - /article routes
-        $this->assertTrue($articleMatchesArticle);
+        $this->assertFalse($articleMatchesArticle);
         $this->assertTrue($articleMatchesArticleWordRotator);
         $this->assertTrue($articleMatchesArticleTestArticle);
         $this->assertFalse($articleMatchesArticleWordRotatorExtra);
@@ -220,10 +226,10 @@ class RouteTest extends TestCase
         $blogMatchesBlogWordRotator = $blogRoute->matches('/blog/word-rotator');
         $blogMatchesBlogTestArticle = $blogRoute->matches('/blog/test-article');
         $blogMatchesBlogWordRotatorExtra = $blogRoute->matches('/blog/word-rotator/extra');
-        $blogMatchesRead = $blogRoute->matches('/read');
+        $blogMatchesRead = $blogRoute->matches('/read/word-rotator');
 
         //! @section Assert - /blog routes
-        $this->assertTrue($blogMatchesBlog);
+        $this->assertFalse($blogMatchesBlog);
         $this->assertTrue($blogMatchesBlogWordRotator);
         $this->assertTrue($blogMatchesBlogTestArticle);
         $this->assertFalse($blogMatchesBlogWordRotatorExtra);
@@ -234,9 +240,9 @@ class RouteTest extends TestCase
     public function test_parameter_extraction_from_article_routes(): void
     {
         //! @section Arrange
-        $readRoute = new Route('/read', TemplateName::ARTICLE);
-        $articleRoute = new Route('/article', TemplateName::ARTICLE);
-        $blogRoute = new Route('/blog', TemplateName::ARTICLE);
+        $readRoute = new Route('/read/{article_name}', TemplateName::ARTICLE);
+        $articleRoute = new Route('/article/{article_name}', TemplateName::ARTICLE);
+        $blogRoute = new Route('/blog/{article_name}', TemplateName::ARTICLE);
 
         //! @section Act - /read routes
         $readParamsForRead = $readRoute->extractParameters('/read');

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Shared\Github;
 
-use App\Type\FilePath;
-use App\Type\CommitInfo;
-use App\Type\RepositoryInfo;
-use App\Type\RepositoryIdentifier;
-use App\Type\BranchName;
+use App\Shared\Support\FilePath;
+use App\Shared\Github\CommitInfo;
+use App\Shared\Github\RepositoryInfo;
+use App\Shared\Github\RepositoryIdentifier;
+use App\Shared\Github\BranchName;
 
 //! @brief Service for fetching GitHub repository information with caching
 //!

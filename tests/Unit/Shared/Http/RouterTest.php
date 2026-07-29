@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Router;
+namespace Tests\Unit\Shared\Http;
 
 use PHPUnit\Framework\TestCase;
-use App\Router\Router;
-use App\Router\RouteHandler;
-use App\Router\RouteResult;
-use App\Type\Route;
-use App\Type\TemplateName;
-use App\Type\HttpStatusCode;
+use App\Shared\Http\Router;
+use App\Shared\Http\RouteHandler;
+use App\Shared\Http\RouteResult;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
+use App\Shared\Http\HttpStatusCode;
 
 //! @brief Unit tests for Router class
 class RouterTest extends TestCase
@@ -109,7 +109,7 @@ class RouterTest extends TestCase
             ->with($this->isInstanceOf(Route::class), ['id_or_name' => 'pikachu'])
             ->willReturn($handlerResult);
 
-        $route = new Route('/dex', TemplateName::DEX, [], ['handler' => 'dex']);
+        $route = new Route('/dex/{id_or_name}', TemplateName::DEX, [], ['handler' => 'dex']);
         $this->router->addRoute($route);
         $this->router->registerHandler('dex', $handler);
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Router\Handler;
+namespace App\Site\Home;
 
-use App\Router\RouteHandler;
-use App\Router\RouteResult;
-use App\Type\Route;
-use App\Presenter\HomePresenter;
+use App\Shared\Http\RouteHandler;
+use App\Shared\Http\RouteResult;
+use App\Shared\Http\Route;
+use App\Site\Home\HomePresenter;
 
 //! @brief Route handler for the home page
 //!

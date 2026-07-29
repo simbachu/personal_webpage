@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Dex;
 
-use App\Type\CacheVersion;
-use App\Type\FilePath;
-use App\Type\MonsterIdentifier;
+use App\Dex\CacheVersion;
+use App\Shared\Support\FilePath;
+use App\Dex\MonsterIdentifier;
 
 //! @brief Centralized builder for cache file paths
 final class CacheKeys

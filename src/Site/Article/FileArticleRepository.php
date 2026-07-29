@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Site\Article;
 
-use App\Model\Article;
-use App\Service\MarkdownProcessor;
+use App\Site\Article\Article;
+use App\Site\Article\MarkdownProcessor;
 use Symfony\Component\Yaml\Yaml;
 
 //! @brief File-based article repository that reads from articles.yaml and markdown files

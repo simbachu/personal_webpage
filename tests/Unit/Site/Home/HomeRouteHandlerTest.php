@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Router\Handler;
+namespace Tests\Unit\Site\Home;
 
 use PHPUnit\Framework\TestCase;
-use App\Router\Handler\HomeRouteHandler;
-use App\Type\Route;
-use App\Type\TemplateName;
-use App\Type\HttpStatusCode;
-use App\Presenter\HomePresenter;
+use App\Site\Home\HomeRouteHandler;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
+use App\Shared\Http\HttpStatusCode;
+use App\Site\Home\HomePresenter;
 
 //! @brief Unit tests for HomeRouteHandler
 class HomeRouteHandlerTest extends TestCase

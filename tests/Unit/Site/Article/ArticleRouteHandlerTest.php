@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Router\Handler;
+namespace Tests\Unit\Site\Article;
 
-use App\Model\Article;
-use App\Repository\TestArticleRepository;
-use App\Router\Handler\ArticleRouteHandler;
-use App\Router\RouteResult;
-use App\Type\Route;
-use App\Type\TemplateName;
-use App\Type\HttpStatusCode;
+use App\Site\Article\Article;
+use App\Site\Article\TestArticleRepository;
+use App\Site\Article\ArticleRouteHandler;
+use App\Shared\Http\RouteResult;
+use App\Shared\Http\Route;
+use App\Shared\Http\TemplateName;
+use App\Shared\Http\HttpStatusCode;
 use PHPUnit\Framework\TestCase;
 
 /**

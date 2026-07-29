@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Type;
+namespace App\Shared\Github;
 
 //! @brief Immutable value object representing a Git commit summary
 final class CommitInfo

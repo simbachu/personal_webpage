@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Dex;
+
 use PHPUnit\Framework\TestCase;
-use App\Type\RatingData;
+use App\Dex\RatingData;
 
 final class RatingDataTest extends TestCase
 {

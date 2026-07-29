@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Dex;
 
-use App\Repository\MonsterRatingRepository;
-use App\Repository\FileMonsterRatingRepository;
-use App\Type\Result;
-use App\Type\RatingData;
-use App\Type\MonsterIdentifier;
+use App\Dex\MonsterRatingRepository;
+use App\Dex\FileMonsterRatingRepository;
+use App\Shared\Support\Result;
+use App\Dex\RatingData;
+use App\Dex\MonsterIdentifier;
 
 //! @brief Service for managing Pokemon rating data using repository pattern
 //!

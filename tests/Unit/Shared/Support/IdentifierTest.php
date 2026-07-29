@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Type;
+namespace Tests\Unit\Shared\Support;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\MonsterIdentifier;
-use App\Type\RepositoryIdentifier;
+use App\Dex\MonsterIdentifier;
+use App\Shared\Github\RepositoryIdentifier;
 
 //! @brief Test suite for the generic Identifier type and its implementations
 class IdentifierTest extends TestCase

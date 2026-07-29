@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Type;
+namespace Tests\Unit\Shared\Http;
 
 use PHPUnit\Framework\TestCase;
-use App\Type\TemplateName;
+use App\Shared\Http\TemplateName;
 
 //! @brief Test suite for the TemplateName enum
 class TemplateNameTest extends TestCase
@@ -292,10 +292,10 @@ class TemplateNameTest extends TestCase
         $notFoundTwigPath = TemplateName::NOT_FOUND->toTwigPath();
 
         //! @section Assert
-        $this->assertSame('home.twig', $homeTwigPath);
-        $this->assertSame('dex.twig', $dexTwigPath);
-        $this->assertSame('article.twig', $articleTwigPath);
-        $this->assertSame('404.twig', $notFoundTwigPath);
+        $this->assertSame('@site/home.twig', $homeTwigPath);
+        $this->assertSame('@dex/dex.twig', $dexTwigPath);
+        $this->assertSame('@site/article.twig', $articleTwigPath);
+        $this->assertSame('@shared/404.twig', $notFoundTwigPath);
     }
 
     public function test_to_path_builds_file_path_under_templates_dir(): void
@@ -305,7 +305,7 @@ class TemplateNameTest extends TestCase
         @mkdir($tmp, 0777, true);
 
         try {
-            $base = \App\Type\FilePath::fromString($tmp);
+            $base = \App\Shared\Support\FilePath::fromString($tmp);
 
             //! @section Act
             $path = TemplateName::DEX->toPath($base);
@@ -322,14 +322,14 @@ class TemplateNameTest extends TestCase
         //! @section Arrange
         $tmp = sys_get_temp_dir() . '/templates_missing_' . uniqid();
         @mkdir($tmp, 0777, true);
-        $base = \App\Type\FilePath::fromString($tmp);
+        $base = \App\Shared\Support\FilePath::fromString($tmp);
 
         try {
             $this->expectException(\RuntimeException::class);
             $this->expectExceptionMessageMatches('/Template not found:/');
 
             //! @section Act
-            TemplateName::DEX->ensureExists($base);
+            TemplateName::DEX->ensureExists(['dex' => $base]);
         } finally {
             @rmdir($tmp);
         }
@@ -342,11 +342,11 @@ class TemplateNameTest extends TestCase
         @mkdir($tmp, 0777, true);
         $file = $tmp . '/home.twig';
         file_put_contents($file, '{# test #}');
-        $base = \App\Type\FilePath::fromString($tmp);
+        $base = \App\Shared\Support\FilePath::fromString($tmp);
 
         try {
             //! @section Act
-            $path = TemplateName::HOME->ensureExists($base);
+            $path = TemplateName::HOME->ensureExists(['site' => $base]);
 
             //! @section Assert
             $this->assertTrue($path->exists());
@@ -365,14 +365,14 @@ class TemplateNameTest extends TestCase
         @mkdir($tmp, 0777, true);
         // Create a directory with the name '404.twig'
         @mkdir($tmp . '/404.twig', 0777, true);
-        $base = \App\Type\FilePath::fromString($tmp);
+        $base = \App\Shared\Support\FilePath::fromString($tmp);
 
         try {
             $this->expectException(\RuntimeException::class);
             $this->expectExceptionMessageMatches('/Template not found:/');
 
             //! @section Act
-            TemplateName::NOT_FOUND->ensureExists($base);
+            TemplateName::NOT_FOUND->ensureExists(['shared' => $base]);
         } finally {
             // Cleanup
             @rmdir($tmp . '/404.twig');

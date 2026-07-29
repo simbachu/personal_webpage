@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
+namespace Tests\Unit\Dex;
+
 use PHPUnit\Framework\TestCase;
-use App\Presenter\DexPresenter;
-use App\Service\PokeApiService;
-use App\Service\PokemonOpinionService;
-use App\Type\Result;
-use App\Type\MonsterData;
-use App\Type\MonsterIdentifier;
-use App\Type\TemplateName;
-use App\Type\MonsterType;
+use App\Dex\DexPresenter;
+use App\Dex\PokeApiService;
+use App\Dex\PokemonOpinionService;
+use App\Shared\Support\Result;
+use App\Dex\MonsterData;
+use App\Dex\MonsterIdentifier;
+use App\Shared\Http\TemplateName;
+use App\Dex\MonsterType;
 
 final class DexPresenterTest extends TestCase
 {
@@ -230,22 +232,22 @@ final class DexPresenterTest extends TestCase
     public function test_present_with_repository_pattern(): void
     {
         //! @section Arrange - Using repository pattern for testing
-        $repository = new \App\Repository\TestMonsterRatingRepository();
+        $repository = new \App\Dex\TestMonsterRatingRepository();
         $repository->addRating('maushold', 'A', 'They are such a cute little family! So delightful!');
         $repository->addFormMapping('maushold-family-of-four', 'maushold');
 
-        $ratingService = new \App\Service\MonsterRatingService($repository);
-        $adapter = new \App\Service\MonsterRatingServiceAdapter($ratingService);
-        $pokeApiService = $this->createMock(\App\Service\PokeApiService::class);
+        $ratingService = new \App\Dex\MonsterRatingService($repository);
+        $adapter = new \App\Dex\MonsterRatingServiceAdapter($ratingService);
+        $pokeApiService = $this->createMock(\App\Dex\PokeApiService::class);
 
-        $presenter = new \App\Presenter\DexPresenter($pokeApiService, $adapter, 300);
+        $presenter = new \App\Dex\DexPresenter($pokeApiService, $adapter, 300);
 
         //! @section Act
-        $view = $presenter->present(new \App\Type\MonsterData(
+        $view = $presenter->present(new \App\Dex\MonsterData(
             id: 925,
             name: 'Maushold-family-of-four',
             image: 'https://img.example/maushold-family-of-four.png',
-            type1: \App\Type\MonsterType::NORMAL,
+            type1: \App\Dex\MonsterType::NORMAL,
             speciesName: 'maushold'
         ));
 

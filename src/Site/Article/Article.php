@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Model;
+namespace App\Site\Article;
 
 //! @brief Value object representing an article
 //! To be consumed by the Article template

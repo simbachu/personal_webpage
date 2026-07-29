@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Presenter;
+namespace Tests\Unit\Site\Home;
 
 use PHPUnit\Framework\TestCase;
-use App\Presenter\HomePresenter;
-use App\Model\ContentRepository;
+use App\Site\Home\HomePresenter;
+use App\Site\Home\ContentRepository;
 
 //! @brief Test suite for HomePresenter
 //!

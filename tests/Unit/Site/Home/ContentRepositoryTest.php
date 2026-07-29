@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Model;
+namespace Tests\Unit\Site\Home;
 
 use PHPUnit\Framework\TestCase;
-use App\Model\ContentRepository;
-use App\Type\FilePath;
+use App\Site\Home\ContentRepository;
+use App\Shared\Support\FilePath;
 
 //! @brief Test suite for ContentRepository
 //!
