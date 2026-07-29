@@ -1318,7 +1318,7 @@ footer a:focus-visible {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto;
         margin: calc(var(--spacing-unit) * 1.5);
-        gap: calc(var(--spacing-unit) * 2);
+        gap: calc(var(--spacing-unit) * 1);
     }
 
     /* Header: single column, no subgrid */
@@ -1326,7 +1326,7 @@ footer a:focus-visible {
         grid-column: 1 / -1;
         grid-template-columns: 1fr;
         grid-template-rows: auto auto;
-        gap: calc(var(--spacing-unit) * 1.5);
+        gap: calc(var(--spacing-unit) * 1);
     }
 
     #main-header::after {
@@ -1352,14 +1352,27 @@ footer a:focus-visible {
 
     #main-header nav ul {
         flex-direction: row;
+        flex-wrap: nowrap;
         gap: calc(var(--spacing-unit) * 1);
         align-items: center;
+        min-width: 0;
+        width: auto;
         padding: 0;
         border: none;
     }
 
+    #main-header nav li {
+        width: auto;
+    }
+
     #main-header nav a {
         font-size: 1rem;
+        white-space: nowrap;
+    }
+
+    #main-header nav a:hover,
+    #main-header nav a:focus {
+        transform: none;
     }
 
     /* Main: single column */
