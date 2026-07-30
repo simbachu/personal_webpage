@@ -6,7 +6,7 @@
     "linkedin": "https://www.linkedin.com/in/jennifer-jonathan-gott-2233aa294/",
     "github": "https://github.com/simbachu",
     "lang-en": {
-        "summary": "Systems developer with a background in information design and product ownership. I build software that is clear, testable, and diagnosable — from embedded devices to APIs and web UIs — shaped by years turning complex vehicle systems into usable technical content.",
+        "summary": "Systems developer with a background in information design and product ownership. I build clear, testable, and diagnosable software — from embedded devices to APIs and web UIs — drawing on years of making complex vehicle systems usable.",
         "education": [
             {
                 "institution": "Chas Academy",
@@ -28,7 +28,6 @@
                 "program": "Interaction Design",
                 "from": "2008-09",
                 "to": "2010-03",
-                "highlights": "Web and multimedia design program.",
                 "skills": ["C++", "Interaction Design"]
             }
         ],
@@ -49,15 +48,15 @@
         "experience": [
             {
                 "company": "Berg Propulsion",
-                "location": "Hönö och Öckerö, Sweden",
+                "location": "Hönö / Öckerö, Sweden",
                 "roles": [
                     {
                         "position": "Student Intern",
                         "from": "2025-11",
                         "to": "2026-06",
                         "duration": "8 mos",
-                        "employment": "Internship · On-site",
-                        "summary": "Go & React intern on maritime Energy Management System: REST API, real-time telemetry, Modbus TCP, alarms, and React mimic/alert UIs.",
+                        "employment": "Internship",
+                        "summary": "Built Go and React features for a maritime energy management system: REST APIs, real-time Modbus TCP telemetry, alarms, and mimic and alert UIs.",
                         "skills": ["Go", "React"]
                     }
                 ]
@@ -71,20 +70,17 @@
                         "position": "Team Leader",
                         "from": "2024-04",
                         "to": null,
-                        "employment": "Full-time · Hybrid and on-site",
-                        "summary": "Team leader for Team Magma through Sep 2024; professional development leave Sep 2024–Jun 2026 (Systems developer C/C++ at Chas Academy, top marks). Returned full-time during department reorganisation."
+                        "summary": "Led Team Magma until September 2024 and returned in June 2026 after completing a systems development programme in C/C++ with top marks."
                     },
                     {
                         "position": "Product Owner",
                         "from": "2022-05",
                         "to": "2024-09",
                         "duration": "2 yrs 5 mos",
-                        "employment": "Full-time · On-site",
-                        "summary": "Product owner for Team Magma (~12 people): off-board diagnostics (Bosch Grade-X), diagnostic information (PTC Arbortext), and wiring diagram handbooks. Cross-functional partner to electrical and software R&D — roadmaps for electromobility, cybersecurity conformity, active safety, and diagnostic tooling.",
+                        "summary": "Product owner for Team Magma (~12 people), covering off-board diagnostics, diagnostic information, and wiring handbooks. Partnered with electrical and software R&D on electromobility, cybersecurity, active safety, and diagnostic tooling.",
                         "bullets": [
-                            "Owned processes, roadmaps, and continuous improvement; recruited, onboarded, and scoped work for employees and off-site consultants.",
-                            "Agile coach for the international aftermarket department — standardised increment planning and work breakdown bus-wide; Jira key user migrating teams from Excel-based planning.",
-                            "Liaison across product development POs and project management; group representative for cost estimates and department budget quotations."
+                            "Owned processes, roadmaps, and continuous improvement while recruiting, onboarding, and allocating work to employees and consultants.",
+                            "Coached the international aftermarket department in agile planning and work breakdown. As Jira key user, led teams from Excel-based planning to Jira."
                         ]
                     },
                     {
@@ -92,11 +88,10 @@
                         "from": "2020-01",
                         "to": "2022-05",
                         "duration": "2 yrs 5 mos",
-                        "employment": "Full-time · On-site",
-                        "summary": "Owned end-to-end wiring diagram handbook delivery for bus chassis product updates worldwide.",
+                        "summary": "Owned wiring diagram handbook delivery for bus chassis updates worldwide.",
                         "bullets": [
-                            "Industrialised the \"extended wiring diagram\" concept: Saber extraction from development schematics, InDesign publishing templates, and illustration QA — replacing manual copy-paste and cleaning up the dealer portal portfolio.",
-                            "Fault-tracing component identification dropped from ~1 hour to minutes; concept adopted across the product range and reused by product development teams."
+                            "Industrialised extended wiring diagram production using Saber extraction, InDesign templates, and illustration QA, replacing manual copy-paste.",
+                            "Cut fault-tracing component identification using wiring diagrams from ~1 hour to minutes. The concept was adopted across the product range and reused by product development."
                         ]
                     }
                 ]
@@ -110,29 +105,14 @@
                         "from": "2017-08",
                         "to": "2019-12",
                         "duration": "2 yrs 5 mos",
-                        "employment": "Full-time · On-site",
-                        "summary": "Technical illustrator: excavator marketing diagrams, service instructions, and wiring diagram work — component illustrations and functional layouts with highlighted bundles and connectors over chassis frames (CorelDRAW). Mostly Volvo Buses; transitioned on-site and was hired to own end-to-end handbook delivery.",
-                        "skills": ["CorelDRAW", "Adobe InDesign", "Adobe Illustrator"]
+                        "summary": "Created technical illustrations, service instructions, and wiring diagrams for excavators and buses, primarily for Volvo Buses. Transitioned on-site and was later hired to own handbook delivery.",
+                        "skills": ["CorelDRAW", "InDesign", "Illustrator"]
                     }
                 ]
             },
             {
-                "section": "Earlier experience",
-                "summary": "Security guard at Cubsec AB, primary school teacher substitute, among others"
-            },
-            {
-                "organization": "Swedish Armed Forces",
-                "location": "Halmstad, Sweden",
-                "roles": [
-                    {
-                        "position": "Insatssoldat Lv6",
-                        "from": "2005-08",
-                        "to": "2006-06",
-                        "duration": "10 mos",
-                        "employment": "Conscript",
-                        "summary": "Facility protection and escort duty for material transport."
-                    }
-                ]
+                "section": "Earlier",
+                "summary": "Swedish Armed Forces (conscript, 2005–06); security guard; teacher substitute"
             }
         ],
         "languages": [
@@ -147,19 +127,15 @@
             }
         ],
         "skills": {
-            "programming_languages": ["C", "C++", "Go", "Python"],
-            "web": ["Server-side rendering", "HTMX", "React", "REST APIs"],
-            "embedded": ["Arduino"],
-            "devops": ["Git", "GitHub Actions", "Docker", "Linux VPS"],
-            "testing": ["Unit testing", "CI/CD"],
-            "protocols": ["Modbus TCP"],
-            "leadership": ["Small team management", "Scrum", "Agile coaching", "Jira"],
-            "design": ["Interaction design", "Layout design", "Typography"]
+            "languages": ["C", "C++", "Go", "Python"],
+            "web_embedded": ["Server-side rendering", "HTMX", "React", "REST", "Arduino", "Modbus TCP"],
+            "devops_test": ["Git", "GitHub Actions", "Docker", "Linux VPS", "Unit testing", "CI/CD"],
+            "leadership": ["Team leadership", "Scrum", "Agile coaching", "Jira"],
+            "design": ["Interaction design", "Layout", "Typography"]
         },
         "skill_highlights": [
-            "Server-side rendered web UIs with HTMX and C++ or Go backends in personal projects.",
-            "Built an Arduino abstraction layer for unit-testable firmware and type-safe I/O pin configuration.",
-            "CI/CD with GitHub Actions; Docker-based staging environments on VPS hosts."
+            "Built server-rendered web UIs with HTMX and C++ or Go backends.",
+            "Built an Arduino abstraction layer for unit-testable firmware and type-safe I/O."
         ]
     }
 }
