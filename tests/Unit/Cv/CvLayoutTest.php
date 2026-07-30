@@ -35,6 +35,25 @@ final class CvLayoutTest extends TestCase
         $this->assertStringNotContainsString('Short summary for layout.', explode('<hr class="cv-anchor">', $html)[0]);
     }
 
+    public function test_cv_template_inlines_the_annotation_gutter_and_experience_rhythm(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv();
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert
+        $this->assertStringContainsString(
+            ".cv-body {\n    padding-left: 9mm;\n    text-align: left;\n    hyphens: none;\n}",
+            $html
+        );
+        $this->assertStringContainsString("border-top: 0.8pt solid #111;", $html);
+        $this->assertStringContainsString("article article {\n    margin-top: 0.65em;\n}", $html);
+        $this->assertStringContainsString("article article > p + ul {\n    margin-top: 0.3em;\n}", $html);
+        $this->assertStringContainsString("font-variant-numeric: tabular-nums;", $html);
+    }
+
     public function test_cv_template_orders_skills_before_experience_for_swedish_scan(): void
     {
         // Arrange

@@ -136,15 +136,15 @@ a {
 
 hr.cv-anchor {
     border: none;
-    border-top: 2.5pt solid #111;
+    border-top: 0.8pt solid #111;
     margin: 0.55em 0 0.7em;
     width: 100%;
 }
 
 .cv-body {
-    padding-left: 1.2em;
-    text-align: justify;
-    hyphens: auto;
+    padding-left: 9mm;
+    text-align: left;
+    hyphens: none;
 }
 
 .cv-body h2,
@@ -171,21 +171,35 @@ article > header h4 {
 }
 
 article > header h4 {
-    font-weight: 700;
+    font-weight: 600;
 }
 
 /* Nested role entries under an employer */
 article article {
-    margin-top: 0.35em;
+    margin-top: 0.65em;
 }
 
 article article:first-of-type {
-    margin-top: 0.15em;
+    margin-top: 0.25em;
+}
+
+article article > p + ul {
+    margin-top: 0.3em;
+}
+
+article article li {
+    margin-bottom: 0.3em;
 }
 
 article > header > time:first-of-type,
 article > header > .tenure {
     margin-left: auto;
+}
+
+article time,
+article .tenure {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
 
 article > header > .meta {
