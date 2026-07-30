@@ -137,5 +137,138 @@
             "Built server-rendered web UIs with HTMX and C++ or Go backends.",
             "Built an Arduino abstraction layer for unit-testable firmware and type-safe I/O."
         ]
+    },
+    "lang-sv": {
+        "summary": "Systemutvecklare med bakgrund inom informationsdesign och produktägarskap. Jag utvecklar tydlig, testbar och diagnostiserbar mjukvara — från inbyggda system till API:er och webbgränssnitt — med flera års erfarenhet av att göra komplexa fordonssystem begripliga och användbara.",
+        "education": [
+            {
+                "institution": "Chas Academy",
+                "program": "Systemutvecklare C/C++",
+                "from": "2024-09",
+                "to": "2026-06",
+                "highlights": "VG i samtliga kurser.",
+                "skills": ["C", "C++", "Enhetstestning", "Git", "Arduino"]
+            },
+            {
+                "institution": "Linnéuniversitetet",
+                "program": "Kommunikations- och medievetenskap",
+                "from": "2013-09",
+                "to": "2016-06",
+                "skills": ["Layoutdesign", "Typografi"]
+            },
+            {
+                "institution": "Mälardalens högskola",
+                "program": "Interaktionsdesign",
+                "from": "2007-09",
+                "to": "2010-03",
+                "skills": ["C++", "Interaktionsdesign"]
+            }
+        ],
+        "certificates": [
+            {
+                "name": "C1 Advanced",
+                "issuer": "Cambridge English",
+                "issued": "2005-06",
+                "grade": "A"
+            },
+            {
+                "name": "Professional Scrum Product Owner",
+                "issuer": "Scrum.org",
+                "issued": "2022-07",
+                "credential_id": "820442"
+            }
+        ],
+        "experience": [
+            {
+                "company": "Berg Propulsion AB",
+                "location": "Hönö / Öckerö, Sverige",
+                "roles": [
+                    {
+                        "position": "LIA-praktikant",
+                        "from": "2025-11",
+                        "to": "2026-06",
+                        "duration": "8 månader",
+                        "employment": "Lärande i arbete (LIA)",
+                        "summary": "Utvecklade funktioner i Go och React för ett energihanteringssystem för fartyg: REST-API:er, Modbus TCP-telemetri i realtid samt mimik-, larm- och statusvyer.",
+                        "skills": ["Go", "React"]
+                    }
+                ]
+            },
+            {
+                "company": "Volvo Bussar AB",
+                "location": "Göteborg, Sverige",
+                "tenure": "6 år 7 månader",
+                "roles": [
+                    {
+                        "position": "Teamledare",
+                        "from": "2024-04",
+                        "to": null,
+                        "summary": "Ledde Team Magma fram till september 2024 och återvände till rollen i juni 2026 efter att ha slutfört utbildningen Systemutvecklare C/C++ vid Chas Academy med högsta betyg i samtliga kurser."
+                    },
+                    {
+                        "position": "Produktägare",
+                        "from": "2022-05",
+                        "to": "2024-09",
+                        "duration": "2 år 5 månader",
+                        "summary": "Produktägare för Team Magma (ca. 12 personer), med ansvar för offboard-diagnostik, diagnostikinformation och kablageböcker. Samarbetade med el- och mjukvaruutveckling kring roadmaps för elektromobilitet, cybersäkerhet, aktiv säkerhet och diagnostikverktyg.",
+                        "bullets": [
+                            "Ägde processer, roadmaps och kontinuerlig förbättring samt ansvarade för rekrytering, onboarding och arbetsfördelning för anställda och konsulter.",
+                            "Coachade den internationella eftermarknadsorganisationen i agil planering och arbetsnedbrytning. Som Jira-nyckelanvändare ledde jag teamens övergång från Excel-baserad planering till Jira."
+                        ]
+                    },
+                    {
+                        "position": "Teknisk informationsspecialist",
+                        "from": "2020-01",
+                        "to": "2022-05",
+                        "duration": "2 år 5 månader",
+                        "summary": "Ansvarade för leveransen av kablageböcker vid uppdateringar av busschassin för den globala marknaden.",
+                        "bullets": [
+                            "Industrialiserade produktionen av den utökade kablageboken genom datauttag ur Saber, InDesign-mallar och kvalitetskontroll av illustrationer, vilket ersatte manuell kopiering.",
+                            "Kortade tiden för komponentidentifiering vid felsökning med hjälp av kablageböcker från cirka en timme till några minuter. Konceptet infördes i hela produktprogrammet och återanvändes inom produktutvecklingen."
+                        ]
+                    }
+                ]
+            },
+            {
+                "company": "Condesign AB",
+                "location": "Göteborg, Sverige",
+                "roles": [
+                    {
+                        "position": "Konsult",
+                        "from": "2017-08",
+                        "to": "2019-12",
+                        "duration": "2 år 5 månader",
+                        "summary": "Tog fram tekniska illustrationer, serviceinstruktioner och kopplingsscheman för grävmaskiner och bussar, främst åt Volvo Bussar. Övergick till ett uppdrag på plats och anställdes senare av Volvo Bussar med ansvar för leveransen av handböcker.",
+                        "skills": ["CorelDRAW", "InDesign", "Illustrator"]
+                    }
+                ]
+            },
+            {
+                "section": "Tidigare",
+                "summary": "Försvarsmakten (värnplikt, 2005–06); väktare; lärarvikarie"
+            }
+        ],
+        "languages": [
+            {
+                "language": "Svenska",
+                "level": "Modersmål"
+            },
+            {
+                "language": "Engelska",
+                "level": "Nära modersmålsnivå",
+                "certificate": "Cambridge C1 Advanced, betyg A"
+            }
+        ],
+        "skills": {
+            "languages": ["C", "C++", "Go", "Python"],
+            "web_embedded": ["Server-side rendering", "HTMX", "React", "REST", "Arduino", "Modbus TCP"],
+            "devops_test": ["Git", "GitHub Actions", "Docker", "Linux VPS", "Enhetstestning", "CI/CD"],
+            "leadership": ["Teamledning", "Scrum", "Agil coachning", "Jira"],
+            "design": ["Interaktionsdesign", "Layout", "Typografi"]
+        },
+        "skill_highlights": [
+            "Utvecklade serverrenderade webbgränssnitt med HTMX och backend i C++ eller Go.",
+            "Utvecklade ett abstraktionslager för Arduino som möjliggör enhetstestbar firmware och typsäker in- och utmatning."
+        ]
     }
 }
