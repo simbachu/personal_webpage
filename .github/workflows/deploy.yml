@@ -104,6 +104,12 @@ jobs:
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
             "cd ${{ steps.deploy_path.outputs.private }} && composer install --no-dev --optimize-autoloader --classmap-authoritative --no-interaction"
 
+      - name: Clear Twig template cache on server
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            'rm -rf "$(php -r "echo sys_get_temp_dir();")/twig" && echo "Twig cache cleared"'
+
       - name: Verify deployment
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
