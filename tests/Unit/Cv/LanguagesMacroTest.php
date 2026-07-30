@@ -31,6 +31,8 @@ TWIG);
 
         // Assert
         $this->assertStringContainsString('<h2>Languages</h2>', $html);
+        $this->assertStringContainsString('class="languages"', $html);
+        $this->assertStringNotContainsString('<dt>', $html);
         $this->assertStringContainsString('Swedish', $html);
         $this->assertStringContainsString('Native', $html);
     }

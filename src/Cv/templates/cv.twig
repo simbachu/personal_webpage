@@ -15,13 +15,17 @@
 {% block content %}
 <main>
     {{ header.header(cv) }}
-    <article>
-        {{ exp.experience(cv.experience) }}
-        {{ edu.education(cv.education) }}
-        {{ cert.certificates(cv.certificates) }}
-        {{ lang.languages(cv.languages) }}
-        {{ sk.skills(cv.skills, cv.skill_highlights) }}
-    </article>
+    <hr class="cv-anchor">
+    <div class="cv-body">
+        <p>{{ cv.summary }}</p>
+        <article>
+            {{ exp.experience(cv.experience) }}
+            {{ edu.education(cv.education) }}
+            {{ cert.certificates(cv.certificates) }}
+            {{ lang.languages(cv.languages) }}
+            {{ sk.skills(cv.skills, cv.skill_highlights) }}
+        </article>
+    </div>
     <footer>
         <p>This website was automatically uploaded from <a href="https://github.com/simbachu/personal_webpage">GitHub</a> using a <abbr title="Continuous Deployment">CD</abbr> pipeline.</p>
     </footer>

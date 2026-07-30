@@ -8,7 +8,7 @@
     <h2>Skills</h2>
     {% for group, items in skills %}
     <h3>{{ group|replace({'_': ' '}) }}</h3>
-    <ul>
+    <ul class="skills">
         {% for skill in items %}
         <li>{{ skill }}</li>
         {% endfor %} {# for skill in items #}

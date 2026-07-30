@@ -14,6 +14,9 @@
 <article>
     <header>
         <h4>{{ role.position }}</h4>
+        {% if role.employment is defined and role.employment %}
+        <span class="meta">{{ role.employment }}</span>
+        {% endif %} {# role.employment is defined and role.employment #}
         <time datetime="{{ role.from }}">{{ role.from }}</time>
         <span role="separator">&ndash;</span>
         {% if role.to %}
@@ -24,9 +27,6 @@
         {% if role.duration is defined and role.duration %}
         ({{ role.duration }})
         {% endif %} {# role.duration is defined and role.duration #}
-        {% if role.employment is defined and role.employment %}
-        <p><span>{{ role.employment }}</span></p>
-        {% endif %} {# role.employment is defined and role.employment #}
     </header>
     {% if role.summary is defined and role.summary %}
     <p>{{ role.summary }}</p>
@@ -70,12 +70,12 @@
     <article>
         <header>
             <h3>{{ item.company is defined ? item.company : item.organization }}</h3>
-            {% if item.tenure is defined and item.tenure %}
-            <span>{{ item.tenure }}</span>
-            {% endif %} {# item.tenure is defined and item.tenure #}
             {% if item.location is defined and item.location %}
-            <p><span>{{ item.location }}</span></p>
+            <span class="meta">{{ item.location }}</span>
             {% endif %} {# item.location is defined and item.location #}
+            {% if item.tenure is defined and item.tenure %}
+            <span class="tenure">{{ item.tenure }}</span>
+            {% endif %} {# item.tenure is defined and item.tenure #}
         </header>
         {% if item.roles is defined %}
         {% for role in item.roles %}

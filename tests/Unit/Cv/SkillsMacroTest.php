@@ -36,6 +36,7 @@ TWIG);
         // Assert
         $this->assertStringContainsString('<h2>Skills</h2>', $html);
         $this->assertStringContainsString('programming languages', $html);
+        $this->assertStringContainsString('class="skills"', $html);
         $this->assertStringContainsString('C', $html);
         $this->assertStringContainsString('C++', $html);
         $this->assertStringContainsString('Go', $html);

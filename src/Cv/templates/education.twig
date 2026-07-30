@@ -25,7 +25,7 @@
             ({{ item.tenure }})
             {% endif %} {# item.tenure is defined and item.tenure #}
             {% if item.location is defined and item.location %}
-            <p><span>{{ item.location }}</span></p>
+            <span class="meta">{{ item.location }}</span>
             {% endif %} {# item.location is defined and item.location #}
         </header>
         {% if item.highlights is defined and item.highlights %}

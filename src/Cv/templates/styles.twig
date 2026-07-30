@@ -63,7 +63,8 @@ li {
     margin-bottom: 0.15em;
 }
 
-ul.skills {
+ul.skills,
+ul.languages {
     display: flex;
     flex-wrap: wrap;
     gap: 0.15em 0.5em;
@@ -71,32 +72,55 @@ ul.skills {
     padding-left: 0;
 }
 
-ul.skills li {
+ul.skills li,
+ul.languages li {
     margin: 0;
 }
 
-ul.skills li:not(:last-child)::after {
+ul.skills li:not(:last-child)::after,
+ul.languages li:not(:last-child)::after {
     content: "·";
     margin-left: 0.5em;
 }
 
-dt {
-    font-weight: 600;
-}
-
-dd {
-    margin: 0 0 0.25em;
-}
-
 address {
     font-style: normal;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.35em;
+    row-gap: 0.15em;
+}
+
+address [role="separator"] {
+    color: #666;
 }
 
 a {
     color: inherit;
 }
 
-/* Article headers: h3/h4 inline, dates flush right, meta on next row */
+hr.cv-anchor {
+    border: none;
+    border-top: 2.5pt solid #111;
+    margin: 0.55em 0 0.7em;
+    width: 100%;
+}
+
+.cv-body {
+    padding-left: 1.2em;
+    text-align: justify;
+    hyphens: auto;
+}
+
+.cv-body h2,
+.cv-body h3,
+.cv-body h4 {
+    text-align: left;
+    hyphens: none;
+}
+
+/* Article headers: h3/h4 inline, dates/tenure flush right, meta muted */
 article > header {
     display: flex;
     flex-wrap: wrap;
@@ -117,13 +141,11 @@ article > header h4 {
 }
 
 article > header > time:first-of-type,
-article > header > h3 + span {
+article > header > .tenure {
     margin-left: auto;
 }
 
-article > header > p {
-    flex-basis: 100%;
-    margin: 0;
+article > header > .meta {
     font-size: 0.9em;
     color: #444;
 }
