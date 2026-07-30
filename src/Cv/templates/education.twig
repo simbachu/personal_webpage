@@ -1,0 +1,44 @@
+{# @brief Renders the education section
+@param items Education entries
+  item.institution: School or academy name
+  item.program: Program title
+  item.from: Start date (YYYY-MM)
+  item.to: End date (YYYY-MM)
+  item.location: Optional location
+  item.tenure: Optional tenure note
+  item.highlights: Optional highlight text
+  item.skills: Optional skill tags
+@return string The rendered education section
+#}
+{% macro education(items) %}
+<section>
+    <h2>Education</h2>
+    {% for item in items %}
+    <article>
+        <header>
+            <h3>{{ item.institution }}</h3>
+            <h4>{{ item.program }}</h4>
+            <time datetime="{{ item.from }}">{{ item.from }}</time>
+            <span role="separator">&ndash;</span>
+            <time datetime="{{ item.to }}">{{ item.to }}</time>
+            {% if item.tenure is defined and item.tenure %}
+            ({{ item.tenure }})
+            {% endif %} {# item.tenure is defined and item.tenure #}
+            {% if item.location is defined and item.location %}
+            <p><span>{{ item.location }}</span></p>
+            {% endif %} {# item.location is defined and item.location #}
+        </header>
+        {% if item.highlights is defined and item.highlights %}
+        <p>{{ item.highlights }}</p>
+        {% endif %} {# item.highlights is defined and item.highlights #}
+        {% if item.skills is defined and item.skills %}
+        <ul class="skills">
+            {% for skill in item.skills %}
+            <li>{{ skill }}</li>
+            {% endfor %} {# for skill in item.skills #}
+        </ul>
+        {% endif %} {# item.skills is defined and item.skills #}
+    </article>
+    {% endfor %} {# for item in items #}
+</section>
+{% endmacro %} {# education #}

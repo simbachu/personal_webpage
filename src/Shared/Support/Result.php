@@ -27,26 +27,22 @@ namespace App\Shared\Support;
 final class Result
 {
     //! @brief Private constructor for Result instances
-    //! @param value The success value (null for failure results)
-    //! @param error The error message (null for success results)
-    //! @throws \InvalidArgumentException If both value and error are provided or both are null
+    //! @param ok Whether this Result is a success (allows null success values)
+    //! @param value The success value (ignored for failures)
+    //! @param error The error message (ignored for successes)
     private function __construct(
+        private readonly bool $ok,
         private mixed $value = null,
         private ?string $error = null
-    ) {
-        // Ensure either value or error is set, but not both
-        if (($value === null && $error === null) || ($value !== null && $error !== null)) {
-            throw new \InvalidArgumentException('Result must have either a value or an error, but not both');
-        }
-    }
+    ) {}
 
-    //! @brief Create a successful Result with a value
+    //! @brief Create a successful Result with a value (including null)
     //! @tparam TValue The type of the success value
     //! @param value The success value
     //! @return Result<TValue> A successful Result containing the value
     public static function success(mixed $value): self
     {
-        return new self(value: $value);
+        return new self(ok: true, value: $value);
     }
 
     //! @brief Create a failed Result with an error message
@@ -55,21 +51,21 @@ final class Result
     //! @return Result<TValue> A failed Result containing the error message
     public static function failure(string $error): self
     {
-        return new self(error: $error);
+        return new self(ok: false, error: $error);
     }
 
     //! @brief Check if this Result represents a success
     //! @return bool True if this Result contains a successful value, false if it contains an error
     public function isSuccess(): bool
     {
-        return $this->error === null;
+        return $this->ok;
     }
 
     //! @brief Check if this Result represents a failure
     //! @return bool True if this Result contains an error, false if it contains a successful value
     public function isFailure(): bool
     {
-        return $this->error !== null;
+        return !$this->ok;
     }
 
     //! @brief Get the success value from this Result

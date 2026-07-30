@@ -1,0 +1,35 @@
+{# @brief Renders the CV header with name, contact details, and summary
+@param cv The flattened CV view model
+  cv.name: Full name
+  cv.email: Email address
+  cv.phone: Phone number
+  cv.website: Full website URL
+  cv.linkedin: Full LinkedIn URL
+  cv.github: Full GitHub URL
+  cv.summary: Professional summary
+@return string The rendered header
+#}
+{% macro header(cv) %}
+<header>
+    <h1>{{ cv.name }}</h1>
+    <address>
+        <dl>
+            <dt>Email</dt>
+            <dd><a href="mailto:{{ cv.email }}">{{ cv.email }}</a></dd>
+            <dt>Phone</dt>
+            <dd><a href="tel:{{ cv.phone }}">{{ cv.phone }}</a></dd>
+            <dt>Website</dt>
+            <dd><a href="{{ cv.website }}">{{ cv.website }}</a></dd>
+            {% if cv.linkedin is defined and cv.linkedin %}
+            <dt>LinkedIn</dt>
+            <dd><a href="{{ cv.linkedin }}">{{ cv.linkedin }}</a></dd>
+            {% endif %} {# cv.linkedin is defined and cv.linkedin #}
+            {% if cv.github is defined and cv.github %}
+            <dt>GitHub</dt>
+            <dd><a href="{{ cv.github }}">{{ cv.github }}</a></dd>
+            {% endif %} {# cv.github is defined and cv.github #}
+        </dl>
+    </address>
+    <p>{{ cv.summary }}</p>
+</header>
+{% endmacro %} {# header #}

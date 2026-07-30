@@ -1,0 +1,29 @@
+{# @brief Renders the certificates section
+@param items Certificate entries
+  item.name: Certificate name
+  item.issuer: Issuing organization
+  item.issued: Issue date (YYYY-MM)
+  item.grade: Optional grade
+  item.credential_id: Optional credential identifier
+@return string The rendered certificates section
+#}
+{% macro certificates(items) %}
+<section>
+    <h2>Certificates</h2>
+    {% for item in items %}
+    <article>
+        <header>
+            <h3>{{ item.name }}</h3>
+            <h4>{{ item.issuer }}</h4>
+            <time datetime="{{ item.issued }}">{{ item.issued }}</time>
+        </header>
+        {% if item.grade is defined and item.grade %}
+        <p>Grade: {{ item.grade }}</p>
+        {% endif %} {# item.grade is defined and item.grade #}
+        {% if item.credential_id is defined and item.credential_id %}
+        <p>Credential ID: {{ item.credential_id }}</p>
+        {% endif %} {# item.credential_id is defined and item.credential_id #}
+    </article>
+    {% endfor %} {# for item in items #}
+</section>
+{% endmacro %} {# certificates #}

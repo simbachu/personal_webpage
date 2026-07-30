@@ -1,0 +1,177 @@
+:root {
+    --page-width: 210mm;
+    --page-height: 297mm;
+    --page-margin: 1.5cm;
+}
+
+@page {
+    size: A4;
+    margin: 0;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: #111;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    margin: 0 0 0.25em;
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 18pt;
+}
+
+h2 {
+    font-size: 12pt;
+    margin-top: 0.75em;
+    margin-bottom: 0.35em;
+}
+
+h3 {
+    font-size: 11pt;
+}
+
+h4 {
+    font-size: 10.5pt;
+}
+
+p,
+ul,
+dl {
+    margin: 0 0 0.35em;
+}
+
+ul {
+    padding-left: 1.1em;
+}
+
+li {
+    margin-bottom: 0.15em;
+}
+
+ul.skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15em 0.5em;
+    list-style: none;
+    padding-left: 0;
+}
+
+ul.skills li {
+    margin: 0;
+}
+
+ul.skills li:not(:last-child)::after {
+    content: "·";
+    margin-left: 0.5em;
+}
+
+dt {
+    font-weight: 600;
+}
+
+dd {
+    margin: 0 0 0.25em;
+}
+
+address {
+    font-style: normal;
+}
+
+a {
+    color: inherit;
+}
+
+/* Article headers: h3/h4 inline, dates flush right, meta on next row */
+article > header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.5em;
+    row-gap: 0.1em;
+    margin-bottom: 0.35em;
+}
+
+article > header h3,
+article > header h4 {
+    display: inline;
+    margin: 0;
+}
+
+article > header h4 {
+    font-weight: 500;
+}
+
+article > header > time:first-of-type,
+article > header > h3 + span {
+    margin-left: auto;
+}
+
+article > header > p {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 0.9em;
+    color: #444;
+}
+
+article > header [role="separator"] {
+    margin: 0;
+}
+
+main {
+    width: var(--page-width);
+    height: var(--page-height);
+    padding: var(--page-margin);
+    overflow: hidden;
+    background: #fff;
+}
+
+main > footer {
+    margin-top: 0.75em;
+    font-size: 8pt;
+}
+
+@media screen {
+    body {
+        min-height: 100vh;
+        padding: 1.5rem;
+        background: #d4d4d4;
+    }
+
+    main {
+        margin: 0 auto;
+        box-shadow: 0 0 0 1px #bbb;
+    }
+}
+
+@media print {
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        background: none;
+    }
+
+    main {
+        margin: 0;
+        box-shadow: none;
+    }
+
+    main > footer {
+        display: none;
+    }
+}

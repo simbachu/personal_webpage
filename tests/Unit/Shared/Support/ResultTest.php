@@ -284,25 +284,16 @@ final class ResultTest extends TestCase
         $this->assertStringContainsString('error message', $string);
     }
 
-    //! @brief Test constructor validation - both value and error
-    public function test_constructor_throws_when_both_value_and_error_provided(): void
+    //! @brief Test that success may carry a null value (Result<?T>)
+    public function test_success_can_contain_null_value(): void
     {
-        //! @section Arrange
-        $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Call to private App\Shared\Support\Result::__construct()');
+        //! @section Arrange / Act
+        $result = Result::success(null);
 
-        //! @section Act
-        new Result(value: 'test', error: 'error');
+        //! @section Assert
+        $this->assertTrue($result->isSuccess());
+        $this->assertFalse($result->isFailure());
+        $this->assertNull($result->getValue());
     }
 
-    //! @brief Test constructor validation - neither value nor error
-    public function test_constructor_throws_when_neither_value_nor_error_provided(): void
-    {
-        //! @section Arrange
-        $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Call to private App\Shared\Support\Result::__construct()');
-
-        //! @section Act
-        new Result();
-    }
 }

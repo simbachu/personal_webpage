@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Support;
 
 use Twig\Environment;
+use Twig\Loader\ArrayLoader;
+use Twig\Loader\ChainLoader;
 use Twig\Loader\FilesystemLoader;
 
 //! @brief Shared Twig setup for tests using slice template namespaces
@@ -36,7 +38,7 @@ final class TwigTestFactory
         ];
     }
 
-    //! @brief Filesystem loader with @shared, @site, and @dex namespaces
+    //! @brief Filesystem loader with @shared, @site, @dex, and @cv namespaces
     public static function createLoader(): FilesystemLoader
     {
         $root = self::projectRoot();
@@ -44,6 +46,7 @@ final class TwigTestFactory
         $loader->addPath($root . '/src/Shared/templates', 'shared');
         $loader->addPath($root . '/src/Site/templates', 'site');
         $loader->addPath($root . '/src/Dex/templates', 'dex');
+        $loader->addPath($root . '/src/Cv/templates', 'cv');
         return $loader;
     }
 
@@ -57,5 +60,24 @@ final class TwigTestFactory
         ];
 
         return new Environment(self::createLoader(), array_merge($defaults, $options));
+    }
+
+    //! @brief Twig environment that resolves an inline harness template plus filesystem namespaces
+    //! @param inlineTemplate Twig source registered as inline.twig
+    //! @param options Extra Environment options
+    //! @return Environment Ready to render('inline.twig', ...)
+    public static function createMacroEnvironment(string $inlineTemplate, array $options = []): Environment
+    {
+        $arrayLoader = new ArrayLoader([
+            'inline.twig' => $inlineTemplate,
+        ]);
+        $loader = new ChainLoader([$arrayLoader, self::createLoader()]);
+
+        $defaults = [
+            'cache' => false,
+            'debug' => false,
+        ];
+
+        return new Environment($loader, array_merge($defaults, $options));
     }
 }

@@ -1,0 +1,29 @@
+{% extends "@cv/layout.twig" %}
+{% import "@cv/header.twig" as header %}
+{% import "@cv/experience.twig" as exp %}
+{% import "@cv/education.twig" as edu %}
+{% import "@cv/certificates.twig" as cert %}
+{% import "@cv/languages.twig" as lang %}
+{% import "@cv/skills.twig" as sk %}
+
+{% block title %}{{ cv.name }} — CV{% endblock %}
+
+{% block styles %}
+{% include '@cv/styles.twig' %}
+{% endblock %}
+
+{% block content %}
+<main>
+    {{ header.header(cv) }}
+    <article>
+        {{ exp.experience(cv.experience) }}
+        {{ edu.education(cv.education) }}
+        {{ cert.certificates(cv.certificates) }}
+        {{ lang.languages(cv.languages) }}
+        {{ sk.skills(cv.skills, cv.skill_highlights) }}
+    </article>
+    <footer>
+        <p>This website was automatically uploaded from <a href="https://github.com/simbachu/personal_webpage">GitHub</a> using a <abbr title="Continuous Deployment">CD</abbr> pipeline.</p>
+    </footer>
+</main>
+{% endblock %}

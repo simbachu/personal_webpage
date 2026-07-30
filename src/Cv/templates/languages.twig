@@ -1,0 +1,23 @@
+{# @brief Renders the languages section
+@param items Language entries
+  item.language: Language name
+  item.level: Proficiency level
+  item.certificate: Optional certificate note
+@return string The rendered languages section
+#}
+{% macro languages(items) %}
+<section>
+    <h2>Languages</h2>
+    <dl>
+        {% for item in items %}
+        <dt>{{ item.language }}</dt>
+        <dd>
+            {{ item.level }}
+            {% if item.certificate is defined and item.certificate %}
+            ({{ item.certificate }})
+            {% endif %} {# item.certificate is defined and item.certificate #}
+        </dd>
+        {% endfor %} {# for item in items #}
+    </dl>
+</section>
+{% endmacro %} {# languages #}

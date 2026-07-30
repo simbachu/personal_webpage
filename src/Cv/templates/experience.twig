@@ -1,0 +1,89 @@
+{# @brief Renders a single experience role
+@param role The role entry
+  role.position: Job title
+  role.from: Start date (YYYY-MM)
+  role.to: End date (YYYY-MM) or null for Present
+  role.duration: Optional duration string
+  role.employment: Optional employment type
+  role.summary: Role summary
+  role.bullets: Optional list of achievement bullets
+  role.skills: Optional skill tags
+@return string The rendered role
+#}
+{% macro role(role) %}
+<article>
+    <header>
+        <h4>{{ role.position }}</h4>
+        <time datetime="{{ role.from }}">{{ role.from }}</time>
+        <span role="separator">&ndash;</span>
+        {% if role.to %}
+        <time datetime="{{ role.to }}">{{ role.to }}</time>
+        {% else %}
+        <span>Present</span>
+        {% endif %} {# role.to #}
+        {% if role.duration is defined and role.duration %}
+        ({{ role.duration }})
+        {% endif %} {# role.duration is defined and role.duration #}
+        {% if role.employment is defined and role.employment %}
+        <p><span>{{ role.employment }}</span></p>
+        {% endif %} {# role.employment is defined and role.employment #}
+    </header>
+    {% if role.summary is defined and role.summary %}
+    <p>{{ role.summary }}</p>
+    {% endif %} {# role.summary is defined and role.summary #}
+    {% if role.bullets is defined and role.bullets %}
+    <ul>
+        {% for bullet in role.bullets %}
+        <li>{{ bullet }}</li>
+        {% endfor %} {# for bullet in role.bullets #}
+    </ul>
+    {% endif %} {# role.bullets is defined and role.bullets #}
+    {% if role.skills is defined and role.skills %}
+    <ul class="skills">
+        {% for skill in role.skills %}
+        <li>{{ skill }}</li>
+        {% endfor %} {# for skill in role.skills #}
+    </ul>
+    {% endif %} {# role.skills is defined and role.skills #}
+</article>
+{% endmacro %} {# role #}
+
+{# @brief Renders the experience section
+@param items Experience entries (company, organization, or section blurb)
+@return string The rendered experience section
+#}
+{% macro experience(items) %}
+{% import _self as self %}
+<section>
+    <h2>Experience</h2>
+    {% for item in items %}
+    {% if item.section is defined %}
+    <article>
+        <header>
+            <h3>{{ item.section }}</h3>
+        </header>
+        {% if item.summary is defined and item.summary %}
+        <p>{{ item.summary }}</p>
+        {% endif %} {# item.summary is defined and item.summary #}
+    </article>
+    {% else %}
+    <article>
+        <header>
+            <h3>{{ item.company is defined ? item.company : item.organization }}</h3>
+            {% if item.tenure is defined and item.tenure %}
+            <span>{{ item.tenure }}</span>
+            {% endif %} {# item.tenure is defined and item.tenure #}
+            {% if item.location is defined and item.location %}
+            <p><span>{{ item.location }}</span></p>
+            {% endif %} {# item.location is defined and item.location #}
+        </header>
+        {% if item.roles is defined %}
+        {% for role in item.roles %}
+        {{ self.role(role) }}
+        {% endfor %} {# for role in item.roles #}
+        {% endif %} {# item.roles is defined #}
+    </article>
+    {% endif %} {# item.section is defined #}
+    {% endfor %} {# for item in items #}
+</section>
+{% endmacro %} {# experience #}

@@ -39,6 +39,8 @@ use App\Dex\DexRouteHandler;
 use App\Dex\PokeApiService;
 use App\Dex\PokemonOpinionService;
 use App\Dex\DexPresenter;
+use App\Cv\CvLoader;
+use App\Cv\CvRouteHandler;
 use App\Site\Article\ArticleRouteHandler;
 use App\Site\Article\FileArticleRepository;
 use App\Site\Article\MarkdownProcessor;
@@ -66,6 +68,7 @@ function resolve_private_root(string $base_path, string $env_prefix): string
 $private_root = resolve_private_root($base_path, $env_prefix);
 $site_content_path = $private_root . '/content/site';
 $dex_content_path = $private_root . '/content/dex';
+$cv_content_path = $private_root . '/content/cv';
 
 if (!is_dir($site_content_path)) {
     die('Error: Could not find site content directory at ' . $site_content_path);
@@ -74,11 +77,13 @@ if (!is_dir($site_content_path)) {
 $shared_templates = $private_root . '/src/Shared/templates';
 $site_templates = $private_root . '/src/Site/templates';
 $dex_templates = $private_root . '/src/Dex/templates';
+$cv_templates = $private_root . '/src/Cv/templates';
 
 $template_namespace_paths = [
     'shared' => FilePath::fromString($shared_templates),
     'site' => FilePath::fromString($site_templates),
     'dex' => FilePath::fromString($dex_templates),
+    'cv' => FilePath::fromString($cv_templates),
 ];
 
 $contentRepository = new ContentRepository(FilePath::fromString($site_content_path));
@@ -91,11 +96,14 @@ $opinionsFilePath = $dex_content_path . '/pokemon_opinions.yaml';
 $opinionService = new PokemonOpinionService($opinionsFilePath);
 $dexPresenter = new DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
 
+$cvLoader = CvLoader::fromString($cv_content_path . '/cv.json');
+
 // Initialize Twig with slice namespaces
 $loader = new \Twig\Loader\FilesystemLoader();
 $loader->addPath($shared_templates, 'shared');
 $loader->addPath($site_templates, 'site');
 $loader->addPath($dex_templates, 'dex');
+$loader->addPath($cv_templates, 'cv');
 
 $twigOptions = [
     'autoescape' => 'html',
@@ -190,12 +198,23 @@ $router->addRoute(new Route(
     ['handler' => 'article']
 ));
 
+$router->addRoute(new Route(
+    '/cv',
+    TemplateName::CV,
+    [
+        'title' => 'Jennifer Gott — CV',
+        'description' => 'Curriculum vitae for Jennifer Jonathan Gott — systems developer based in Gothenburg, Sweden.',
+    ],
+    ['handler' => 'cv']
+));
+
 $markdownProcessor = new MarkdownProcessor();
 $articleRepository = new FileArticleRepository($site_content_path, $markdownProcessor);
 
 $router->registerHandler('home', new HomeRouteHandler($homePresenter));
 $router->registerHandler('dex', new DexRouteHandler($dexPresenter));
 $router->registerHandler('article', new ArticleRouteHandler($articleRepository));
+$router->registerHandler('cv', new CvRouteHandler($cvLoader));
 
 $path = get_request_path();
 $base_url = get_base_url();

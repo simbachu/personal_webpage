@@ -1,0 +1,165 @@
+{
+    "name": "Jennifer Jonathan Gott",
+    "email": "simbachu@gmail.com",
+    "phone": "+46 704 91 10 97",
+    "website": "https://www.simbachu.com",
+    "linkedin": "https://www.linkedin.com/in/jennifer-jonathan-gott-2233aa294/",
+    "github": "https://github.com/simbachu",
+    "lang-en": {
+        "summary": "Systems developer with a background in information design and product ownership. I build software that is clear, testable, and diagnosable — from embedded devices to APIs and web UIs — shaped by years turning complex vehicle systems into usable technical content.",
+        "education": [
+            {
+                "institution": "Chas Academy",
+                "program": "Systems Developer C/C++",
+                "from": "2024-09",
+                "to": "2026-06",
+                "highlights": "Top marks.",
+                "skills": ["C", "C++", "Unit Testing", "Git", "Arduino"]
+            },
+            {
+                "institution": "Linnaeus University",
+                "program": "Communication and Media Studies",
+                "from": "2013-09",
+                "to": "2016-06",
+                "skills": ["Layout Design", "Typography"]
+            },
+            {
+                "institution": "Mälardalen University",
+                "program": "Interaction Design",
+                "from": "2008-09",
+                "to": "2010-03",
+                "highlights": "Web and multimedia design program.",
+                "skills": ["C++", "Interaction Design"]
+            }
+        ],
+        "certificates": [
+            {
+                "name": "C1 Advanced",
+                "issuer": "Cambridge English",
+                "issued": "2005-06",
+                "grade": "A"
+            },
+            {
+                "name": "Professional Scrum Product Owner",
+                "issuer": "Scrum.org",
+                "issued": "2022-07",
+                "credential_id": "820442"
+            }
+        ],
+        "experience": [
+            {
+                "company": "Berg Propulsion",
+                "location": "Hönö och Öckerö, Västra Götaland County, Sweden",
+                "roles": [
+                    {
+                        "position": "Student Intern",
+                        "from": "2025-11",
+                        "to": "2026-06",
+                        "duration": "8 mos",
+                        "employment": "Internship · On-site",
+                        "summary": "Go & React intern on maritime Energy Management System: REST API, real-time telemetry, Modbus TCP, alarms, and React mimic/alert UIs.",
+                        "skills": ["Go", "React"]
+                    }
+                ]
+            },
+            {
+                "company": "Volvo Buses",
+                "location": "Gothenburg, Västra Götaland County, Sweden",
+                "tenure": "6 yrs 7 mos",
+                "roles": [
+                    {
+                        "position": "Team Leader",
+                        "from": "2024-04",
+                        "to": null,
+                        "employment": "Full-time · Hybrid and on-site",
+                        "summary": "Team leader for Team Magma through Sep 2024; professional development leave Sep 2024–Jun 2026 (Systems developer C/C++ at Chas Academy, top marks). Returned full-time during department reorganisation."
+                    },
+                    {
+                        "position": "Product Owner",
+                        "from": "2022-05",
+                        "to": "2024-09",
+                        "duration": "2 yrs 5 mos",
+                        "employment": "Full-time · On-site",
+                        "summary": "Product owner for Team Magma (~12 people): off-board diagnostics (Bosch Grade-X), diagnostic information (PTC Arbortext), and wiring diagram handbooks. Cross-functional partner to electrical and software R&D — roadmaps for electromobility, cybersecurity conformity, active safety, and diagnostic tooling.",
+                        "bullets": [
+                            "Owned processes, roadmaps, and continuous improvement; recruited, onboarded, and scoped work for employees and off-site consultants.",
+                            "Agile coach for the international aftermarket department — standardised increment planning and work breakdown bus-wide; Jira key user migrating teams from Excel-based planning.",
+                            "Liaison across product development POs and project management; group representative for cost estimates and department budget quotations."
+                        ]
+                    },
+                    {
+                        "position": "Technical Information Specialist",
+                        "from": "2020-01",
+                        "to": "2022-05",
+                        "duration": "2 yrs 5 mos",
+                        "employment": "Full-time · On-site",
+                        "summary": "Owned end-to-end wiring diagram handbook delivery for bus chassis product updates worldwide.",
+                        "bullets": [
+                            "Industrialised the \"extended wiring diagram\" concept: Saber extraction from development schematics, InDesign publishing templates, and illustration QA — replacing manual copy-paste and cleaning up the dealer portal portfolio.",
+                            "Fault-tracing component identification dropped from ~1 hour to minutes; concept adopted across the product range and reused by product development teams."
+                        ]
+                    }
+                ]
+            },
+            {
+                "company": "Condesign AB",
+                "location": "Gothenburg, Västra Götaland County, Sweden",
+                "roles": [
+                    {
+                        "position": "Consultant",
+                        "from": "2017-08",
+                        "to": "2019-12",
+                        "duration": "2 yrs 5 mos",
+                        "employment": "Full-time · On-site",
+                        "summary": "Technical illustrator: excavator marketing diagrams, service instructions, and wiring diagram work — component illustrations and functional layouts with highlighted bundles and connectors over chassis frames (CorelDRAW). Mostly Volvo Buses; transitioned on-site and was hired to own end-to-end handbook delivery.",
+                        "skills": ["CorelDRAW", "Adobe InDesign", "Adobe Illustrator"]
+                    }
+                ]
+            },
+            {
+                "section": "Earlier experience",
+                "summary": "Security guard at Cubsec AB, primary school teacher substitute, among others"
+            },
+            {
+                "organization": "Swedish Armed Forces",
+                "location": "Halmstad, Hallands County, Sweden",
+                "roles": [
+                    {
+                        "position": "Insatssoldat Lv6",
+                        "from": "2005-08",
+                        "to": "2006-06",
+                        "duration": "10 mos",
+                        "employment": "Conscript",
+                        "summary": "Facility protection and escort duty for material transport."
+                    }
+                ]
+            }
+        ],
+        "languages": [
+            {
+                "language": "Swedish",
+                "level": "Native"
+            },
+            {
+                "language": "English",
+                "level": "Native-level",
+                "certificate": "Cambridge C1 Advanced, grade A"
+            }
+        ],
+        "skills": {
+            "programming_languages": ["C", "C++", "Go", "Python"],
+            "web": ["Server-side rendering", "HTMX", "React", "REST APIs"],
+            "embedded": ["Arduino"],
+            "devops": ["Git", "GitHub Actions", "Docker", "Linux VPS"],
+            "testing": ["Unit testing", "CI/CD"],
+            "protocols": ["Modbus TCP"],
+            "leadership": ["Small team management", "Scrum", "Agile coaching", "Jira"],
+            "design": ["Interaction design", "Layout design", "Typography"]
+        },
+        "skill_highlights": [
+            "Server-side rendered web UIs with HTMX and C++ or Go backends in personal projects.",
+            "Built an Arduino abstraction layer for unit-testable firmware and type-safe I/O pin configuration.",
+            "CI/CD with GitHub Actions; Docker-based staging environments on VPS hosts."
+        ]
+    }
+}

@@ -1,0 +1,25 @@
+{# @brief Renders grouped skills and optional skill highlights
+@param skills Associative map of group key => skill list
+@param highlights Optional list of highlight sentences
+@return string The rendered skills section
+#}
+{% macro skills(skills, highlights) %}
+<section>
+    <h2>Skills</h2>
+    {% for group, items in skills %}
+    <h3>{{ group|replace({'_': ' '}) }}</h3>
+    <ul>
+        {% for skill in items %}
+        <li>{{ skill }}</li>
+        {% endfor %} {# for skill in items #}
+    </ul>
+    {% endfor %} {# for group, items in skills #}
+    {% if highlights is defined and highlights %}
+    <ul>
+        {% for highlight in highlights %}
+        <li>{{ highlight }}</li>
+        {% endfor %} {# for highlight in highlights #}
+    </ul>
+    {% endif %} {# highlights is defined and highlights #}
+</section>
+{% endmacro %} {# skills #}
