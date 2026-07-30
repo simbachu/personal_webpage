@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Cv;
 
 use PHPUnit\Framework\TestCase;
-use Tests\Support\CvFixture;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
 
@@ -21,101 +20,120 @@ final class ExperienceMacroTest extends TestCase
 TWIG, ['strict_variables' => true]);
     }
 
-    public function test_macro_renders_full_experience_list_under_strict_variables(): void
+    public function test_macro_renders_company_role_with_inline_meta(): void
     {
         // Arrange
-        $items = CvFixture::experience();
+        $items = [[
+            'company' => 'Acme Corp',
+            'location' => 'Gothenburg',
+            'roles' => [[
+                'position' => 'Engineer',
+                'from' => '2024-01',
+                'to' => '2024-06',
+                'duration' => '6 mos',
+                'employment' => 'Internship',
+                'summary' => 'Built a test harness.',
+            ]],
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
 
         // Assert
         $this->assertStringContainsString('<h2>Experience</h2>', $html);
-        $this->assertStringContainsString('Berg Propulsion', $html);
-        $this->assertStringContainsString('Volvo Buses', $html);
-        $this->assertStringContainsString('Swedish Armed Forces', $html);
-        $this->assertStringContainsString('Earlier experience', $html);
-    }
-
-    public function test_macro_renders_company_with_roles(): void
-    {
-        // Arrange
-        $items = [CvFixture::experienceByCompany('Berg Propulsion')];
-
-        // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
-
-        // Assert
-        $this->assertStringContainsString('<h2>Experience</h2>', $html);
-        $this->assertStringContainsString('<header>', $html);
-        $this->assertStringContainsString('<h3>Berg Propulsion</h3>', $html);
-        $this->assertStringContainsString('Hönö och Öckerö', $html);
-        $this->assertStringContainsString('<h4>Student Intern</h4>', $html);
-        $this->assertStringContainsString('2025-11', $html);
-        $this->assertStringContainsString('2026-06', $html);
-        $this->assertStringContainsString('Internship · On-site', $html);
-        $this->assertStringNotContainsString('<p><span>Internship · On-site</span></p>', $html);
-        $this->assertStringNotContainsString('<p><span>Hönö och Öckerö', $html);
-        $this->assertStringContainsString('Go &amp; React intern on maritime Energy Management System', $html);
-        $this->assertStringContainsString('Go', $html);
-        $this->assertStringContainsString('React', $html);
+        $this->assertStringContainsString('<h3>Acme Corp</h3>', $html);
+        $this->assertStringContainsString('<span class="meta">Gothenburg</span>', $html);
+        $this->assertStringContainsString('<h4>Engineer</h4>', $html);
+        $this->assertStringContainsString('<span class="meta">Internship</span>', $html);
+        $this->assertStringContainsString('2024-01', $html);
+        $this->assertStringContainsString('2024-06', $html);
+        $this->assertStringContainsString('Built a test harness.', $html);
+        $this->assertStringNotContainsString('<p><span>', $html);
     }
 
     public function test_macro_renders_null_to_date_as_present(): void
     {
         // Arrange
-        $items = [CvFixture::experienceByCompany('Volvo Buses')];
+        $items = [[
+            'company' => 'Acme Corp',
+            'tenure' => '2 yrs',
+            'roles' => [[
+                'position' => 'Lead',
+                'from' => '2024-04',
+                'to' => null,
+                'summary' => 'Leading the team.',
+            ]],
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
 
         // Assert
-        $this->assertStringContainsString('Volvo Buses', $html);
-        $this->assertStringContainsString('6 yrs 7 mos', $html);
-        $this->assertStringContainsString('Team Leader', $html);
-        $this->assertStringContainsString('2024-04', $html);
+        $this->assertStringContainsString('class="tenure"', $html);
+        $this->assertStringContainsString('2 yrs', $html);
         $this->assertStringContainsString('Present', $html);
-        $this->assertStringContainsString('Team leader for Team Magma', $html);
     }
 
     public function test_macro_renders_section_blurb(): void
     {
         // Arrange
-        $items = [CvFixture::experienceSection()];
+        $items = [[
+            'section' => 'Earlier',
+            'summary' => 'Assorted prior roles.',
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
 
         // Assert
-        $this->assertStringContainsString('Earlier experience', $html);
-        $this->assertStringContainsString('Security guard at Cubsec AB', $html);
+        $this->assertStringContainsString('<h3>Earlier</h3>', $html);
+        $this->assertStringContainsString('Assorted prior roles.', $html);
     }
 
     public function test_macro_renders_organization_entry(): void
     {
         // Arrange
-        $items = [CvFixture::experienceByOrganization('Swedish Armed Forces')];
+        $items = [[
+            'organization' => 'Example Forces',
+            'location' => 'Halmstad',
+            'roles' => [[
+                'position' => 'Conscripteer',
+                'from' => '2005-08',
+                'to' => '2006-06',
+                'summary' => 'Duty summary.',
+            ]],
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
 
         // Assert
-        $this->assertStringContainsString('Swedish Armed Forces', $html);
+        $this->assertStringContainsString('<h3>Example Forces</h3>', $html);
         $this->assertStringContainsString('Halmstad', $html);
-        $this->assertStringContainsString('Insatssoldat Lv6', $html);
-        $this->assertStringContainsString('Facility protection and escort duty', $html);
+        $this->assertStringContainsString('<h4>Conscripteer</h4>', $html);
     }
 
-    public function test_macro_renders_role_bullets(): void
+    public function test_macro_renders_role_bullets_and_skills(): void
     {
         // Arrange
-        $items = [CvFixture::experienceByCompany('Volvo Buses')];
+        $items = [[
+            'company' => 'Acme Corp',
+            'roles' => [[
+                'position' => 'Engineer',
+                'from' => '2022-01',
+                'to' => '2023-01',
+                'bullets' => ['Shipped the feature.'],
+                'skills' => ['Go', 'React'],
+            ]],
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
 
         // Assert
-        $this->assertStringContainsString('Owned processes, roadmaps, and continuous improvement', $html);
-        $this->assertStringContainsString('Agile coach for the international aftermarket department', $html);
+        $this->assertStringContainsString('<li>Shipped the feature.</li>', $html);
+        $this->assertStringContainsString('class="skills"', $html);
+        $this->assertStringContainsString('<li>Go</li>', $html);
+        $this->assertStringContainsString('<li>React</li>', $html);
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Cv;
 
 use PHPUnit\Framework\TestCase;
-use Tests\Support\CvFixture;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
 
@@ -21,40 +20,47 @@ final class EducationMacroTest extends TestCase
 TWIG);
     }
 
-    public function test_macro_renders_education_with_highlights_and_skills(): void
+    public function test_macro_renders_education_with_optional_fields(): void
     {
         // Arrange
-        $items = [CvFixture::educationByInstitution('Chas Academy')];
+        $items = [[
+            'institution' => 'Example Academy',
+            'program' => 'Systems Developer',
+            'from' => '2024-09',
+            'to' => '2026-06',
+            'highlights' => 'Top marks.',
+            'skills' => ['C', 'C++'],
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
 
         // Assert
         $this->assertStringContainsString('<h2>Education</h2>', $html);
-        $this->assertStringContainsString('<header>', $html);
-        $this->assertStringContainsString('<h3>Chas Academy</h3>', $html);
-        $this->assertStringContainsString('<h4>Systems Developer C/C++</h4>', $html);
+        $this->assertStringContainsString('<h3>Example Academy</h3>', $html);
+        $this->assertStringContainsString('<h4>Systems Developer</h4>', $html);
         $this->assertStringContainsString('2024-09', $html);
-        $this->assertStringContainsString('2026-06', $html);
         $this->assertStringContainsString('Top marks.', $html);
         $this->assertStringContainsString('class="skills"', $html);
-        $this->assertStringContainsString('C', $html);
-        $this->assertStringContainsString('C++', $html);
-        $this->assertStringContainsString('Unit Testing', $html);
+        $this->assertStringContainsString('<li>C</li>', $html);
     }
 
-    public function test_macro_renders_education_without_optional_highlights(): void
+    public function test_macro_omits_absent_optional_fields(): void
     {
         // Arrange
-        $items = [CvFixture::educationByInstitution('Linnaeus University')];
+        $items = [[
+            'institution' => 'Example University',
+            'program' => 'Media Studies',
+            'from' => '2013-09',
+            'to' => '2016-06',
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
 
         // Assert
-        $this->assertStringContainsString('Linnaeus University', $html);
-        $this->assertStringContainsString('Communication and Media Studies', $html);
+        $this->assertStringContainsString('Example University', $html);
         $this->assertStringNotContainsString('Top marks.', $html);
-        $this->assertStringContainsString('Layout Design', $html);
+        $this->assertStringNotContainsString('class="skills"', $html);
     }
 }

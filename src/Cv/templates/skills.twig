@@ -6,14 +6,18 @@
 {% macro skills(skills, highlights) %}
 <section>
     <h2>Skills</h2>
-    {% for group, items in skills %}
-    <h3>{{ group|replace({'_': ' '}) }}</h3>
-    <ul class="skills">
-        {% for skill in items %}
-        <li>{{ skill }}</li>
-        {% endfor %} {# for skill in items #}
+    <ul class="skill-groups">
+        {% for group, items in skills %}
+        <li>
+            <span class="skill-group-label">{{ group|replace({'_': ' '}) }}</span>
+            <ul class="skills">
+                {% for skill in items %}
+                <li>{{ skill }}</li>
+                {% endfor %} {# for skill in items #}
+            </ul>
+        </li>
+        {% endfor %} {# for group, items in skills #}
     </ul>
-    {% endfor %} {# for group, items in skills #}
     {% if highlights is defined and highlights %}
     <ul>
         {% for highlight in highlights %}

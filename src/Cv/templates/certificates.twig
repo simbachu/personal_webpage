@@ -15,14 +15,14 @@
         <header>
             <h3>{{ item.name }}</h3>
             <h4>{{ item.issuer }}</h4>
+            {% if item.grade is defined and item.grade %}
+            <span class="meta">Grade: {{ item.grade }}</span>
+            {% endif %} {# item.grade is defined and item.grade #}
+            {% if item.credential_id is defined and item.credential_id %}
+            <span class="meta">ID: {{ item.credential_id }}</span>
+            {% endif %} {# item.credential_id is defined and item.credential_id #}
             <time datetime="{{ item.issued }}">{{ item.issued }}</time>
         </header>
-        {% if item.grade is defined and item.grade %}
-        <p>Grade: {{ item.grade }}</p>
-        {% endif %} {# item.grade is defined and item.grade #}
-        {% if item.credential_id is defined and item.credential_id %}
-        <p>Credential ID: {{ item.credential_id }}</p>
-        {% endif %} {# item.credential_id is defined and item.credential_id #}
     </article>
     {% endfor %} {# for item in items #}
 </section>

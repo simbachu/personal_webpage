@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Cv;
 
 use PHPUnit\Framework\TestCase;
-use Tests\Support\CvFixture;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
 
@@ -21,11 +20,37 @@ final class SkillsMacroTest extends TestCase
 TWIG);
     }
 
-    public function test_macro_renders_skill_groups_and_highlights(): void
+    public function test_macro_renders_compact_skill_groups(): void
     {
         // Arrange
-        $skills = CvFixture::skills();
-        $highlights = CvFixture::skillHighlights();
+        $skills = [
+            'programming_languages' => ['C', 'Go'],
+            'web' => ['HTMX'],
+        ];
+
+        // Act
+        $html = $this->twig->render('inline.twig', [
+            'skills' => $skills,
+            'highlights' => [],
+        ]);
+
+        // Assert
+        $this->assertStringContainsString('<h2>Skills</h2>', $html);
+        $this->assertStringContainsString('class="skill-groups"', $html);
+        $this->assertStringContainsString('class="skill-group-label"', $html);
+        $this->assertStringContainsString('programming languages', $html);
+        $this->assertStringContainsString('class="skills"', $html);
+        $this->assertStringContainsString('<li>C</li>', $html);
+        $this->assertStringContainsString('<li>Go</li>', $html);
+        $this->assertStringContainsString('web', $html);
+        $this->assertStringContainsString('<li>HTMX</li>', $html);
+    }
+
+    public function test_macro_renders_optional_highlights_when_present(): void
+    {
+        // Arrange
+        $skills = ['web' => ['HTMX']];
+        $highlights = ['Built SSR UIs with HTMX.'];
 
         // Act
         $html = $this->twig->render('inline.twig', [
@@ -34,16 +59,6 @@ TWIG);
         ]);
 
         // Assert
-        $this->assertStringContainsString('<h2>Skills</h2>', $html);
-        $this->assertStringContainsString('programming languages', $html);
-        $this->assertStringContainsString('class="skills"', $html);
-        $this->assertStringContainsString('C', $html);
-        $this->assertStringContainsString('C++', $html);
-        $this->assertStringContainsString('Go', $html);
-        $this->assertStringContainsString('web', $html);
-        $this->assertStringContainsString('HTMX', $html);
-        $this->assertStringContainsString('React', $html);
-        $this->assertStringContainsString('Server-side rendered web UIs with HTMX', $html);
-        $this->assertStringContainsString('CI/CD with GitHub Actions', $html);
+        $this->assertStringContainsString('Built SSR UIs with HTMX.', $html);
     }
 }

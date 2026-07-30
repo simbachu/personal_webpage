@@ -1,7 +1,7 @@
 :root {
     --page-width: 210mm;
     --page-height: 297mm;
-    --page-margin: 1.5cm;
+    --page-margin: 1.2cm;
 }
 
 @page {
@@ -18,8 +18,8 @@
 body {
     margin: 0;
     font-family: Inter, sans-serif;
-    font-size: 10.5pt;
-    line-height: 1.35;
+    font-size: 10pt;
+    line-height: 1.3;
     color: #111;
 }
 
@@ -37,8 +37,8 @@ h1 {
 
 h2 {
     font-size: 12pt;
-    margin-top: 0.75em;
-    margin-bottom: 0.35em;
+    margin-top: 0.55em;
+    margin-bottom: 0.25em;
 }
 
 h3 {
@@ -81,6 +81,34 @@ ul.skills li:not(:last-child)::after,
 ul.languages li:not(:last-child)::after {
     content: "·";
     margin-left: 0.5em;
+}
+
+ul.skill-groups {
+    list-style: none;
+    padding-left: 0;
+    margin: 0 0 0.35em;
+}
+
+ul.skill-groups > li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.45em;
+    row-gap: 0.1em;
+    margin-bottom: 0.12em;
+}
+
+.skill-group-label {
+    font-weight: 600;
+    flex: 0 0 auto;
+}
+
+.skill-group-label::after {
+    content: ":";
+}
+
+ul.skill-groups .skills {
+    margin: 0;
 }
 
 address {
@@ -137,7 +165,16 @@ article > header h4 {
 }
 
 article > header h4 {
-    font-weight: 500;
+    font-weight: 700;
+}
+
+/* Nested role entries under an employer */
+article article {
+    margin-top: 0.3em;
+}
+
+article article:first-of-type {
+    margin-top: 0.1em;
 }
 
 article > header > time:first-of-type,
@@ -163,8 +200,7 @@ main {
 }
 
 main > footer {
-    margin-top: 0.75em;
-    font-size: 8pt;
+    display: none;
 }
 
 @media screen {

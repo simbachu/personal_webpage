@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Cv;
 
 use PHPUnit\Framework\TestCase;
-use Tests\Support\CvFixture;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
 
@@ -24,7 +23,10 @@ TWIG);
     public function test_macro_renders_language_with_level(): void
     {
         // Arrange
-        $items = [CvFixture::languageByName('Swedish')];
+        $items = [[
+            'language' => 'Swedish',
+            'level' => 'Native',
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
@@ -33,21 +35,24 @@ TWIG);
         $this->assertStringContainsString('<h2>Languages</h2>', $html);
         $this->assertStringContainsString('class="languages"', $html);
         $this->assertStringNotContainsString('<dt>', $html);
-        $this->assertStringContainsString('Swedish', $html);
+        $this->assertStringContainsString('<strong>Swedish</strong>', $html);
         $this->assertStringContainsString('Native', $html);
     }
 
-    public function test_macro_renders_language_with_optional_certificate(): void
+    public function test_macro_renders_optional_certificate(): void
     {
         // Arrange
-        $items = [CvFixture::languageByName('English')];
+        $items = [[
+            'language' => 'English',
+            'level' => 'Native-level',
+            'certificate' => 'Cambridge C1',
+        ]];
 
         // Act
         $html = $this->twig->render('inline.twig', ['items' => $items]);
 
         // Assert
         $this->assertStringContainsString('English', $html);
-        $this->assertStringContainsString('Native-level', $html);
-        $this->assertStringContainsString('Cambridge C1 Advanced, grade A', $html);
+        $this->assertStringContainsString('(Cambridge C1)', $html);
     }
 }
