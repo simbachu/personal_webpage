@@ -45,13 +45,27 @@ final class CvLayoutTest extends TestCase
 
         // Assert
         $this->assertStringContainsString(
-            ".cv-body {\n    padding-left: 9mm;\n    text-align: left;\n    hyphens: none;\n}",
+            ".cv-body {\n    padding-left: 9mm;\n    text-align: left;\n    hyphens: none;\n\n    & h2,",
             $html
         );
         $this->assertStringContainsString("border-top: 0.8pt solid #111;", $html);
-        $this->assertStringContainsString("article article {\n    margin-top: 0.65em;\n}", $html);
-        $this->assertStringContainsString("article article > p + ul {\n    margin-top: 0.3em;\n}", $html);
+        $this->assertStringContainsString("& article {\n        margin-top: 0.65em;", $html);
+        $this->assertStringContainsString("& > p + ul {\n            margin-top: 0.3em;", $html);
         $this->assertStringContainsString("font-variant-numeric: tabular-nums;", $html);
+    }
+
+    public function test_cv_template_nests_related_style_selectors(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv();
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert
+        $this->assertStringContainsString("&.skills,\n    &.languages {", $html);
+        $this->assertStringContainsString("& > header {", $html);
+        $this->assertStringContainsString("& a {\n            display: grid;", $html);
     }
 
     public function test_cv_template_orders_skills_before_experience_for_swedish_scan(): void
@@ -136,11 +150,11 @@ final class CvLayoutTest extends TestCase
 
         // Assert
         $this->assertMatchesRegularExpression(
-            '/@media screen \{.*\.cv-language-switcher \{\s*position: fixed;\s*top: 1\.5rem;\s*right: 1\.5rem;/s',
+            '/\.cv-language-switcher \{.*@media screen \{\s*position: fixed;\s*top: 1\.5rem;\s*right: 1\.5rem;/s',
             $html
         );
         $this->assertMatchesRegularExpression(
-            '/@media print \{.*\.cv-language-switcher \{\s*display: none;\s*\}/s',
+            '/\.cv-language-switcher \{.*@media print \{\s*display: none;\s*\}/s',
             $html
         );
     }

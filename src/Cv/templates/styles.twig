@@ -9,10 +9,13 @@
     margin: var(--page-margin);
 }
 
-*,
-*::before,
-*::after {
+* {
     box-sizing: border-box;
+
+    &::before,
+    &::after {
+        box-sizing: border-box;
+    }
 }
 
 body {
@@ -21,6 +24,18 @@ body {
     font-size: 10.5pt;
     line-height: 1.35;
     color: #111;
+
+    @media screen {
+        min-height: 100vh;
+        padding: 1.5rem;
+        background: #d4d4d4;
+    }
+
+    @media print {
+        margin: 0;
+        padding: 0;
+        background: none;
+    }
 }
 
 h1,
@@ -63,58 +78,58 @@ dl {
 
 ul {
     padding-left: 1.1em;
+
+    &.skills,
+    &.languages {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.15em 0.5em;
+        list-style: none;
+        padding-left: 0;
+
+        & li {
+            margin: 0;
+
+            &:not(:last-child)::after {
+                content: "·";
+                margin-left: 0.5em;
+            }
+        }
+    }
+
+    &.skill-groups {
+        list-style: none;
+        padding-left: 0;
+        margin: 0 0 0.35em;
+
+        & > li {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            column-gap: 0.45em;
+            row-gap: 0.1em;
+            margin-bottom: 0.12em;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        & .skills {
+            margin: 0;
+        }
+    }
 }
 
 li {
     margin-bottom: 0.15em;
 }
 
-ul.skills,
-ul.languages {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.15em 0.5em;
-    list-style: none;
-    padding-left: 0;
-}
-
-ul.skills li,
-ul.languages li {
-    margin: 0;
-}
-
-ul.skills li:not(:last-child)::after,
-ul.languages li:not(:last-child)::after {
-    content: "·";
-    margin-left: 0.5em;
-}
-
-ul.skill-groups {
-    list-style: none;
-    padding-left: 0;
-    margin: 0 0 0.35em;
-}
-
-ul.skill-groups > li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: 0.45em;
-    row-gap: 0.1em;
-    margin-bottom: 0.12em;
-}
-
 .skill-group-label {
     font-weight: 600;
     flex: 0 0 auto;
-}
 
-.skill-group-label::after {
-    content: ":";
-}
-
-ul.skill-groups .skills {
-    margin: 0;
+    &::after {
+        content: ":";
+    }
 }
 
 address {
@@ -124,10 +139,10 @@ address {
     align-items: baseline;
     column-gap: 0.35em;
     row-gap: 0.15em;
-}
 
-address [role="separator"] {
-    color: #666;
+    & [role="separator"] {
+        color: #666;
+    }
 }
 
 a {
@@ -142,95 +157,114 @@ hr.cv-anchor {
 }
 
 .cv-body {
-    padding-left: 9mm;
+    padding-left: 15mm;
     text-align: left;
     hyphens: none;
-}
 
-.cv-body h2,
-.cv-body h3,
-.cv-body h4 {
-    text-align: left;
-    hyphens: none;
+    & h2,
+    & h3,
+    & h4 {
+        text-align: left;
+        hyphens: none;
+    }
 }
 
 /* Article headers: h3/h4 inline, dates/tenure flush right, meta muted */
-article > header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: 0.5em;
-    row-gap: 0.1em;
-    margin-bottom: 0.35em;
-}
+article {
+    & > header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        column-gap: 0.5em;
+        row-gap: 0.1em;
+        margin-bottom: 0.35em;
 
-article > header h3,
-article > header h4 {
-    display: inline;
-    margin: 0;
-}
+        & h3,
+        & h4 {
+            display: inline;
+            margin: 0;
+        }
 
-article > header h4 {
-    font-weight: 600;
-}
+        & h4 {
+            font-weight: 600;
+        }
 
-article :has(h3) {
-    margin-bottom: 2rem;
-}
+        & > time:first-of-type,
+        & > .tenure {
+            margin-left: auto;
+        }
 
-/* Nested role entries under an employer */
-article article {
-    margin-top: 0.65em;
-}
+        & > .meta {
+            font-size: 0.9em;
+            color: #444;
+        }
 
-article article:first-of-type {
-    margin-top: 0.25em;
-}
+        & [role="separator"] {
+            margin: 0;
+        }
+    }
 
-article article > p + ul {
-    margin-top: 0.3em;
-}
+    & :has(h3) {
+        margin-bottom: 2rem;
+    }
 
-article article li {
-    margin-bottom: 0.3em;
-}
+    /* Nested role entries under an employer */
+    & article {
+        margin-top: 0.65em;
+        break-inside: avoid;
+        page-break-inside: avoid;
 
-article > header > time:first-of-type,
-article > header > .tenure {
-    margin-left: auto;
-}
+        &:first-of-type {
+            margin-top: 0.25em;
+        }
 
-article time,
-article .tenure {
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-}
+        & > p + ul {
+            margin-top: 0.3em;
+        }
 
-article > header > .meta {
-    font-size: 0.9em;
-    color: #444;
-}
+        & li {
+            margin-bottom: 0.3em;
+        }
+    }
 
-article > header [role="separator"] {
-    margin: 0;
+    & time,
+    & .tenure {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
 }
 
 /* Keep job/education/certificate blocks intact across page breaks */
-section > article,
-article article,
-ul.skill-groups > li {
-    break-inside: avoid;
-    page-break-inside: avoid;
+section {
+    & > article {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
 }
 
 /* Page 2: education and certificates after experience */
 .cv-secondary {
     break-before: page;
     page-break-before: always;
-}
 
-.cv-secondary > section:first-child > h2 {
-    margin-top: 0;
+    & > section:first-child > h2 {
+        margin-top: 0;
+    }
+
+    @media screen {
+        /* Show the page-2 boundary without forcing a blank gap. */
+        break-before: auto;
+        page-break-before: auto;
+        margin-top: 1.25em;
+        padding-top: 1em;
+        border-top: 0.5pt solid #bbb;
+    }
+
+    @media print {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+    }
 }
 
 main {
@@ -240,85 +274,59 @@ main {
     padding: var(--page-margin);
     overflow: visible;
     background: #fff;
-}
 
-main > footer {
-    display: none;
-}
-
-@media screen {
-    body {
-        min-height: 100vh;
-        padding: 1.5rem;
-        background: #d4d4d4;
+    & > footer {
+        display: none;
     }
 
-    main {
+    @media screen {
         margin: 0 auto;
         box-shadow: 0 0 0 1px #bbb;
     }
 
-    .cv-language-switcher {
-        position: fixed;
-        top: 1.5rem;
-        right: 1.5rem;
-        z-index: 1;
-    }
-
-    .cv-language-switcher a {
-        display: grid;
-        width: 2.5rem;
-        height: 2.5rem;
-        place-items: center;
-        border-radius: 50%;
-        font-size: 1.6rem;
-        line-height: 1;
-        text-decoration: none;
-    }
-
-    .cv-language-switcher a:hover,
-    .cv-language-switcher a:focus-visible {
-        background: #bdbdbd;
-        outline: none;
-    }
-
-    /* Screen preview: show the page-2 boundary without forcing a blank gap */
-    .cv-secondary {
-        break-before: auto;
-        page-break-before: auto;
-        margin-top: 1.25em;
-        padding-top: 1em;
-        border-top: 0.5pt solid #bbb;
-    }
-}
-
-@media print {
-    .cv-language-switcher {
-        display: none;
-    }
-
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        background: none;
-    }
-
-    main {
+    @media print {
         width: auto;
         min-height: 0;
         margin: 0;
         padding: 0;
         box-shadow: none;
     }
+}
 
-    main > footer {
-        display: none;
+.cv-language-switcher {
+    @media screen {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        z-index: 1;
+
+        & a {
+            display: grid;
+            width: 2.5rem;
+            height: 2.5rem;
+            place-items: center;
+            border-radius: 50%;
+            font-size: 1.6rem;
+            line-height: 1;
+            text-decoration: none;
+
+            &:hover,
+            &:focus-visible {
+                background: #bdbdbd;
+                outline: none;
+            }
+        }
     }
 
-    .cv-secondary {
-        border-top: none;
-        margin-top: 0;
-        padding-top: 0;
+    @media print {
+        display: none;
+    }
+}
+
+html {
+    @media print {
+        margin: 0;
+        padding: 0;
+        background: none;
     }
 }
