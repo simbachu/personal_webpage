@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Cv;
 
+use App\Cv\CvLabels;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
@@ -182,11 +183,85 @@ final class CvLayoutTest extends TestCase
         $this->assertMatchesRegularExpression('/widows:\s*2/', $html);
     }
 
+    public function test_swedish_cv_uses_localized_section_headers(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv([
+            'language' => 'sv',
+            'experience' => [[
+                'company' => 'Acme',
+                'roles' => [[
+                    'position' => 'Dev',
+                    'from' => '2024-01',
+                    'to' => null,
+                    'summary' => 'Jobbar.',
+                ]],
+            ]],
+            'skills' => ['languages' => ['Go']],
+            'education' => [[
+                'institution' => 'Example Uni',
+                'program' => 'CS',
+                'from' => '2010-01',
+                'to' => '2013-01',
+            ]],
+            'certificates' => [[
+                'name' => 'Example Cert',
+                'issuer' => 'Example Org',
+                'issued' => '2022-07',
+            ]],
+            'languages' => [[
+                'language' => 'Svenska',
+                'level' => 'Modersmål',
+            ]],
+        ]);
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert
+        $this->assertStringContainsString('<h2>Kompetens</h2>', $html);
+        $this->assertStringContainsString('<h2>Språk</h2>', $html);
+        $this->assertStringContainsString('<h2>Erfarenhet</h2>', $html);
+        $this->assertStringContainsString('<h2>Utbildning</h2>', $html);
+        $this->assertStringContainsString('<h2>Certifikat</h2>', $html);
+        $this->assertStringContainsString('Nuvarande', $html);
+        $this->assertStringNotContainsString('<h2>Skills</h2>', $html);
+        $this->assertStringNotContainsString('<h2>Experience</h2>', $html);
+        $this->assertStringNotContainsString('<h2>Education</h2>', $html);
+        $this->assertStringNotContainsString('<h2>Languages</h2>', $html);
+        $this->assertStringNotContainsString('<h2>Certificates</h2>', $html);
+    }
+
+    public function test_print_styles_allow_breaks_between_roles_but_not_orphan_lines(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv();
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert — nested roles stay intact; multi-role employers may split between roles
+        $this->assertMatchesRegularExpression(
+            '/& article\s*\{[^}]*break-inside:\s*avoid/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/section\s*\{[^}]*& > article\s*\{[^}]*break-inside:\s*auto/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/& > article\s*\{[^}]*&:not\(:has\(>\s*article\)\)\s*\{[^}]*break-inside:\s*avoid/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression('/orphans:\s*2/', $html);
+        $this->assertMatchesRegularExpression('/widows:\s*2/', $html);
+    }
+
     //! @param overrides Extra CV fields merged into a minimal view model
     //! @return array<string, mixed>
     private function minimalCv(array $overrides = []): array
     {
-        return array_merge([
+        $cv = array_merge([
             'name' => 'Ada Example',
             'email' => 'ada@example.test',
             'phone' => '+46-700-000000',
@@ -200,5 +275,9 @@ final class CvLayoutTest extends TestCase
             'skills' => [],
             'skill_highlights' => [],
         ], $overrides);
+
+        $cv['labels'] = $cv['labels'] ?? CvLabels::forLanguage($cv['language']);
+
+        return $cv;
     }
 }

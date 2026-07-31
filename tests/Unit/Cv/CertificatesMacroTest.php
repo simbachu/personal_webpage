@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Cv;
 
+use App\Cv\CvLabels;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
@@ -16,7 +17,7 @@ final class CertificatesMacroTest extends TestCase
     {
         $this->twig = TwigTestFactory::createMacroEnvironment(<<<'TWIG'
 {% import "@cv/certificates.twig" as cert %}
-{{ cert.certificates(items) }}
+{{ cert.certificates(items, labels) }}
 TWIG);
     }
 
@@ -31,7 +32,10 @@ TWIG);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('<h2>Certificates</h2>', $html);
@@ -52,10 +56,36 @@ TWIG);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('<span class="meta">ID: 820442</span>', $html);
+        $this->assertStringNotContainsString('Grade:', $html);
+    }
+
+    public function test_macro_renders_swedish_section_title_and_grade(): void
+    {
+        // Arrange
+        $items = [[
+            'name' => 'C1 Advanced',
+            'issuer' => 'Cambridge English',
+            'issued' => '2005-06',
+            'grade' => 'A',
+        ]];
+
+        // Act
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('sv'),
+        ]);
+
+        // Assert
+        $this->assertStringContainsString('<h2>Certifikat</h2>', $html);
+        $this->assertStringContainsString('<span class="meta">Betyg: A</span>', $html);
+        $this->assertStringNotContainsString('<h2>Certificates</h2>', $html);
         $this->assertStringNotContainsString('Grade:', $html);
     }
 }

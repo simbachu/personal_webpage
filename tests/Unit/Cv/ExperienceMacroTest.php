@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Cv;
 
+use App\Cv\CvLabels;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
@@ -16,7 +17,7 @@ final class ExperienceMacroTest extends TestCase
     {
         $this->twig = TwigTestFactory::createMacroEnvironment(<<<'TWIG'
 {% import "@cv/experience.twig" as exp %}
-{{ exp.experience(items) }}
+{{ exp.experience(items, labels) }}
 TWIG, ['strict_variables' => true]);
     }
 
@@ -37,7 +38,10 @@ TWIG, ['strict_variables' => true]);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('<h2>Experience</h2>', $html);
@@ -66,7 +70,10 @@ TWIG, ['strict_variables' => true]);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('class="tenure"', $html);
@@ -83,7 +90,10 @@ TWIG, ['strict_variables' => true]);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('<h3>Earlier</h3>', $html);
@@ -105,7 +115,10 @@ TWIG, ['strict_variables' => true]);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('<h3>Example Forces</h3>', $html);
@@ -128,12 +141,41 @@ TWIG, ['strict_variables' => true]);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('<li>Shipped the feature.</li>', $html);
         $this->assertStringContainsString('class="skills"', $html);
         $this->assertStringContainsString('<li>Go</li>', $html);
         $this->assertStringContainsString('<li>React</li>', $html);
+    }
+
+    public function test_macro_renders_swedish_section_title_and_present(): void
+    {
+        // Arrange
+        $items = [[
+            'company' => 'Acme Corp',
+            'roles' => [[
+                'position' => 'Lead',
+                'from' => '2024-04',
+                'to' => null,
+                'summary' => 'Leder teamet.',
+            ]],
+        ]];
+
+        // Act
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('sv'),
+        ]);
+
+        // Assert
+        $this->assertStringContainsString('<h2>Erfarenhet</h2>', $html);
+        $this->assertStringContainsString('Nuvarande', $html);
+        $this->assertStringNotContainsString('<h2>Experience</h2>', $html);
+        $this->assertStringNotContainsString('Present', $html);
     }
 }

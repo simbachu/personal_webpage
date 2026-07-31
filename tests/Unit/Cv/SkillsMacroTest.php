@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Cv;
 
+use App\Cv\CvLabels;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
@@ -16,7 +17,7 @@ final class SkillsMacroTest extends TestCase
     {
         $this->twig = TwigTestFactory::createMacroEnvironment(<<<'TWIG'
 {% import "@cv/skills.twig" as sk %}
-{{ sk.skills(skills, highlights) }}
+{{ sk.skills(skills, highlights, labels) }}
 TWIG);
     }
 
@@ -32,6 +33,7 @@ TWIG);
         $html = $this->twig->render('inline.twig', [
             'skills' => $skills,
             'highlights' => [],
+            'labels' => CvLabels::forLanguage('en'),
         ]);
 
         // Assert
@@ -56,9 +58,34 @@ TWIG);
         $html = $this->twig->render('inline.twig', [
             'skills' => $skills,
             'highlights' => $highlights,
+            'labels' => CvLabels::forLanguage('en'),
         ]);
 
         // Assert
         $this->assertStringContainsString('Built SSR UIs with HTMX.', $html);
+    }
+
+    public function test_macro_renders_swedish_section_and_skill_group_labels(): void
+    {
+        // Arrange
+        $skills = [
+            'languages' => ['C'],
+            'web_embedded' => ['HTMX'],
+            'leadership' => ['Scrum'],
+        ];
+
+        // Act
+        $html = $this->twig->render('inline.twig', [
+            'skills' => $skills,
+            'highlights' => [],
+            'labels' => CvLabels::forLanguage('sv'),
+        ]);
+
+        // Assert
+        $this->assertStringContainsString('<h2>Kompetens</h2>', $html);
+        $this->assertStringContainsString('språk', $html);
+        $this->assertStringContainsString('webb och inbyggda system', $html);
+        $this->assertStringContainsString('ledarskap', $html);
+        $this->assertStringNotContainsString('<h2>Skills</h2>', $html);
     }
 }

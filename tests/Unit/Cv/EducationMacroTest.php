@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Cv;
 
+use App\Cv\CvLabels;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\TwigTestFactory;
 use Twig\Environment;
@@ -16,7 +17,7 @@ final class EducationMacroTest extends TestCase
     {
         $this->twig = TwigTestFactory::createMacroEnvironment(<<<'TWIG'
 {% import "@cv/education.twig" as edu %}
-{{ edu.education(items) }}
+{{ edu.education(items, labels) }}
 TWIG);
     }
 
@@ -33,7 +34,10 @@ TWIG);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('<h2>Education</h2>', $html);
@@ -56,11 +60,35 @@ TWIG);
         ]];
 
         // Act
-        $html = $this->twig->render('inline.twig', ['items' => $items]);
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('en'),
+        ]);
 
         // Assert
         $this->assertStringContainsString('Example University', $html);
         $this->assertStringNotContainsString('Top marks.', $html);
         $this->assertStringNotContainsString('class="skills"', $html);
+    }
+
+    public function test_macro_renders_swedish_section_title(): void
+    {
+        // Arrange
+        $items = [[
+            'institution' => 'Example Academy',
+            'program' => 'Systemutvecklare',
+            'from' => '2024-09',
+            'to' => '2026-06',
+        ]];
+
+        // Act
+        $html = $this->twig->render('inline.twig', [
+            'items' => $items,
+            'labels' => CvLabels::forLanguage('sv'),
+        ]);
+
+        // Assert
+        $this->assertStringContainsString('<h2>Utbildning</h2>', $html);
+        $this->assertStringNotContainsString('<h2>Education</h2>', $html);
     }
 }

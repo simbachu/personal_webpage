@@ -8,11 +8,12 @@
   item.tenure: Optional tenure note
   item.highlights: Optional highlight text
   item.skills: Optional skill tags
+@param labels UI label map from CvLabels
 @return string The rendered education section
 #}
-{% macro education(items) %}
+{% macro education(items, labels) %}
 <section>
-    <h2>Education</h2>
+    <h2>{{ labels.education }}</h2>
     {% for item in items %}
     <article>
         <header>

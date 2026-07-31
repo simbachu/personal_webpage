@@ -8,9 +8,10 @@
   role.summary: Role summary
   role.bullets: Optional list of achievement bullets
   role.skills: Optional skill tags
+@param labels UI label map from CvLabels
 @return string The rendered role
 #}
-{% macro role(role) %}
+{% macro role(role, labels) %}
 <article>
     <header>
         <h4>{{ role.position }}</h4>
@@ -22,7 +23,7 @@
         {% if role.to %}
         <time datetime="{{ role.to }}">{{ role.to }}</time>
         {% else %}
-        <span>Present</span>
+        <span>{{ labels.present }}</span>
         {% endif %} {# role.to #}
         {% if role.duration is defined and role.duration %}
         ({{ role.duration }})
@@ -50,12 +51,13 @@
 
 {# @brief Renders the experience section
 @param items Experience entries (company, organization, or section blurb)
+@param labels UI label map from CvLabels
 @return string The rendered experience section
 #}
-{% macro experience(items) %}
+{% macro experience(items, labels) %}
 {% import _self as self %}
 <section>
-    <h2>Experience</h2>
+    <h2>{{ labels.experience }}</h2>
     {% for item in items %}
     {% if item.section is defined %}
     <article>
@@ -79,7 +81,7 @@
         </header>
         {% if item.roles is defined %}
         {% for role in item.roles %}
-        {{ self.role(role) }}
+        {{ self.role(role, labels) }}
         {% endfor %} {# for role in item.roles #}
         {% endif %} {# item.roles is defined #}
     </article>

@@ -1,0 +1,31 @@
+{% extends "@cv/layout.twig" %}
+{% import "@cv/header.twig" as header %}
+
+{% block title %}{{ cv.name }} — Cover letter{% endblock %}
+
+{% block styles %}
+{% include '@cv/styles.twig' %}
+.cv-body.cover-letter {
+    line-height: 1.45;
+}
+
+.cv-body.cover-letter p {
+    margin: 0 0 0.85em;
+}
+
+.cv-body.cover-letter p:last-child {
+    margin-bottom: 0;
+}
+{% endblock %}
+
+{% block content %}
+<main>
+    {{ header.header(cv) }}
+    <hr class="cv-anchor">
+    <div class="cv-body cover-letter">
+        {% for paragraph in paragraphs %}
+        <p>{{ paragraph|nl2br }}</p>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

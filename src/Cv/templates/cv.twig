@@ -29,12 +29,12 @@
     <hr class="cv-anchor">
     <div class="cv-body">
         <p>{{ cv.summary }}</p>
-        {{ sk.skills(cv.skills, cv.skill_highlights) }}
-        {{ lang.languages(cv.languages) }}
-        {{ exp.experience(cv.experience) }}
+        {{ sk.skills(cv.skills, cv.skill_highlights, cv.labels) }}
+        {{ lang.languages(cv.languages, cv.labels) }}
+        {{ exp.experience(cv.experience, cv.labels) }}
         <div class="cv-secondary">
-            {{ edu.education(cv.education) }}
-            {{ cert.certificates(cv.certificates) }}
+            {{ edu.education(cv.education, cv.labels) }}
+            {{ cert.certificates(cv.certificates, cv.labels) }}
         </div>
     </div>
     <footer>

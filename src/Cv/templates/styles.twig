@@ -222,7 +222,7 @@ article {
         margin-bottom: 0.5em;
     }
 
-    /* Nested role entries under an employer */
+    /* Nested role entries under an employer — keep each role together */
     & article {
         margin-top: 0.65em;
         break-inside: avoid;
@@ -248,11 +248,16 @@ article {
     }
 }
 
-/* Keep job/education/certificate blocks intact across page breaks */
+/* Allow page breaks between roles in multi-role employers; keep single-block entries intact */
 section {
     & > article {
-        break-inside: avoid;
-        page-break-inside: avoid;
+        break-inside: auto;
+        page-break-inside: auto;
+
+        &:not(:has(> article)) {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
     }
 
     & > article + article {

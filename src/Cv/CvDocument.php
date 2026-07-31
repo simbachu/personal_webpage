@@ -238,6 +238,7 @@ final class CvDocument
             ),
             'skills' => $this->skills,
             'skill_highlights' => $this->skillHighlights,
+            'labels' => CvLabels::forLanguage($this->language),
         ];
     }
 }

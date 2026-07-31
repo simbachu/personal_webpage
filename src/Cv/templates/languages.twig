@@ -3,11 +3,12 @@
   item.language: Language name
   item.level: Proficiency level
   item.certificate: Optional certificate note
+@param labels UI label map from CvLabels
 @return string The rendered languages section
 #}
-{% macro languages(items) %}
+{% macro languages(items, labels) %}
 <section>
-    <h2>Languages</h2>
+    <h2>{{ labels.languages }}</h2>
     <ul class="languages">
         {% for item in items %}
         <li>

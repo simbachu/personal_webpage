@@ -1,15 +1,16 @@
 {# @brief Renders grouped skills and optional skill highlights
 @param skills Associative map of group key => skill list
 @param highlights Optional list of highlight sentences
+@param labels UI label map from CvLabels
 @return string The rendered skills section
 #}
-{% macro skills(skills, highlights) %}
+{% macro skills(skills, highlights, labels) %}
 <section>
-    <h2>Skills</h2>
+    <h2>{{ labels.skills }}</h2>
     <ul class="skill-groups">
         {% for group, items in skills %}
         <li>
-            <span class="skill-group-label">{{ group|replace({'_': ' '}) }}</span>
+            <span class="skill-group-label">{{ labels.skill_groups[group]|default(group|replace({'_': ' '})) }}</span>
             <ul class="skills">
                 {% for skill in items %}
                 <li>{{ skill }}</li>

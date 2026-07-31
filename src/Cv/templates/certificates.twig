@@ -5,18 +5,19 @@
   item.issued: Issue date (YYYY-MM)
   item.grade: Optional grade
   item.credential_id: Optional credential identifier
+@param labels UI label map from CvLabels
 @return string The rendered certificates section
 #}
-{% macro certificates(items) %}
+{% macro certificates(items, labels) %}
 <section>
-    <h2>Certificates</h2>
+    <h2>{{ labels.certificates }}</h2>
     {% for item in items %}
     <article>
         <header>
             <h3>{{ item.name }}</h3>
             <h4>{{ item.issuer }}</h4>
             {% if item.grade is defined and item.grade %}
-            <span class="meta">Grade: {{ item.grade }}</span>
+            <span class="meta">{{ labels.grade }}: {{ item.grade }}</span>
             {% endif %} {# item.grade is defined and item.grade #}
             {% if item.credential_id is defined and item.credential_id %}
             <span class="meta">ID: {{ item.credential_id }}</span>
