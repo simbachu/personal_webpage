@@ -40,6 +40,7 @@ use App\Dex\PokeApiService;
 use App\Dex\PokemonOpinionService;
 use App\Dex\DexPresenter;
 use App\Cv\CvLoader;
+use App\Cv\CvLanguageSelector;
 use App\Cv\CvRouteHandler;
 use App\Site\Article\ArticleRouteHandler;
 use App\Site\Article\FileArticleRepository;
@@ -214,11 +215,21 @@ $articleRepository = new FileArticleRepository($site_content_path, $markdownProc
 $router->registerHandler('home', new HomeRouteHandler($homePresenter));
 $router->registerHandler('dex', new DexRouteHandler($dexPresenter));
 $router->registerHandler('article', new ArticleRouteHandler($articleRepository));
-$router->registerHandler('cv', new CvRouteHandler($cvLoader));
+$queryLanguage = isset($_GET['lang']) && is_string($_GET['lang']) ? $_GET['lang'] : null;
+$acceptLanguage = isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
+    && is_string($_SERVER['HTTP_ACCEPT_LANGUAGE'])
+    ? $_SERVER['HTTP_ACCEPT_LANGUAGE']
+    : null;
+$cvLanguage = (new CvLanguageSelector())->select($queryLanguage, $acceptLanguage);
+$router->registerHandler('cv', new CvRouteHandler($cvLoader, $cvLanguage));
 
 $path = get_request_path();
 $base_url = get_base_url();
 $current_url = $base_url . $_SERVER['REQUEST_URI'];
+
+if ($path === '/cv') {
+    header('Vary: Accept-Language');
+}
 
 $routeResult = $router->route($path);
 

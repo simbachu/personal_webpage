@@ -95,6 +95,56 @@ final class CvLayoutTest extends TestCase
         );
     }
 
+    public function test_english_cv_links_to_swedish_with_accessible_flag_toggle(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv(['language' => 'en']);
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert
+        $this->assertStringContainsString('class="cv-language-switcher"', $html);
+        $this->assertStringContainsString('href="/cv?lang=sv"', $html);
+        $this->assertStringContainsString('hreflang="sv"', $html);
+        $this->assertStringContainsString('aria-label="Visa CV på svenska"', $html);
+        $this->assertStringContainsString('🇸🇪', $html);
+    }
+
+    public function test_swedish_cv_links_to_english_with_accessible_flag_toggle(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv(['language' => 'sv']);
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert
+        $this->assertStringContainsString('href="/cv?lang=en"', $html);
+        $this->assertStringContainsString('hreflang="en"', $html);
+        $this->assertStringContainsString('aria-label="View CV in English"', $html);
+        $this->assertStringContainsString('🇬🇧', $html);
+    }
+
+    public function test_language_switcher_is_fixed_on_screen_and_hidden_for_print(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv();
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert
+        $this->assertMatchesRegularExpression(
+            '/@media screen \{.*\.cv-language-switcher \{\s*position: fixed;\s*top: 1\.5rem;\s*right: 1\.5rem;/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/@media print \{.*\.cv-language-switcher \{\s*display: none;\s*\}/s',
+            $html
+        );
+    }
+
     //! @param overrides Extra CV fields merged into a minimal view model
     //! @return array<string, mixed>
     private function minimalCv(array $overrides = []): array

@@ -254,6 +254,30 @@ main > footer {
         box-shadow: 0 0 0 1px #bbb;
     }
 
+    .cv-language-switcher {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        z-index: 1;
+    }
+
+    .cv-language-switcher a {
+        display: grid;
+        width: 2.5rem;
+        height: 2.5rem;
+        place-items: center;
+        border-radius: 50%;
+        font-size: 1.6rem;
+        line-height: 1;
+        text-decoration: none;
+    }
+
+    .cv-language-switcher a:hover,
+    .cv-language-switcher a:focus-visible {
+        background: #bdbdbd;
+        outline: none;
+    }
+
     /* Screen preview: show the page-2 boundary without forcing a blank gap */
     .cv-secondary {
         break-before: auto;
@@ -265,6 +289,10 @@ main > footer {
 }
 
 @media print {
+    .cv-language-switcher {
+        display: none;
+    }
+
     html,
     body {
         margin: 0;

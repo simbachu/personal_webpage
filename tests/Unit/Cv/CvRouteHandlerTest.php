@@ -54,4 +54,18 @@ final class CvRouteHandlerTest extends TestCase
         $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
         $this->assertArrayHasKey('cv', $result->getData());
     }
+
+    public function test_cv_route_handler_loads_selected_language(): void
+    {
+        // Arrange
+        $loader = CvLoader::fromString(CvFixture::path());
+        $handler = new CvRouteHandler($loader, 'sv');
+        $route = new Route('/cv', TemplateName::CV);
+
+        // Act
+        $result = $handler->handle($route);
+
+        // Assert
+        $this->assertSame(CvFixture::cv('sv'), $result->getData()['cv']);
+    }
 }
