@@ -161,6 +161,27 @@ final class CvLayoutTest extends TestCase
         );
     }
 
+    public function test_print_styles_include_page_numbers_and_polish(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv();
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert
+        $this->assertMatchesRegularExpression(
+            '/@page\s*\{[\s\S]*?@bottom-center\s*\{[^}]*content:\s*counter\(page\)\s*"\s*\/\s*"\s*counter\(pages\)/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/(?:-webkit-)?print-color-adjust:\s*exact/',
+            $html
+        );
+        $this->assertMatchesRegularExpression('/orphans:\s*2/', $html);
+        $this->assertMatchesRegularExpression('/widows:\s*2/', $html);
+    }
+
     //! @param overrides Extra CV fields merged into a minimal view model
     //! @return array<string, mixed>
     private function minimalCv(array $overrides = []): array

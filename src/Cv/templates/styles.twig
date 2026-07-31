@@ -7,6 +7,13 @@
 @page {
     size: A4;
     margin: var(--page-margin);
+
+    @bottom-center {
+        content: counter(page) " / " counter(pages);
+        font-family: Inter, sans-serif;
+        font-size: 9pt;
+        color: #666;
+    }
 }
 
 * {
@@ -24,6 +31,10 @@ body {
     font-size: 10.5pt;
     line-height: 1.35;
     color: #111;
+    orphans: 2;
+    widows: 2;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 
     @media screen {
         min-height: 100vh;
