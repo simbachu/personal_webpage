@@ -48,6 +48,11 @@ final class CvLayoutTest extends TestCase
         $this->assertStringContainsString('border-top: 0.8pt solid #111;', $html);
         $this->assertStringContainsString('font-variant-numeric: tabular-nums;', $html);
         $this->assertMatchesRegularExpression('/& article\s*\{[^}]*margin-top:\s*0\.65em/s', $html);
+        $this->assertMatchesRegularExpression('/& > article \+ article\s*\{[^}]*margin-top:\s*2rem/s', $html);
+        $this->assertMatchesRegularExpression(
+            '/& > header:not\(:last-child\)\s*\{[^}]*border-bottom:\s*0\.5pt solid/s',
+            $html
+        );
     }
 
     public function test_cv_template_includes_nested_header_and_list_style_hooks(): void

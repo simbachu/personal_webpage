@@ -204,8 +204,11 @@ article {
         }
     }
 
-    & :has(h3) {
-        margin-bottom: 2rem;
+    /* Weak divider between header and body when content follows */
+    & > header:not(:last-child) {
+        border-bottom: 0.5pt solid #ccc;
+        padding-bottom: 0.35em;
+        margin-bottom: 0.5em;
     }
 
     /* Nested role entries under an employer */
@@ -239,6 +242,10 @@ section {
     & > article {
         break-inside: avoid;
         page-break-inside: avoid;
+    }
+
+    & > article + article {
+        margin-top: 2rem;
     }
 }
 
