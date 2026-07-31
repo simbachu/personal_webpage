@@ -33,3 +33,4 @@ composer.phar
 
 # Build files
 build/
+build/coverage/

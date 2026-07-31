@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Dex;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use App\Dex\PokeApiService;
 use App\Dex\MonsterIdentifier;
@@ -11,6 +12,8 @@ use App\Shared\Support\Result;
 use App\Dex\MonsterData;
 use App\Dex\MonsterType;
 
+//! Live PokeAPI network smoke — not mocked; skip locally with --exclude-group=network if offline.
+#[Group('network')]
 final class PokeApiServiceBatchTest extends TestCase
 {
     public function test_batch_fetch_performance_improvement(): void

@@ -155,6 +155,36 @@ final class CvLoaderTest extends TestCase
         $loader->load('en');
     }
 
+    public function test_loads_organization_experience_entries(): void
+    {
+        // Arrange
+        $document = $this->minimalCvDocument();
+        $document['lang-en']['experience'] = [
+            [
+                'organization' => 'Example Forces',
+                'location' => 'Sweden',
+                'roles' => [
+                    [
+                        'position' => 'Specialist',
+                        'from' => '2018-01',
+                        'to' => '2019-06',
+                    ],
+                ],
+            ],
+        ];
+        $this->writeCvJson($document);
+        $loader = new CvLoader(FilePath::fromString($this->testContentPath . '/cv.json'));
+
+        // Act
+        $cv = $loader->load('en');
+
+        // Assert
+        $this->assertInstanceOf(\App\Cv\OrganizationExperience::class, $cv->experience[0]);
+        $this->assertSame('Example Forces', $cv->experience[0]->organization);
+        $this->assertSame('Sweden', $cv->experience[0]->location);
+        $this->assertSame('Specialist', $cv->experience[0]->roles[0]->position);
+    }
+
     //! @brief Minimal valid multi-language CV JSON for loader tests
     //! @return array<string, mixed>
     private function minimalCvDocument(): array

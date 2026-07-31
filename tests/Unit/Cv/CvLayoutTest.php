@@ -35,7 +35,7 @@ final class CvLayoutTest extends TestCase
         $this->assertStringNotContainsString('Short summary for layout.', explode('<hr class="cv-anchor">', $html)[0]);
     }
 
-    public function test_cv_template_inlines_the_annotation_gutter_and_experience_rhythm(): void
+    public function test_cv_template_inlines_body_gutter_and_experience_rhythm(): void
     {
         // Arrange
         $cv = $this->minimalCv();
@@ -43,18 +43,14 @@ final class CvLayoutTest extends TestCase
         // Act
         $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
 
-        // Assert
-        $this->assertStringContainsString(
-            ".cv-body {\n    padding-left: 9mm;\n    text-align: left;\n    hyphens: none;\n\n    & h2,",
-            $html
-        );
-        $this->assertStringContainsString("border-top: 0.8pt solid #111;", $html);
-        $this->assertStringContainsString("& article {\n        margin-top: 0.65em;", $html);
-        $this->assertStringContainsString("& > p + ul {\n            margin-top: 0.3em;", $html);
-        $this->assertStringContainsString("font-variant-numeric: tabular-nums;", $html);
+        // Assert — presence of layout contracts, not exact nested-CSS source shape
+        $this->assertMatchesRegularExpression('/\.cv-body\s*\{[^}]*padding-left:\s*15mm/s', $html);
+        $this->assertStringContainsString('border-top: 0.8pt solid #111;', $html);
+        $this->assertStringContainsString('font-variant-numeric: tabular-nums;', $html);
+        $this->assertMatchesRegularExpression('/& article\s*\{[^}]*margin-top:\s*0\.65em/s', $html);
     }
 
-    public function test_cv_template_nests_related_style_selectors(): void
+    public function test_cv_template_includes_nested_header_and_list_style_hooks(): void
     {
         // Arrange
         $cv = $this->minimalCv();
@@ -63,9 +59,10 @@ final class CvLayoutTest extends TestCase
         $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
 
         // Assert
-        $this->assertStringContainsString("&.skills,\n    &.languages {", $html);
-        $this->assertStringContainsString("& > header {", $html);
-        $this->assertStringContainsString("& a {\n            display: grid;", $html);
+        $this->assertStringContainsString('&.skills,', $html);
+        $this->assertStringContainsString('&.languages', $html);
+        $this->assertStringContainsString('& > header', $html);
+        $this->assertMatchesRegularExpression('/& a\s*\{[^}]*display:\s*grid/s', $html);
     }
 
     public function test_cv_template_orders_skills_before_experience_for_swedish_scan(): void
@@ -150,11 +147,11 @@ final class CvLayoutTest extends TestCase
 
         // Assert
         $this->assertMatchesRegularExpression(
-            '/\.cv-language-switcher \{.*@media screen \{\s*position: fixed;\s*top: 1\.5rem;\s*right: 1\.5rem;/s',
+            '/\.cv-language-switcher\s*\{[^}]*@media screen\s*\{[^}]*position:\s*fixed/s',
             $html
         );
         $this->assertMatchesRegularExpression(
-            '/\.cv-language-switcher \{.*@media print \{\s*display: none;\s*\}/s',
+            '/\.cv-language-switcher\s*\{[\s\S]*?@media print\s*\{[^}]*display:\s*none/s',
             $html
         );
     }

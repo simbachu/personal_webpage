@@ -1040,6 +1040,43 @@ final class PokeApiServiceTest extends TestCase
             $this->cleanupTestCacheDir(FilePath::fromString($cacheDir));
         }
     }
+
+    public function test_fetch_urls_concurrently_handles_empty_list_and_failed_url(): void
+    {
+        //! @section Arrange
+        $service = new PokeApiService();
+        $method = new \ReflectionMethod(PokeApiService::class, 'fetchUrlsConcurrently');
+        $method->setAccessible(true);
+
+        //! @section Act
+        $empty = $method->invoke($service, []);
+        $failed = $method->invoke($service, [
+            'http://127.0.0.1:1/definitely-not-listening',
+        ]);
+        $mixed = $method->invoke($service, [
+            'https://pokeapi.co/api/v2/pokemon/1',
+            'http://127.0.0.1:1/definitely-not-listening',
+        ]);
+        $httpError = $method->invoke($service, [
+            'https://pokeapi.co/api/v2/pokemon/definitely-not-a-real-pokemon-xyz',
+        ]);
+
+        //! @section Assert
+        $this->assertSame([], $empty);
+        $this->assertCount(1, $failed);
+        $failedUrl = array_key_first($failed);
+        $this->assertFalse($failed[$failedUrl]['success']);
+        $this->assertArrayHasKey('error', $failed[$failedUrl]);
+
+        $this->assertCount(2, $mixed);
+        $this->assertTrue($mixed['https://pokeapi.co/api/v2/pokemon/1']['success']);
+        $this->assertNotSame('', $mixed['https://pokeapi.co/api/v2/pokemon/1']['data']);
+        $this->assertFalse($mixed['http://127.0.0.1:1/definitely-not-listening']['success']);
+
+        $httpErrorUrl = array_key_first($httpError);
+        $this->assertFalse($httpError[$httpErrorUrl]['success']);
+        $this->assertMatchesRegularExpression('/HTTP \d+/', $httpError[$httpErrorUrl]['error']);
+    }
 }
 
 

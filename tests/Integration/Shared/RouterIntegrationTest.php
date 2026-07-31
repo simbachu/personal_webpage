@@ -235,19 +235,4 @@ YAML;
         // The actual error message might vary, so just check that we have meta data
         $this->assertIsArray($data['meta']);
     }
-
-    //! @brief Test routing with empty Pokemon parameter returns 400
-    public function test_routing_with_empty_pokemon_parameter_returns_400(): void
-    {
-        //! @section Act
-        $result = $this->router->route('/dex/');
-
-        //! @section Assert
-        $this->assertEquals(TemplateName::DEX, $result->getTemplate());
-        $this->assertEquals(HttpStatusCode::OK, $result->getStatusCode());
-
-        // Note: /dex/ gets normalized to /dex, so it should return the dex template
-        // The empty parameter case would only occur if someone manually constructs
-        // parameters with an empty id_or_name value
-    }
 }

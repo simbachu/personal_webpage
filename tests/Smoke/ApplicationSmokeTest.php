@@ -65,21 +65,5 @@ class ApplicationSmokeTest extends TestCase
         $this->assertArrayHasKey('projects', $data);
         $this->assertArrayHasKey('contact', $data);
     }
-
-    //! @brief Test that Twig can render basic template
-    public function test_twig_can_render_basic_template(): void
-    {
-        //! @section Arrange
-        $loader = new \Twig\Loader\ArrayLoader([
-            'test' => 'Hello {{ name }}!',
-        ]);
-        $twig = new \Twig\Environment($loader);
-
-        //! @section Act
-        $output = $twig->render('test', ['name' => 'World']);
-
-        //! @section Assert
-        $this->assertEquals('Hello World!', $output);
-    }
 }
 

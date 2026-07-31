@@ -20,5 +20,9 @@
         "psr-4": {
             "Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:coverage": "phpunit --coverage-text --coverage-html=build/coverage/html --coverage-crap4j=build/coverage/crap4j.xml --coverage-clover=build/coverage/clover.xml"
     }
 }

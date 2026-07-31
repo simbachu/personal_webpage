@@ -17,4 +17,5 @@ White space is used to create a balance on the page, with blocks of color provid
 - Composer for dependency management
 - Twig for templating
 - PHPUnit for testing (smoke, unit, and integration tests)
+- PCOV for local/CI code coverage (`composer test:coverage`; requires the `pcov` PHP extension)
 - GitHub Actions for CI/CD
