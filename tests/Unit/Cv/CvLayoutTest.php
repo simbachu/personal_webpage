@@ -257,6 +257,25 @@ final class CvLayoutTest extends TestCase
         $this->assertMatchesRegularExpression('/widows:\s*2/', $html);
     }
 
+    public function test_education_flows_after_experience_without_forced_page_break(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv();
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert — do not force education/certificates onto a new page
+        $this->assertDoesNotMatchRegularExpression(
+            '/\.cv-secondary\s*\{[^}]*break-before:\s*page/s',
+            $html
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/\.cv-secondary\s*\{[^}]*page-break-before:\s*always/s',
+            $html
+        );
+    }
+
     //! @param overrides Extra CV fields merged into a minimal view model
     //! @return array<string, mixed>
     private function minimalCv(array $overrides = []): array

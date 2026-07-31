@@ -265,28 +265,10 @@ section {
     }
 }
 
-/* Page 2: education and certificates after experience */
+/* Education and certificates follow experience in normal flow */
 .cv-secondary {
-    break-before: page;
-    page-break-before: always;
-
     & > section:first-child > h2 {
-        margin-top: 0;
-    }
-
-    @media screen {
-        /* Show the page-2 boundary without forcing a blank gap. */
-        break-before: auto;
-        page-break-before: auto;
-        margin-top: 1.25em;
-        padding-top: 1em;
-        border-top: 0.5pt solid #bbb;
-    }
-
-    @media print {
-        border-top: none;
-        margin-top: 0;
-        padding-top: 0;
+        margin-top: 0.75em;
     }
 }
 
