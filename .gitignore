@@ -6,6 +6,7 @@
 *~
 .cursor/
 
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -29,3 +30,6 @@ temp/
 .phpunit.cache/
 .phpunit.result.cache
 composer.phar
+
+# Build files
+build/
