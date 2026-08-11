@@ -79,8 +79,9 @@
                         "duration": "2 yrs 5 mos",
                         "summary": "Product owner for Team Magma (~12 people), covering off-board diagnostics, diagnostic information, and wiring handbooks. Partnered with electrical and software R&D on electromobility, cybersecurity, active safety, and diagnostic tooling.",
                         "bullets": [
-                            "Owned processes, roadmaps, and continuous improvement while recruiting, onboarding, and allocating work to employees and consultants.",
-                            "Coached the international aftermarket department in agile planning and work breakdown. As Jira key user, led teams from Excel-based planning to Jira."
+                            "Managed team budget estimates and department-level quotations; worked with project managers on ask/spend updates; primary contact for PMs and peer product owners across product development.",
+                            "Used fault-tracing usage and outcome data per fault code in the diagnostic tool to prioritize backlog work.",
+                            "Coached the international aftermarket organisation in agile planning and standardised work breakdown; as Jira key user, led migration from Excel planning to Jira."
                         ]
                     },
                     {
@@ -91,7 +92,7 @@
                         "summary": "Owned wiring diagram handbook delivery for bus chassis updates worldwide.",
                         "bullets": [
                             "Industrialised extended wiring diagram production using Saber extraction, InDesign templates, and illustration QA, replacing manual copy-paste.",
-                            "Cut fault-tracing component identification using wiring diagrams from ~1 hour to minutes. The concept was adopted across the product range and reused by product development."
+                            "Cut fault-tracing component identification using wiring diagrams from ~1 hour to minutes. Demonstrated the concept to stakeholders; it was adopted across the product range and reused by product development."
                         ]
                     }
                 ]
@@ -105,7 +106,7 @@
                         "from": "2017-08",
                         "to": "2019-12",
                         "duration": "2 yrs 5 mos",
-                        "summary": "Created technical illustrations, service instructions, and wiring diagrams for excavators and buses, primarily for Volvo Buses. Transitioned on-site and was later hired to own handbook delivery.",
+                        "summary": "Created technical illustrations, service instructions, and wiring diagrams for excavators and buses, primarily for Volvo Buses, and prepared materials used in executive presentations. Transitioned on-site and was later hired to own handbook delivery.",
                         "skills": ["CorelDRAW", "InDesign", "Illustrator"]
                     }
                 ]
@@ -212,8 +213,9 @@
                         "duration": "2 år 5 månader",
                         "summary": "Produktägare för Team Magma (ca. 12 personer), med ansvar för offboard-diagnostik, diagnostikinformation och kablageböcker. Samarbetade med el- och mjukvaruutveckling kring roadmaps för elektromobilitet, cybersäkerhet, aktiv säkerhet och diagnostikverktyg.",
                         "bullets": [
-                            "Ägde processer, roadmaps och kontinuerlig förbättring samt ansvarade för rekrytering, onboarding och arbetsfördelning för anställda och konsulter.",
-                            "Coachade den internationella eftermarknadsorganisationen i agil planering och arbetsnedbrytning. Som Jira-nyckelanvändare ledde jag teamens övergång från Excel-baserad planering till Jira."
+                            "Ansvarade för teamets budgetestimat och avdelningens offerter; samarbetade med projektledare kring ask/spend-uppdateringar; primär kontaktpunkt för projektledare och andra produktägare inom produktutvecklingen.",
+                            "Använde data om användning och utfall av felsökning per felkod i diagnostikverktyget för att prioritera backlogarbete.",
+                            "Coachade den internationella eftermarknadsorganisationen i agil planering och standardiserad arbetsnedbrytning; som Jira-nyckelanvändare ledde jag övergången från Excel-baserad planering till Jira."
                         ]
                     },
                     {
@@ -224,7 +226,7 @@
                         "summary": "Ansvarade för leveransen av kablageböcker vid uppdateringar av busschassin för den globala marknaden.",
                         "bullets": [
                             "Industrialiserade produktionen av den utökade kablageboken genom datauttag ur Saber, InDesign-mallar och kvalitetskontroll av illustrationer, vilket ersatte manuell kopiering.",
-                            "Kortade tiden för komponentidentifiering vid felsökning med hjälp av kablageböcker från cirka en timme till några minuter. Konceptet infördes i hela produktprogrammet och återanvändes inom produktutvecklingen."
+                            "Kortade tiden för komponentidentifiering vid felsökning med hjälp av kablageböcker från cirka en timme till några minuter. Demonstrerade konceptet för intressenter; det infördes i hela produktprogrammet och återanvändes inom produktutvecklingen."
                         ]
                     }
                 ]
@@ -238,7 +240,7 @@
                         "from": "2017-08",
                         "to": "2019-12",
                         "duration": "2 år 5 månader",
-                        "summary": "Tog fram tekniska illustrationer, serviceinstruktioner och kopplingsscheman för grävmaskiner och bussar, främst åt Volvo Bussar. Övergick till ett uppdrag på plats och anställdes senare av Volvo Bussar med ansvar för leveransen av handböcker.",
+                        "summary": "Tog fram tekniska illustrationer, serviceinstruktioner och kopplingsscheman för grävmaskiner och bussar, främst åt Volvo Bussar, och förberedde underlag till presentationer för ledningen. Övergick till ett uppdrag på plats och anställdes senare av Volvo Bussar med ansvar för leveransen av handböcker.",
                         "skills": ["CorelDRAW", "InDesign", "Illustrator"]
                     }
                 ]

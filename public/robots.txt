@@ -1,0 +1,41 @@
+# https://www.simbachu.com
+User-agent: *
+Allow: /$
+Allow: /cv
+Disallow: /
+
+# AI crawlers — same policy; CV is intentionally crawlable
+User-agent: GPTBot
+Allow: /$
+Allow: /cv
+Disallow: /
+
+User-agent: ChatGPT-User
+Allow: /$
+Allow: /cv
+Disallow: /
+
+User-agent: ClaudeBot
+Allow: /$
+Allow: /cv
+Disallow: /
+
+User-agent: anthropic-ai
+Allow: /$
+Allow: /cv
+Disallow: /
+
+User-agent: Google-Extended
+Allow: /$
+Allow: /cv
+Disallow: /
+
+User-agent: PerplexityBot
+Allow: /$
+Allow: /cv
+Disallow: /
+
+User-agent: Bytespider
+Allow: /$
+Allow: /cv
+Disallow: /
