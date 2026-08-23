@@ -36,6 +36,8 @@ final class CvLabels
                     'devops_test' => 'devops och test',
                     'leadership' => 'ledarskap',
                     'design' => 'design',
+                    'communication' => 'kommunikation',
+                    'systems_development' => 'utveckling',
                 ],
             ],
             default => [
@@ -52,6 +54,8 @@ final class CvLabels
                     'devops_test' => 'devops test',
                     'leadership' => 'leadership',
                     'design' => 'design',
+                    'communication' => 'communication',
+                    'systems_development' => 'development',
                 ],
             ],
         };

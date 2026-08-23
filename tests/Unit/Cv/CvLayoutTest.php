@@ -71,6 +71,19 @@ final class CvLayoutTest extends TestCase
         $this->assertMatchesRegularExpression('/& a\s*\{[^}]*display:\s*grid/s', $html);
     }
 
+    public function test_skill_groups_wrap_in_the_list_column_with_separators_that_follow_items(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv();
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv]);
+
+        // Assert
+        $this->assertStringContainsString('grid-template-columns: auto 1fr', $html);
+        $this->assertStringContainsString('&:not(:first-child)::before', $html);
+    }
+
     public function test_cv_template_orders_skills_before_experience_for_swedish_scan(): void
     {
         // Arrange
@@ -157,9 +170,22 @@ final class CvLayoutTest extends TestCase
             $html
         );
         $this->assertMatchesRegularExpression(
-            '/\.cv-language-switcher\s*\{[\s\S]*?@media print\s*\{[^}]*display:\s*none/s',
+            '/@media print\s*\{[\s\S]*?\.cv-language-switcher\s*\{[^}]*display:\s*none/s',
             $html
         );
+    }
+
+    public function test_print_mode_omits_language_switcher(): void
+    {
+        // Arrange
+        $cv = $this->minimalCv();
+
+        // Act
+        $html = $this->twig->render('@cv/cv.twig', ['cv' => $cv, 'print' => true]);
+
+        // Assert
+        $this->assertStringNotContainsString('class="cv-language-switcher"', $html);
+        $this->assertStringNotContainsString('🇸🇪', $html);
     }
 
     public function test_print_styles_include_page_numbers_and_polish(): void
@@ -181,6 +207,10 @@ final class CvLayoutTest extends TestCase
         );
         $this->assertMatchesRegularExpression('/orphans:\s*2/', $html);
         $this->assertMatchesRegularExpression('/widows:\s*2/', $html);
+        $this->assertStringContainsString('font-variant-numeric: lining-nums', $html);
+        $this->assertStringContainsString('"calt" 0', $html);
+        $this->assertStringContainsString('width: auto', $html);
+        $this->assertStringContainsString('padding: 0', $html);
     }
 
     public function test_swedish_cv_uses_localized_section_headers(): void

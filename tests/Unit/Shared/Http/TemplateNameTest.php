@@ -40,6 +40,7 @@ class TemplateNameTest extends TestCase
             'dex' => ['dex', TemplateName::DEX, 'dex', '@dex/dex.twig', 'Pokemon dex detail page template'],
             'article' => ['article', TemplateName::ARTICLE, 'site', '@site/article.twig', 'Article/blog post template'],
             'cv' => ['cv', TemplateName::CV, 'cv', '@cv/cv.twig', 'CV page template'],
+            'cover-letter' => ['cover-letter', TemplateName::COVER_LETTER, 'cv', '@cv/cover-letter.twig', 'Cover letter page template'],
             '404' => ['404', TemplateName::NOT_FOUND, 'shared', '@shared/404.twig', '404 error page template'],
         ];
     }

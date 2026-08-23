@@ -45,6 +45,7 @@ final class CoverLetterTemplateTest extends TestCase
         // Assert
         $this->assertStringContainsString('Ada Example', $html);
         $this->assertStringContainsString('ada@example.test', $html);
+        $this->assertStringContainsString('/fonts/inter.css', $html);
         $this->assertStringContainsString('<hr class="cv-anchor">', $html);
         $this->assertStringContainsString('class="cv-body cover-letter"', $html);
         $this->assertStringContainsString('<p>Hej Anders och Thomas.</p>', $html);

@@ -27,6 +27,7 @@ enum TemplateName: string
     case DEX = 'dex';
     case ARTICLE = 'article';
     case CV = 'cv';
+    case COVER_LETTER = 'cover-letter';
     case NOT_FOUND = '404';
 
     //! @brief Get all valid template names as an array
@@ -55,6 +56,7 @@ enum TemplateName: string
             'dex' => self::DEX,
             'article' => self::ARTICLE,
             'cv' => self::CV,
+            'cover-letter' => self::COVER_LETTER,
             '404' => self::NOT_FOUND,
             default => throw new \InvalidArgumentException(
                 "Invalid template name: '{$templateName}'. Valid templates are: " . implode(', ', self::getAllValues())
@@ -71,6 +73,7 @@ enum TemplateName: string
             self::DEX => 'Pokemon dex detail page template',
             self::ARTICLE => 'Article/blog post template',
             self::CV => 'CV page template',
+            self::COVER_LETTER => 'Cover letter page template',
             self::NOT_FOUND => '404 error page template',
         };
     }
@@ -110,7 +113,7 @@ enum TemplateName: string
         return match ($this) {
             self::HOME, self::ARTICLE => 'site',
             self::DEX => 'dex',
-            self::CV => 'cv',
+            self::CV, self::COVER_LETTER => 'cv',
             self::NOT_FOUND => 'shared',
         };
     }

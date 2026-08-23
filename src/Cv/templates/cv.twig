@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% block content %}
+{% if not print|default(false) %}
 <nav class="cv-language-switcher" aria-label="CV language">
     {% if cv.language == 'sv' %}
         <a href="/cv?lang=en" hreflang="en" aria-label="View CV in English" title="View CV in English">
@@ -24,6 +25,7 @@
         </a>
     {% endif %}
 </nav>
+{% endif %}
 <main>
     {{ header.header(cv) }}
     <hr class="cv-anchor">

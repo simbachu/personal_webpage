@@ -39,6 +39,8 @@ use App\Dex\DexRouteHandler;
 use App\Dex\PokeApiService;
 use App\Dex\PokemonOpinionService;
 use App\Dex\DexPresenter;
+use App\Cv\CoverLetterLoader;
+use App\Cv\CoverLetterRouteHandler;
 use App\Cv\CvLoader;
 use App\Cv\CvLanguageSelector;
 use App\Cv\CvRouteHandler;
@@ -97,7 +99,9 @@ $opinionsFilePath = $dex_content_path . '/pokemon_opinions.yaml';
 $opinionService = new PokemonOpinionService($opinionsFilePath);
 $dexPresenter = new DexPresenter($pokeApiService, $opinionService, $pokeApiCacheTtl);
 
-$cvLoader = CvLoader::fromString($cv_content_path . '/cv.json');
+$cvJsonFile = basename((string) (getenv('CV_JSON') ?: 'cv.json'));
+$cvLoader = CvLoader::fromString($cv_content_path . '/' . $cvJsonFile);
+$coverLetterFile = basename((string) (getenv('COVER_LETTER') ?: 'cover-letter.md'));
 
 // Initialize Twig with slice namespaces
 $loader = new \Twig\Loader\FilesystemLoader();
@@ -209,6 +213,16 @@ $router->addRoute(new Route(
     ['handler' => 'cv']
 ));
 
+$router->addRoute(new Route(
+    '/cover-letter',
+    TemplateName::COVER_LETTER,
+    [
+        'title' => 'Jennifer Gott — Cover letter',
+        'description' => 'Cover letter for Jennifer Jonathan Gott.',
+    ],
+    ['handler' => 'cover-letter']
+));
+
 $markdownProcessor = new MarkdownProcessor();
 $articleRepository = new FileArticleRepository($site_content_path, $markdownProcessor);
 
@@ -222,6 +236,8 @@ $acceptLanguage = isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
     : null;
 $cvLanguage = (new CvLanguageSelector())->select($queryLanguage, $acceptLanguage);
 $router->registerHandler('cv', new CvRouteHandler($cvLoader, $cvLanguage));
+$coverLetterLoader = CoverLetterLoader::fromString($cv_content_path . '/' . $coverLetterFile);
+$router->registerHandler('cover-letter', new CoverLetterRouteHandler($cvLoader, $coverLetterLoader, $cvLanguage));
 
 $path = get_request_path();
 $base_url = get_base_url();

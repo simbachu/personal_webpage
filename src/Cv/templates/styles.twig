@@ -41,12 +41,6 @@ body {
         padding: 1.5rem;
         background: #d4d4d4;
     }
-
-    @media print {
-        margin: 0;
-        padding: 0;
-        background: none;
-    }
 }
 
 h1,
@@ -101,9 +95,9 @@ ul {
         & li {
             margin: 0;
 
-            &:not(:last-child)::after {
+            &:not(:first-child)::before {
                 content: "·";
-                margin-left: 0.5em;
+                margin-right: 0.5em;
             }
         }
     }
@@ -114,8 +108,8 @@ ul {
         margin: 0 0 0.35em;
 
         & > li {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: auto 1fr;
             align-items: baseline;
             column-gap: 0.45em;
             row-gap: 0.1em;
@@ -125,7 +119,13 @@ ul {
         }
 
         & .skills {
+            display: block;
             margin: 0;
+            min-width: 0;
+
+            & li {
+                display: inline;
+            }
         }
     }
 }
@@ -136,7 +136,7 @@ li {
 
 .skill-group-label {
     font-weight: 600;
-    flex: 0 0 auto;
+    white-space: nowrap;
 
     &::after {
         content: ":";
@@ -288,14 +288,6 @@ main {
         margin: 0 auto;
         box-shadow: 0 0 0 1px #bbb;
     }
-
-    @media print {
-        width: auto;
-        min-height: 0;
-        margin: 0;
-        padding: 0;
-        box-shadow: none;
-    }
 }
 
 .cv-language-switcher {
@@ -322,16 +314,45 @@ main {
             }
         }
     }
-
-    @media print {
-        display: none;
-    }
 }
 
 html {
-    @media print {
+    margin: 0;
+    padding: 0;
+}
+
+/* Flattened print rules: WeasyPrint does not apply nested @media inside selectors,
+   which stacked the 210mm screen sheet and 1.5cm padding on top of @page margin. */
+@media print {
+    html {
         margin: 0;
         padding: 0;
         background: none;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: none;
+        font-variant-numeric: lining-nums;
+        font-feature-settings: "calt" 0, "liga" 0, "tnum" 0;
+    }
+
+    main {
+        width: auto;
+        min-height: 0;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    article time,
+    article .tenure {
+        font-variant-numeric: lining-nums;
+    }
+
+    .cv-language-switcher {
+        display: none;
     }
 }

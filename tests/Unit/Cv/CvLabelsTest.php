@@ -23,6 +23,8 @@ final class CvLabelsTest extends TestCase
         $this->assertSame('Present', $labels['present']);
         $this->assertSame('Grade', $labels['grade']);
         $this->assertSame('web embedded', $labels['skill_groups']['web_embedded']);
+        $this->assertSame('development', $labels['skill_groups']['systems_development']);
+        $this->assertSame('communication', $labels['skill_groups']['communication']);
     }
 
     public function test_swedish_labels_include_section_titles(): void
@@ -39,5 +41,6 @@ final class CvLabelsTest extends TestCase
         $this->assertSame('Nuvarande', $labels['present']);
         $this->assertSame('Betyg', $labels['grade']);
         $this->assertSame('webb och inbyggda system', $labels['skill_groups']['web_embedded']);
+        $this->assertSame('utveckling', $labels['skill_groups']['systems_development']);
     }
 }
