@@ -9,6 +9,9 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} (.+)/$
 RewriteRule ^ %1 [R=301,L]
 
+# Route /benefactor to index.php
+RewriteRule ^benefactor/?$ index.php [QSA,L]
+
 # Route all requests to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
