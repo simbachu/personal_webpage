@@ -1,0 +1,30 @@
+{% extends "@shared/layout.twig" %}
+
+{% block content %}
+<article class="benefactor">
+    <h2>Benefactor</h2>
+    <p>Log in with Patreon to copy your members, ranked by the highest tier they currently support.</p>
+
+    {% if error %}
+    <p class="benefactor-error" role="alert">{{ error }}</p>
+    {% endif %}
+
+    {% if logged_in %}
+    <label class="benefactor-copy-label" for="benefactor-markup">Copyable member HTML</label>
+    <textarea id="benefactor-markup" class="benefactor-markup" readonly rows="6">{{ markup }}</textarea>
+    <p class="benefactor-preview">
+        {% for patron in patrons %}
+        <span class="{{ patron.class }}">{{ patron.name }}</span>{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+    {% elseif configured and authorize_url %}
+    <p><a class="benefactor-login" href="{{ authorize_url }}">Log in with Patreon</a></p>
+    {% endif %}
+
+    <p class="benefactor-legal">
+        <a href="/benefactor/privacy.md">Privacy</a>
+        ·
+        <a href="/benefactor/toc.md">Terms</a>
+    </p>
+</article>
+{% endblock %}

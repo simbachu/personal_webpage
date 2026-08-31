@@ -195,4 +195,40 @@ class TwigTemplateSmokeTest extends TestCase
         $this->assertStringContainsString('/dex/eevee', $rendered);
         $this->assertStringContainsString('<img src="https://img.example/eevee.png"', $rendered);
     }
+
+    public function testBenefactorLoginTemplateRenders(): void
+    {
+        //! @section Act
+        $rendered = $this->twig->render('@benefactor/benefactor.twig', array_merge(TwigTestFactory::layoutGlobals(), [
+            'configured' => true,
+            'logged_in' => false,
+            'authorize_url' => 'https://www.patreon.com/oauth2/authorize',
+            'markup' => null,
+            'patrons' => [],
+            'error' => null,
+            'meta' => ['title' => 'Benefactor'],
+        ]));
+
+        //! @section Assert
+        $this->assertStringContainsString('Log in with Patreon', $rendered);
+    }
+
+    public function testBenefactorMemberListTemplateRendersTextarea(): void
+    {
+        //! @section Act
+        $rendered = $this->twig->render('@benefactor/benefactor.twig', array_merge(TwigTestFactory::layoutGlobals(), [
+            'configured' => true,
+            'logged_in' => true,
+            'authorize_url' => null,
+            'markup' => '<span class="hardy-club">Epoint Man</span>',
+            'patrons' => [['class' => 'hardy-club', 'name' => 'Epoint Man']],
+            'error' => null,
+            'meta' => ['title' => 'Benefactor'],
+        ]));
+
+        //! @section Assert
+        $this->assertStringContainsString('<textarea', $rendered);
+        $this->assertStringContainsString('hardy-club', $rendered);
+        $this->assertStringContainsString('Epoint Man', $rendered);
+    }
 }

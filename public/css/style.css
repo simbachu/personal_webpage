@@ -1517,3 +1517,40 @@ footer a:focus-visible {
         width: calc(var(--spacing-unit) * 1.25);
     }
 }
+
+.benefactor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-unit);
+    max-width: 40rem;
+}
+
+.benefactor-markup {
+    width: 100%;
+    min-height: 8rem;
+    padding: calc(var(--spacing-unit) * 0.5);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--black);
+    background: var(--white);
+    border: var(--line-weight) solid var(--process-black);
+    resize: vertical;
+    user-select: all;
+}
+
+.benefactor-copy-label {
+    font-weight: 600;
+}
+
+.benefactor-error {
+    color: var(--red);
+}
+
+.benefactor-login {
+    font-weight: 700;
+}
+
+.benefactor-legal {
+    font-size: 0.85rem;
+}

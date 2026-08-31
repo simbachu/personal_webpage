@@ -27,16 +27,32 @@ class RouteResult
     private TemplateName $template; //!< Template to render
     private array $data; //!< Data to pass to template
     private HttpStatusCode $statusCode; //!< HTTP status code
+    private ?string $redirectUrl; //!< Absolute Location when this result is a redirect
 
     //! @brief Construct a new RouteResult instance
     //! @param template The template to render
     //! @param data The data to pass to the template
     //! @param statusCode The HTTP status code (defaults to OK)
-    public function __construct(TemplateName $template, array $data = [], HttpStatusCode $statusCode = HttpStatusCode::OK)
-    {
+    //! @param redirectUrl Optional redirect Location (skips Twig when set)
+    public function __construct(
+        TemplateName $template,
+        array $data = [],
+        HttpStatusCode $statusCode = HttpStatusCode::OK,
+        ?string $redirectUrl = null
+    ) {
         $this->template = $template;
         $this->data = $data;
         $this->statusCode = $statusCode;
+        $this->redirectUrl = $redirectUrl;
+    }
+
+    //! @brief Create a 302 redirect result
+    //! @param location Absolute URL to send in Location
+    //! @param template Template associated with the route (unused when redirecting)
+    //! @return self
+    public static function redirect(string $location, TemplateName $template): self
+    {
+        return new self($template, [], HttpStatusCode::FOUND, $location);
     }
 
     //! @brief Get the template to render
@@ -60,6 +76,13 @@ class RouteResult
         return $this->statusCode;
     }
 
+    //! @brief Get the redirect Location, if this result is a redirect
+    //! @return string|null Absolute URL, or null when rendering a template
+    public function getRedirectUrl(): ?string
+    {
+        return $this->redirectUrl;
+    }
+
     //! @brief Create a new result with merged data
     //! @param data Additional data to merge
     //! @return RouteResult New result with merged data
@@ -68,7 +91,8 @@ class RouteResult
         return new self(
             $this->template,
             array_merge($this->data, $data),
-            $this->statusCode
+            $this->statusCode,
+            $this->redirectUrl
         );
     }
 
@@ -77,6 +101,6 @@ class RouteResult
     //! @return RouteResult New result with updated status code
     public function withStatusCode(HttpStatusCode $statusCode): self
     {
-        return new self($this->template, $this->data, $statusCode);
+        return new self($this->template, $this->data, $statusCode, $this->redirectUrl);
     }
 }

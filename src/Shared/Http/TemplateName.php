@@ -27,6 +27,7 @@ enum TemplateName: string
     case DEX = 'dex';
     case ARTICLE = 'article';
     case CV = 'cv';
+    case BENEFACTOR = 'benefactor';
     case NOT_FOUND = '404';
 
     //! @brief Get all valid template names as an array
@@ -55,6 +56,7 @@ enum TemplateName: string
             'dex' => self::DEX,
             'article' => self::ARTICLE,
             'cv' => self::CV,
+            'benefactor' => self::BENEFACTOR,
             '404' => self::NOT_FOUND,
             default => throw new \InvalidArgumentException(
                 "Invalid template name: '{$templateName}'. Valid templates are: " . implode(', ', self::getAllValues())
@@ -71,6 +73,7 @@ enum TemplateName: string
             self::DEX => 'Pokemon dex detail page template',
             self::ARTICLE => 'Article/blog post template',
             self::CV => 'CV page template',
+            self::BENEFACTOR => 'Benefactor Patreon member list template',
             self::NOT_FOUND => '404 error page template',
         };
     }
@@ -104,13 +107,14 @@ enum TemplateName: string
     }
 
     //! @brief Twig loader namespace for this template's slice
-    //! @return string One of: site, dex, cv, shared
+    //! @return string One of: site, dex, cv, benefactor, shared
     public function getTwigNamespace(): string
     {
         return match ($this) {
             self::HOME, self::ARTICLE => 'site',
             self::DEX => 'dex',
             self::CV => 'cv',
+            self::BENEFACTOR => 'benefactor',
             self::NOT_FOUND => 'shared',
         };
     }

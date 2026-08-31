@@ -46,6 +46,14 @@ use App\Site\Article\ArticleRouteHandler;
 use App\Site\Article\FileArticleRepository;
 use App\Site\Article\MarkdownProcessor;
 use App\Shared\Github\GitHubService;
+use App\Benefactor\BenefactorRequest;
+use App\Benefactor\BenefactorRouteHandler;
+use App\Benefactor\BenefactorSession;
+use App\Benefactor\MemberCache;
+use App\Benefactor\MemberMarkup;
+use App\Benefactor\OAuth\PatreonOAuthClient;
+use App\Benefactor\PatreonHttp;
+use App\Benefactor\PatreonMemberService;
 
 //! @brief Resolve private app root (contains src/, content/, vendor/)
 //! @return string Absolute path to private root
@@ -79,12 +87,14 @@ $shared_templates = $private_root . '/src/Shared/templates';
 $site_templates = $private_root . '/src/Site/templates';
 $dex_templates = $private_root . '/src/Dex/templates';
 $cv_templates = $private_root . '/src/Cv/templates';
+$benefactor_templates = $private_root . '/src/Benefactor/templates';
 
 $template_namespace_paths = [
     'shared' => FilePath::fromString($shared_templates),
     'site' => FilePath::fromString($site_templates),
     'dex' => FilePath::fromString($dex_templates),
     'cv' => FilePath::fromString($cv_templates),
+    'benefactor' => FilePath::fromString($benefactor_templates),
 ];
 
 $contentRepository = new ContentRepository(FilePath::fromString($site_content_path));
@@ -105,6 +115,7 @@ $loader->addPath($shared_templates, 'shared');
 $loader->addPath($site_templates, 'site');
 $loader->addPath($dex_templates, 'dex');
 $loader->addPath($cv_templates, 'cv');
+$loader->addPath($benefactor_templates, 'benefactor');
 
 $twigOptions = [
     'autoescape' => 'html',
@@ -209,6 +220,16 @@ $router->addRoute(new Route(
     ['handler' => 'cv']
 ));
 
+$router->addRoute(new Route(
+    '/benefactor',
+    TemplateName::BENEFACTOR,
+    [
+        'title' => 'Benefactor',
+        'description' => 'Copy a ranked list of your Patreon members as HTML.',
+    ],
+    ['handler' => 'benefactor']
+));
+
 $markdownProcessor = new MarkdownProcessor();
 $articleRepository = new FileArticleRepository($site_content_path, $markdownProcessor);
 
@@ -227,11 +248,49 @@ $path = get_request_path();
 $base_url = get_base_url();
 $current_url = $base_url . $_SERVER['REQUEST_URI'];
 
+if ($path === '/benefactor' && session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+if ($path === '/benefactor') {
+    $benefactorSession = new BenefactorSession($_SESSION);
+} else {
+    $benefactorSessionStorage = [];
+    $benefactorSession = new BenefactorSession($benefactorSessionStorage);
+}
+
+$patreonHttp = PatreonHttp::createClient();
+$router->registerHandler('benefactor', new BenefactorRouteHandler(
+    new PatreonOAuthClient(
+        (string) (getenv('PATREON_CLIENT_ID') ?: ''),
+        (string) (getenv('PATREON_CLIENT_SECRET') ?: ''),
+        $patreonHttp
+    ),
+    new MemberCache(
+        new PatreonMemberService($patreonHttp),
+        FilePath::fromString(sys_get_temp_dir() . '/benefactor_cache')
+    ),
+    new MemberMarkup(),
+    $benefactorSession,
+    $base_url . $env_prefix . '/benefactor',
+    new BenefactorRequest(
+        isset($_GET['code']) && is_string($_GET['code']) ? $_GET['code'] : null,
+        isset($_GET['state']) && is_string($_GET['state']) ? $_GET['state'] : null,
+        isset($_GET['error']) && is_string($_GET['error']) ? $_GET['error'] : null
+    )
+));
+
 if ($path === '/cv') {
     header('Vary: Accept-Language');
 }
 
 $routeResult = $router->route($path);
+
+if ($routeResult->getRedirectUrl() !== null) {
+    http_response_code($routeResult->getStatusCode()->getValue());
+    header('Location: ' . str_replace(["\r", "\n"], '', $routeResult->getRedirectUrl()));
+    exit;
+}
 
 http_response_code($routeResult->getStatusCode()->getValue());
 

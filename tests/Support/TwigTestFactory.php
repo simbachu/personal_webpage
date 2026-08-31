@@ -47,6 +47,7 @@ final class TwigTestFactory
         $loader->addPath($root . '/src/Site/templates', 'site');
         $loader->addPath($root . '/src/Dex/templates', 'dex');
         $loader->addPath($root . '/src/Cv/templates', 'cv');
+        $loader->addPath($root . '/src/Benefactor/templates', 'benefactor');
         return $loader;
     }
 
