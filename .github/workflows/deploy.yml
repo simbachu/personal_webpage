@@ -117,9 +117,10 @@ jobs:
           )
           PY
 
-          REMOTE_SECRET="./${{ steps.deploy_path.outputs.private }}secrets.php"
+          REMOTE_SECRET="${{ steps.deploy_path.outputs.private }}secrets.php"
 
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT || 22 }} \
+          rsync -avz \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
             secrets.php \
             "${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${REMOTE_SECRET}"
 
