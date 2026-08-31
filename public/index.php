@@ -74,7 +74,31 @@ function resolve_private_root(string $base_path, string $env_prefix): string
     die('Error: Could not find private application root with src/ and content/');
 }
 
+//! @brief Load private secrets.php into the process environment
+//! @param private_root Absolute path to the private app root
+function apply_private_secrets(string $private_root): void
+{
+    $path = $private_root . '/secrets.php';
+    if (!is_file($path)) {
+        return;
+    }
+
+    $secrets = require $path;
+    if (!is_array($secrets)) {
+        return;
+    }
+
+    foreach ($secrets as $key => $value) {
+        if (!is_string($key) || $key === '' || !is_string($value)) {
+            continue;
+        }
+        putenv($key . '=' . $value);
+        $_ENV[$key] = $value;
+    }
+}
+
 $private_root = resolve_private_root($base_path, $env_prefix);
+apply_private_secrets($private_root);
 $site_content_path = $private_root . '/content/site';
 $dex_content_path = $private_root . '/content/dex';
 $cv_content_path = $private_root . '/content/cv';

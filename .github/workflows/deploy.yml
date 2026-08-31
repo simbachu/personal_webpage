@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set deployment paths
         id: deploy_path
@@ -91,6 +91,44 @@ jobs:
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
             ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ steps.deploy_path.outputs.private }}
 
+      - name: Write Patreon secrets on server
+        env:
+          PATREON_CLIENT_ID: ${{ secrets.PATREON_CLIENT_ID }}
+          PATREON_CLIENT_SECRET: ${{ secrets.PATREON_CLIENT_SECRET }}
+        run: |
+          if [ -z "$PATREON_CLIENT_ID" ] || [ -z "$PATREON_CLIENT_SECRET" ]; then
+            echo "PATREON_CLIENT_ID and PATREON_CLIENT_SECRET must be set as GitHub Actions secrets"
+            exit 1
+          fi
+
+          python3 <<'PY'
+          import os
+          from pathlib import Path
+
+          def php_single_quoted(value: str) -> str:
+              return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'"
+
+          Path("secrets.php").write_text(
+              "<?php\nreturn [\n"
+              f"    'PATREON_CLIENT_ID' => {php_single_quoted(os.environ['PATREON_CLIENT_ID'])},\n"
+              f"    'PATREON_CLIENT_SECRET' => {php_single_quoted(os.environ['PATREON_CLIENT_SECRET'])},\n"
+              "];\n",
+              encoding="utf-8",
+          )
+          PY
+
+          REMOTE_SECRET="./${{ steps.deploy_path.outputs.private }}secrets.php"
+
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT || 22 }} \
+            secrets.php \
+            "${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${REMOTE_SECRET}"
+
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            "chmod 600 '${REMOTE_SECRET}'"
+
+          rm -f secrets.php
+
       - name: Deploy public files
         run: |
           echo "Deploying to public path: ${{ steps.deploy_path.outputs.public }}"
@@ -114,7 +152,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }} \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-            "cd ${{ steps.deploy_path.outputs.private }} && php -r \"require 'vendor/autoload.php'; if (!class_exists('App\\\\Site\\\\Home\\\\ContentRepository')) { echo 'ERROR: Autoloader verification failed'; exit(1); } echo 'Autoloader OK';\""
+            "cd ${{ steps.deploy_path.outputs.private }} && php -r \"require 'vendor/autoload.php'; if (!class_exists('App\\\\Site\\\\Home\\\\ContentRepository')) { echo 'ERROR: Autoloader verification failed'; exit(1); } echo 'Autoloader OK'; if (!is_readable('secrets.php')) { echo ' ERROR: secrets.php missing or unreadable'; exit(1); } echo ' secrets.php present';\""
 
       - name: Cleanup SSH key
         if: always()
